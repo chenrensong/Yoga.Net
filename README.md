@@ -82,6 +82,59 @@ dotnet run --project tests/Yoga.Net.Tests/Yoga.Net.Tests.csproj
 dotnet pack --configuration Release
 ```
 
+## Benchmarks
+
+Yoga.Net includes a benchmark suite to measure layout performance. The benchmarks compare C# performance against the original C++ implementation.
+
+### Running C# Benchmarks
+
+```bash
+# Run simple benchmark
+dotnet run --project tests/Yoga.Net.Benchmarks/Yoga.Net.Benchmarks.csproj --configuration Release -- --simple
+
+# Run full BenchmarkDotNet suite (requires capture files from yoga repo)
+dotnet run --project tests/Yoga.Net.Benchmarks/Yoga.Net.Benchmarks.csproj --configuration Release
+```
+
+### C# Performance Results
+
+**Environment:**
+- Runtime: .NET 10.0.5
+- OS: Windows 11 (10.0.26200)
+- CPU: 13th Gen Intel Core i9-13900HX
+
+**Results:**
+
+| Test | Time (ms/op) | Ops/sec |
+|------|-------------:|--------:|
+| Stack with flex (10 children) | 0.10 | 10,011 |
+| Align stretch (10 children) | 0.07 | 13,608 |
+| Simple layout (5 nodes) | 0.03 | 32,369 |
+| Row layout (10 children) | 0.06 | 17,577 |
+
+### C++ vs C# Comparison
+
+To compare with the original C++ implementation:
+
+```bash
+# Build C++ benchmarks (requires CMake)
+cd /path/to/yoga/benchmark
+cmake -B build -S . -D CMAKE_BUILD_TYPE=Release
+cmake --build build
+
+# Run C++ benchmark
+./build/benchmark ./captures
+```
+
+| Test | C++ (ms/op) | C# (ms/op) | Ratio |
+|------|-------------|------------|-------|
+| Stack with flex (10 children) | *TBD* | 0.10 | *TBD* |
+| Align stretch (10 children) | *TBD* | 0.07 | *TBD* |
+| Simple layout (5 nodes) | *TBD* | 0.03 | *TBD* |
+| Row layout (10 children) | *TBD* | 0.06 | *TBD* |
+
+> **Note:** C++ benchmark results need to be run locally for comparison. The C# implementation aims for performance parity with the original C++ code while maintaining idiomatic C# patterns and AOT compatibility.
+
 ## Project Structure
 
 The project mirrors the original C++ source layout:
