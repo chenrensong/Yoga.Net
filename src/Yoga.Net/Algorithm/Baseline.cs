@@ -12,12 +12,14 @@ namespace Facebook.Yoga
         {
             if (node.HasBaselineFunc())
             {
-                // Event.Publish for baseline start
+                Event.Publish(node, EventType.NodeBaselineStart);
+
                 float baseline = node.Baseline(
                     node.Layout.MeasuredDimension(Dimension.Width),
                     node.Layout.MeasuredDimension(Dimension.Height));
 
-                // Event.Publish for baseline end
+                Event.Publish(node, EventType.NodeBaselineEnd);
+
                 Debug.AssertFatal.AssertWithNode(
                     node,
                     !float.IsNaN(baseline),

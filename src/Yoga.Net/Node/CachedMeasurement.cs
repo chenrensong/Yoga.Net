@@ -8,7 +8,7 @@ namespace Facebook.Yoga
         }
     }
 
-    public struct CachedMeasurement
+    public struct CachedMeasurement : IEquatable<CachedMeasurement>
     {
         public float AvailableWidth;
         public float AvailableHeight;
@@ -70,7 +70,7 @@ namespace Facebook.Yoga
             return !left.Equals(right);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is CachedMeasurement measurement && Equals(measurement);
         }

@@ -242,7 +242,7 @@ namespace Facebook.Yoga
                     child, childWidth, childHeight, direction,
                     childWidthSizingMode, childHeightSizingMode,
                     ownerWidth, ownerHeight, false,
-                    LayoutPassReason.kMeasureChild,
+                    LayoutPassReason.MeasureChild,
                     ref layoutMarkerData, depth, generationCount);
 
                 child.SetLayoutComputedFlexBasis(new FloatOptional(
@@ -296,9 +296,23 @@ namespace Facebook.Yoga
             }
             else
             {
+                Event.Publish(node, EventType.MeasureCallbackStart);
+
                 var measuredSize = node.Measure(
                     innerWidth, widthSizingMode.ToMeasureMode(),
                     innerHeight, heightSizingMode.ToMeasureMode());
+
+                Event.Publish(node, EventType.MeasureCallbackEnd,
+                    new Event.MeasureCallbackEndData
+                    {
+                        Width = innerWidth,
+                        WidthMeasureMode = widthSizingMode.ToMeasureMode(),
+                        Height = innerHeight,
+                        HeightMeasureMode = heightSizingMode.ToMeasureMode(),
+                        MeasuredWidth = measuredSize.Width,
+                        MeasuredHeight = measuredSize.Height,
+                        Reason = reason,
+                    });
 
                 layoutMarkerData.MeasureCallbacks += 1;
                 layoutMarkerData.MeasureCallbackReasonsCount[(int)reason] += 1;
@@ -451,7 +465,7 @@ namespace Facebook.Yoga
             ref LayoutData layoutMarkerData, uint depth, uint generationCount)
         {
             float totalOuterFlexBasis = 0.0f;
-            Node singleFlexChild = null;
+            Node? singleFlexChild = null;
             var children = node.GetLayoutChildren();
             SizingMode sizingModeMainDim =
                 mainAxis.IsRow() ? widthSizingMode : heightSizingMode;
@@ -654,7 +668,7 @@ namespace Facebook.Yoga
                     childWidthSizingMode, childHeightSizingMode,
                     availableInnerWidth, availableInnerHeight,
                     isLayoutPass,
-                    isLayoutPass ? LayoutPassReason.kFlexLayout : LayoutPassReason.kFlexMeasure,
+                    isLayoutPass ? LayoutPassReason.FlexLayout : LayoutPassReason.FlexMeasure,
                     ref layoutMarkerData, depth, generationCount);
                 node.SetLayoutHadOverflow(
                     node.Layout.HadOverflow() || currentLineChild.Layout.HadOverflow());
@@ -1210,7 +1224,7 @@ namespace Facebook.Yoga
                                 CalculateLayoutInternal(child, childWidthS, childHeightS, direction,
                                     childWidthSizingMode, childHeightSizingMode,
                                     availableInnerWidth, availableInnerHeight,
-                                    true, LayoutPassReason.kStretch,
+                                    true, LayoutPassReason.Stretch,
                                     ref layoutMarkerData, depth, generationCount);
                             }
                 }
@@ -1386,7 +1400,7 @@ namespace Facebook.Yoga
                                             CalculateLayoutInternal(child, childWidthML, childHeightML, direction,
                                                 SizingMode.StretchFit, SizingMode.StretchFit,
                                                 availableInnerWidth, availableInnerHeight,
-                                                true, LayoutPassReason.kMultilineStretch,
+                                                true, LayoutPassReason.MultilineStretch,
                                                 ref layoutMarkerData, depth, generationCount);
                                         }
                                     }
@@ -1613,23 +1627,25 @@ namespace Facebook.Yoga
                 if (layout.NextCachedMeasurementsIndex == LayoutResults.MaxCachedMeasurements)
                     layout.NextCachedMeasurementsIndex = 0;
 
-                    CachedMeasurement newCacheEntry;
+                var newCacheEntry = new CachedMeasurement
+                {
+                    AvailableWidth = availableWidth,
+                    AvailableHeight = availableHeight,
+                    WidthSizingMode = widthSizingMode,
+                    HeightSizingMode = heightSizingMode,
+                    ComputedWidth = layout.MeasuredDimension(Dimension.Width),
+                    ComputedHeight = layout.MeasuredDimension(Dimension.Height),
+                };
+
                 if (performLayout)
                 {
-                    newCacheEntry = layout.CachedLayout;
+                    layout.CachedLayout = newCacheEntry;
                 }
                 else
                 {
-                    newCacheEntry = layout.CachedMeasurements[layout.NextCachedMeasurementsIndex];
+                    layout.CachedMeasurements[layout.NextCachedMeasurementsIndex] = newCacheEntry;
                     layout.NextCachedMeasurementsIndex++;
                 }
-
-                newCacheEntry.AvailableWidth = availableWidth;
-                newCacheEntry.AvailableHeight = availableHeight;
-                newCacheEntry.WidthSizingMode = widthSizingMode;
-                newCacheEntry.HeightSizingMode = heightSizingMode;
-                newCacheEntry.ComputedWidth = layout.MeasuredDimension(Dimension.Width);
-                newCacheEntry.ComputedHeight = layout.MeasuredDimension(Dimension.Height);
             }
         }
 
@@ -1642,12 +1658,26 @@ namespace Facebook.Yoga
         }
 
         layout.GenerationCount = generationCount;
+
+        LayoutType layoutType;
+        if (performLayout)
+        {
+            layoutType = cachedResults != null ? LayoutType.CachedLayout : LayoutType.Layout;
+        }
+        else
+        {
+            layoutType = cachedResults != null ? LayoutType.CachedMeasure : LayoutType.Measure;
+        }
+        Event.Publish(node, EventType.NodeLayout,
+            new Event.NodeLayoutData { LayoutType = layoutType });
+
         return (needToVisitNode || cachedResults == null);
     }
 
         public static void CalculateLayout(
             Node node, float ownerWidth, float ownerHeight, Direction ownerDirection)
         {
+        Event.Publish(node, EventType.LayoutPassStart);
         LayoutData markerData = new LayoutData();
             gCurrentGenerationCount++;
             node.ProcessDimensions();
@@ -1694,11 +1724,14 @@ namespace Facebook.Yoga
 
             if (CalculateLayoutInternal(node, width, height, ownerDirection,
                     widthSizingMode, heightSizingMode, ownerWidth, ownerHeight,
-                    true, LayoutPassReason.kInitial, ref markerData, 0, gCurrentGenerationCount))
+                    true, LayoutPassReason.Initial, ref markerData, 0, gCurrentGenerationCount))
             {
                 node.SetPosition(node.Layout.GetDirection(), ownerWidth, ownerHeight);
                 PixelGrid.RoundLayoutResultsToPixelGrid(node, 0.0f, 0.0f);
             }
+
+        Event.Publish(node, EventType.LayoutPassEnd,
+            new Event.LayoutPassEndData { LayoutData = markerData });
         }
     }
 

@@ -1,29 +1,35 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Facebook.Yoga
 {
     internal static class Comparison
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsUndefined(float value)
         {
             return float.IsNaN(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsUndefined(double value)
         {
             return double.IsNaN(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsDefined(float value)
         {
             return !float.IsNaN(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsDefined(double value)
         {
             return !double.IsNaN(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float MaxOrDefined(float a, float b)
         {
             if (IsDefined(a) && IsDefined(b))
@@ -33,6 +39,7 @@ namespace Facebook.Yoga
             return IsUndefined(a) ? b : a;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double MaxOrDefined(double a, double b)
         {
             if (IsDefined(a) && IsDefined(b))
@@ -42,6 +49,7 @@ namespace Facebook.Yoga
             return IsUndefined(a) ? b : a;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float MinOrDefined(float a, float b)
         {
             if (IsDefined(a) && IsDefined(b))
@@ -51,6 +59,7 @@ namespace Facebook.Yoga
             return IsUndefined(a) ? b : a;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double MinOrDefined(double a, double b)
         {
             if (IsDefined(a) && IsDefined(b))
@@ -60,6 +69,7 @@ namespace Facebook.Yoga
             return IsUndefined(a) ? b : a;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool InexactEquals(float a, float b)
         {
             if (IsDefined(a) && IsDefined(b))
@@ -69,6 +79,7 @@ namespace Facebook.Yoga
             return IsUndefined(a) && IsUndefined(b);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool InexactEquals(double a, double b)
         {
             if (IsDefined(a) && IsDefined(b))

@@ -2,21 +2,6 @@ using System;
 
 namespace Facebook.Yoga
 {
-    public static partial class YogaGlobal
-    {
-        public static bool InexactEquals(double a, double b)
-        {
-            if (double.IsNaN(a) || double.IsNaN(b))
-            {
-                return double.IsNaN(a) && double.IsNaN(b);
-            }
-            return Math.Abs(a - b) < 1.0e-5;
-        }
-    }
-}
-
-namespace Facebook.Yoga
-{
     public static class PixelGrid
     {
         public const float YGUndefined = float.NaN;
@@ -35,11 +20,11 @@ namespace Facebook.Yoga
                 fractial += 1.0;
             }
 
-            if (YogaGlobal.InexactEquals(fractial, 0))
+            if (Comparison.InexactEquals(fractial, 0.0))
             {
                 scaledValue = scaledValue - fractial;
             }
-            else if (YogaGlobal.InexactEquals(fractial, 1.0))
+            else if (Comparison.InexactEquals(fractial, 1.0))
             {
                 scaledValue = scaledValue - fractial + 1.0;
             }
@@ -55,7 +40,7 @@ namespace Facebook.Yoga
             {
                 scaledValue = scaledValue - fractial +
                     (!double.IsNaN(fractial) &&
-                         (fractial > 0.5 || YogaGlobal.InexactEquals(fractial, 0.5))
+                         (fractial > 0.5 || Comparison.InexactEquals(fractial, 0.5))
                      ? 1.0
                      : 0.0);
             }
@@ -70,7 +55,7 @@ namespace Facebook.Yoga
             double absoluteLeft,
             double absoluteTop)
         {
-            var pointScaleFactor = (double)node.GetConfig().GetPointScaleFactor();
+            var pointScaleFactor = (double)node.GetConfig()!.GetPointScaleFactor();
 
             double nodeLeft = node.GetLayout().Position(PhysicalEdge.Left);
             double nodeTop = node.GetLayout().Position(PhysicalEdge.Top);
@@ -98,11 +83,11 @@ namespace Facebook.Yoga
 
                 double scaledNodeWith = nodeWidth * pointScaleFactor;
                 bool hasFractionalWidth =
-                    !YogaGlobal.InexactEquals(Math.Round(scaledNodeWith), scaledNodeWith);
+                    !Comparison.InexactEquals(Math.Round(scaledNodeWith), scaledNodeWith);
 
                 double scaledNodeHeight = nodeHeight * pointScaleFactor;
                 bool hasFractionalHeight =
-                    !YogaGlobal.InexactEquals(Math.Round(scaledNodeHeight), scaledNodeHeight);
+                    !Comparison.InexactEquals(Math.Round(scaledNodeHeight), scaledNodeHeight);
 
                 node.GetLayout().SetDimension(
                     Dimension.Width,

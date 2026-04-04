@@ -99,7 +99,7 @@ namespace Facebook.Yoga
             {
                 return 3;
             }
-            throw new NotSupportedException($"Type {typeof(TEnum).Name} does not have ordinality defined.");
+            throw new NotSupportedException("Unsupported enum type does not have ordinality defined.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

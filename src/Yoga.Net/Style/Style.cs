@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Facebook.Yoga
@@ -50,7 +49,7 @@ namespace Facebook.Yoga
         private GridLine _gridRowStart = new GridLine();
         private GridLine _gridRowEnd = new GridLine();
 
-        private readonly StyleValuePool _pool = new StyleValuePool();
+        private StyleValuePool _pool = new StyleValuePool();
 
         public Style()
         {
@@ -689,7 +688,54 @@ namespace Facebook.Yoga
             return ComputeMargin(axis.InlineEndEdge(direction), direction).IsAuto();
         }
 
-        public override bool Equals(object obj)
+        public Style Clone()
+        {
+            var clone = new Style();
+            clone._direction = _direction;
+            clone._flexDirection = _flexDirection;
+            clone._justifyContent = _justifyContent;
+            clone._justifyItems = _justifyItems;
+            clone._justifySelf = _justifySelf;
+            clone._alignContent = _alignContent;
+            clone._alignItems = _alignItems;
+            clone._alignSelf = _alignSelf;
+            clone._positionType = _positionType;
+            clone._flexWrap = _flexWrap;
+            clone._overflow = _overflow;
+            clone._display = _display;
+            clone._boxSizing = _boxSizing;
+
+            clone._flex = _flex;
+            clone._flexGrow = _flexGrow;
+            clone._flexShrink = _flexShrink;
+            clone._flexBasis = _flexBasis;
+            clone._aspectRatio = _aspectRatio;
+
+            Array.Copy(_margin, clone._margin, _margin.Length);
+            Array.Copy(_position, clone._position, _position.Length);
+            Array.Copy(_padding, clone._padding, _padding.Length);
+            Array.Copy(_border, clone._border, _border.Length);
+            Array.Copy(_gap, clone._gap, _gap.Length);
+            Array.Copy(_dimensions, clone._dimensions, _dimensions.Length);
+            Array.Copy(_minDimensions, clone._minDimensions, _minDimensions.Length);
+            Array.Copy(_maxDimensions, clone._maxDimensions, _maxDimensions.Length);
+
+            clone._gridTemplateColumns = new GridTrackList(_gridTemplateColumns);
+            clone._gridTemplateRows = new GridTrackList(_gridTemplateRows);
+            clone._gridAutoColumns = new GridTrackList(_gridAutoColumns);
+            clone._gridAutoRows = new GridTrackList(_gridAutoRows);
+            clone._gridColumnStart = _gridColumnStart;
+            clone._gridColumnEnd = _gridColumnEnd;
+            clone._gridRowStart = _gridRowStart;
+            clone._gridRowEnd = _gridRowEnd;
+
+            // Deep clone the pool - handles reference indices into the pool
+            clone._pool = _pool.Clone();
+
+            return clone;
+        }
+
+        public override bool Equals(object? obj)
         {
             if (obj is not Style other)
                 return false;

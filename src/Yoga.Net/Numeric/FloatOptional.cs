@@ -3,9 +3,11 @@
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 
+using System.Runtime.CompilerServices;
+
 namespace Facebook.Yoga;
 
-public readonly struct FloatOptional
+public readonly struct FloatOptional : IEquatable<FloatOptional>
 {
     private readonly float _value;
 
@@ -18,18 +20,22 @@ public readonly struct FloatOptional
         _value = value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public float Unwrap() => _value;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public float UnwrapOrDefault(float defaultValue)
     {
         return IsUndefined() ? defaultValue : _value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsUndefined()
     {
         return float.IsNaN(_value);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsDefined()
     {
         return !float.IsNaN(_value);
@@ -101,6 +107,12 @@ public readonly struct FloatOptional
     public static bool InexactEquals(FloatOptional lhs, FloatOptional rhs)
     {
         return Comparison.InexactEquals(lhs._value, rhs._value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Equals(FloatOptional other)
+    {
+        return this == other;
     }
 
     public override bool Equals(object? obj)

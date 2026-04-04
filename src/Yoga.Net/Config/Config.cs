@@ -1,60 +1,50 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Facebook.Yoga
 {
     public delegate void YGLogger(Config config, Node node, LogLevel logLevel, string message);
-    public delegate Node YGCloneNodeFunc(Node node, Node owner, int childIndex);
+    public delegate Node? YGCloneNodeFunc(Node node, Node owner, int childIndex);
 
     public sealed class ExperimentalFeatureSet : IEquatable<ExperimentalFeatureSet>
     {
-        private readonly HashSet<ExperimentalFeature> _features = new HashSet<ExperimentalFeature>();
+        private uint _bits;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Set(ExperimentalFeature feature, bool enabled)
         {
+            uint mask = 1u << (int)feature;
             if (enabled)
-            {
-                _features.Add(feature);
-            }
+                _bits |= mask;
             else
-            {
-                _features.Remove(feature);
-            }
+                _bits &= ~mask;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Test(ExperimentalFeature feature)
         {
-            return _features.Contains(feature);
+            return (_bits & (1u << (int)feature)) != 0;
         }
 
-        public bool Equals(ExperimentalFeatureSet other)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(ExperimentalFeatureSet? other)
         {
-            if (other == null) return false;
-            if (_features.Count != other._features.Count) return false;
-            foreach (var f in _features)
-            {
-                if (!other._features.Contains(f)) return false;
-            }
-            return true;
+            if (other is null) return false;
+            return _bits == other._bits;
         }
 
-        public override bool Equals(object obj) => Equals(obj as ExperimentalFeatureSet);
-        public override int GetHashCode()
-        {
-            int hash = 17;
-            foreach (var f in _features)
-            {
-                hash = hash * 31 + f.GetHashCode();
-            }
-            return hash;
-        }
+        public override bool Equals(object? obj) => Equals(obj as ExperimentalFeatureSet);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode() => (int)_bits;
 
         public static bool operator ==(ExperimentalFeatureSet left, ExperimentalFeatureSet right)
         {
             if (ReferenceEquals(left, right)) return true;
             if (left is null || right is null) return false;
-            return left.Equals(right);
+            return left._bits == right._bits;
         }
 
         public static bool operator !=(ExperimentalFeatureSet left, ExperimentalFeatureSet right) => !(left == right);
@@ -62,7 +52,7 @@ namespace Facebook.Yoga
 
     public class Config
     {
-        private YGCloneNodeFunc _cloneNodeCallback;
+        private YGCloneNodeFunc? _cloneNodeCallback;
         private YGLogger _logger;
 
         private bool _useWebDefaults = false;
@@ -70,7 +60,7 @@ namespace Facebook.Yoga
         private readonly ExperimentalFeatureSet _experimentalFeatures = new ExperimentalFeatureSet();
         private Errata _errata = Errata.None;
         private float _pointScaleFactor = 1.0f;
-        private object _context;
+        private object? _context;
 
         private static readonly YGLogger DefaultLogger = (config, node, level, msg) => { /* Default logger implementation */ };
 
@@ -79,6 +69,7 @@ namespace Facebook.Yoga
         public Config(YGLogger logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _cloneNodeCallback = null;
         }
 
         public void SetUseWebDefaults(bool useWebDefaults)
@@ -161,12 +152,12 @@ namespace Facebook.Yoga
             return _pointScaleFactor;
         }
 
-        public void SetContext(object context)
+        public void SetContext(object? context)
         {
             _context = context;
         }
 
-        public object GetContext()
+        public object? GetContext()
         {
             return _context;
         }
@@ -186,24 +177,15 @@ namespace Facebook.Yoga
             _logger(this, node, logLevel, format);
         }
 
-        public void SetCloneNodeCallback(YGCloneNodeFunc cloneNode)
+        public void SetCloneNodeCallback(YGCloneNodeFunc? cloneNode)
         {
             _cloneNodeCallback = cloneNode;
         }
 
         public Node CloneNode(Node node, Node owner, int childIndex)
         {
-            Node clone = null;
-            if (_cloneNodeCallback != null)
-            {
-                clone = _cloneNodeCallback(node, owner, childIndex);
-            }
-            if (clone == null)
-            {
-                // Return a new node with same config - simplified implementation
-                clone = new Node(node.GetConfig());
-            }
-            return clone;
+            Node? clone = _cloneNodeCallback?.Invoke(node, owner, childIndex);
+            return clone ?? YGNodeAPI.YGNodeClone(node);
         }
 
         public static Config Default => DefaultInstance.Value;

@@ -136,7 +136,7 @@ namespace Facebook.Yoga
             return _value == other._value && _unit == other._unit;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is StyleSizeLength other && Equals(other);
         }

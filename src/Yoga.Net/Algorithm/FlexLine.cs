@@ -4,22 +4,25 @@ using System.Collections.Generic;
 namespace Facebook.Yoga
 {
 
-    public class FlexLineRunningLayout
+    public struct FlexLineRunningLayout
     {
-        public float TotalFlexGrowFactors { get; set; } = 0.0f;
-        public float TotalFlexShrinkScaledFactors { get; set; } = 0.0f;
-        public float RemainingFreeSpace { get; set; } = 0.0f;
-        public float MainDim { get; set; } = 0.0f;
-        public float CrossDim { get; set; } = 0.0f;
-        public float Gap { get; set; } = 0.0f;
-        public float MaxBaseline { get; set; } = 0.0f;
-
-        public FlexLineRunningLayout() { }
+        public float TotalFlexGrowFactors;
+        public float TotalFlexShrinkScaledFactors;
+        public float RemainingFreeSpace;
+        public float MainDim;
+        public float CrossDim;
+        public float Gap;
+        public float MaxBaseline;
 
         public FlexLineRunningLayout(float totalFlexGrowFactors, float totalFlexShrinkScaledFactors)
         {
             TotalFlexGrowFactors = totalFlexGrowFactors;
             TotalFlexShrinkScaledFactors = totalFlexShrinkScaledFactors;
+            RemainingFreeSpace = 0.0f;
+            MainDim = 0.0f;
+            CrossDim = 0.0f;
+            Gap = 0.0f;
+            MaxBaseline = 0.0f;
         }
     }
 
@@ -28,7 +31,7 @@ namespace Facebook.Yoga
         public readonly IReadOnlyList<Node> ItemsInFlow;
         public readonly float SizeConsumed;
         public readonly int NumberOfAutoMargins;
-        public FlexLineRunningLayout Layout { get; set; }
+        public FlexLineRunningLayout Layout;
 
         public FlexLine(IReadOnlyList<Node> itemsInFlow, float sizeConsumed, int numberOfAutoMargins, FlexLineRunningLayout layout)
         {

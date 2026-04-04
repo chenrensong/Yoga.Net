@@ -421,7 +421,7 @@ namespace Facebook.Yoga
                     containingBlockWidth,
                     containingBlockHeight,
                     false,
-                    LayoutPassReason.kAbsMeasureChild,
+                    LayoutPassReason.AbsMeasureChild,
                     ref layoutMarkerData,
                     depth,
                     generationCount);
@@ -443,7 +443,7 @@ namespace Facebook.Yoga
                 containingBlockWidth,
                 containingBlockHeight,
                 true,
-                LayoutPassReason.kAbsLayout,
+                LayoutPassReason.AbsLayout,
                 ref layoutMarkerData,
                 depth,
                 generationCount);

@@ -5,10 +5,10 @@ namespace Facebook.Yoga
 {
     public class SmallValueBuffer<BufferSize> where BufferSize : struct, IConstant
     {
-        private struct Overflow
+        private sealed class Overflow
         {
-            public List<uint> Buffer;
-            public List<bool> WideElements;
+            public List<uint> Buffer = new();
+            public List<bool> WideElements = new();
         }
 
         private const int MaxBufferSize = 4096;
@@ -36,12 +36,12 @@ namespace Facebook.Yoga
             Array.Copy(other._buffer, _buffer, size);
             Array.Copy(other._wideElements, _wideElements, size);
 
-            if (other._overflow.HasValue)
+            if (other._overflow != null)
             {
                 _overflow = new Overflow
                 {
-                    Buffer = new List<uint>(other._overflow.Value.Buffer),
-                    WideElements = new List<bool>(other._overflow.Value.WideElements)
+                    Buffer = new List<uint>(other._overflow.Buffer),
+                    WideElements = new List<bool>(other._overflow.WideElements)
                 };
             }
         }
@@ -60,17 +60,10 @@ namespace Facebook.Yoga
                 return index;
             }
 
-            if (_overflow == null)
-            {
-                _overflow = new Overflow
-                {
-                    Buffer = new List<uint>(),
-                    WideElements = new List<bool>()
-                };
-            }
+            _overflow ??= new Overflow();
 
-            _overflow.Value.Buffer.Add(value);
-            _overflow.Value.WideElements.Add(false);
+            _overflow.Buffer.Add(value);
+            _overflow.WideElements.Add(false);
             return index;
         }
 
@@ -93,7 +86,7 @@ namespace Facebook.Yoga
             }
             else
             {
-                _overflow.Value.WideElements[lsbIndex - BufferSizeValue] = true;
+                _overflow!.WideElements[lsbIndex - BufferSizeValue] = true;
             }
 
             return lsbIndex;
@@ -107,7 +100,7 @@ namespace Facebook.Yoga
             }
             else
             {
-                _overflow.Value.Buffer[index - BufferSizeValue] = value;
+                _overflow!.Buffer[index - BufferSizeValue] = value;
             }
 
             return index;
@@ -117,7 +110,7 @@ namespace Facebook.Yoga
         {
             bool isWide = index < BufferSizeValue
                 ? _wideElements[index]
-                : _overflow.Value.WideElements[index - BufferSizeValue];
+                : _overflow!.WideElements[index - BufferSizeValue];
 
             if (isWide)
             {
@@ -142,7 +135,7 @@ namespace Facebook.Yoga
             }
             else
             {
-                return _overflow.Value.Buffer[index - BufferSizeValue];
+                return _overflow!.Buffer[index - BufferSizeValue];
             }
         }
 

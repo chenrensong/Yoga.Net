@@ -1,30 +1,29 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 namespace Facebook.Yoga
 {
     public enum LayoutType
     {
-        kLayout = 0,
-        kMeasure = 1,
-        kCachedLayout = 2,
-        kCachedMeasure = 3
+        Layout = 0,
+        Measure = 1,
+        CachedLayout = 2,
+        CachedMeasure = 3
     }
 
     public enum LayoutPassReason
     {
-        kInitial = 0,
-        kAbsLayout = 1,
-        kStretch = 2,
-        kMultilineStretch = 3,
-        kFlexLayout = 4,
-        kMeasureChild = 5,
-        kAbsMeasureChild = 6,
-        kFlexMeasure = 7,
-        kGridLayout = 8,
-        COUNT
+        Initial = 0,
+        AbsLayout = 1,
+        Stretch = 2,
+        MultilineStretch = 3,
+        FlexLayout = 4,
+        MeasureChild = 5,
+        AbsMeasureChild = 6,
+        FlexMeasure = 7,
+        GridLayout = 8,
+        Count
     }
 
     public enum YGMeasureMode
@@ -46,7 +45,7 @@ namespace Facebook.Yoga
 
         public LayoutData()
         {
-            MeasureCallbackReasonsCount = new int[(int)LayoutPassReason.COUNT];
+            MeasureCallbackReasonsCount = new int[(int)LayoutPassReason.Count];
         }
     }
 
@@ -56,15 +55,15 @@ namespace Facebook.Yoga
         {
             return value switch
             {
-                LayoutPassReason.kInitial => "initial",
-                LayoutPassReason.kAbsLayout => "abs_layout",
-                LayoutPassReason.kStretch => "stretch",
-                LayoutPassReason.kMultilineStretch => "multiline_stretch",
-                LayoutPassReason.kFlexLayout => "flex_layout",
-                LayoutPassReason.kMeasureChild => "measure",
-                LayoutPassReason.kAbsMeasureChild => "abs_measure",
-                LayoutPassReason.kFlexMeasure => "flex_measure",
-                LayoutPassReason.kGridLayout => "grid_layout",
+                LayoutPassReason.Initial => "initial",
+                LayoutPassReason.AbsLayout => "abs_layout",
+                LayoutPassReason.Stretch => "stretch",
+                LayoutPassReason.MultilineStretch => "multiline_stretch",
+                LayoutPassReason.FlexLayout => "flex_layout",
+                LayoutPassReason.MeasureChild => "measure",
+                LayoutPassReason.AbsMeasureChild => "abs_measure",
+                LayoutPassReason.FlexMeasure => "flex_measure",
+                LayoutPassReason.GridLayout => "grid_layout",
                 _ => "unknown"
             };
         }
@@ -88,14 +87,23 @@ namespace Facebook.Yoga
         public class Data
         {
             private readonly object? _data;
-            private readonly EventType _eventType;
+            public readonly EventType EventType;
 
             internal Data(object? data, EventType eventType)
             {
                 _data = data;
-                _eventType = eventType;
+                EventType = eventType;
             }
 
+            /// <summary>
+            /// Retrieves the typed event data.
+            /// </summary>
+            public T? GetData<T>() where T : class
+            {
+                return _data as T;
+            }
+
+            // Legacy method kept for backward compatibility
             public TypedData<T> Get<T>() where T : EventTypedDataBase, new()
             {
                 if (_data is TypedData<T> typedData)
@@ -131,9 +139,9 @@ namespace Facebook.Yoga
         public class MeasureCallbackEndData : EventTypedDataBase
         {
             public float Width { get; set; }
-            public YGMeasureMode WidthMeasureMode { get; set; }
+            public MeasureMode WidthMeasureMode { get; set; }
             public float Height { get; set; }
-            public YGMeasureMode HeightMeasureMode { get; set; }
+            public MeasureMode HeightMeasureMode { get; set; }
             public float MeasuredWidth { get; set; }
             public float MeasuredHeight { get; set; }
             public LayoutPassReason Reason { get; set; }
@@ -179,7 +187,34 @@ namespace Facebook.Yoga
             }
         }
 
-        public static void Publish<T>(Node? node, in T eventData = default) where T : EventTypedDataBase, new()
+        public static void Unsubscribe(Subscriber? subscriber)
+        {
+            if (subscriber == null)
+                return;
+
+            lock (_lock)
+            {
+                var current = _subscribers.First;
+                while (current != null)
+                {
+                    var next = current.Next;
+                    if (current.Value.Subscriber == subscriber)
+                    {
+                        _subscribers.Remove(current);
+                        break;
+                    }
+                    current = next;
+                }
+            }
+        }
+
+        public static void Publish(Node? node, EventType eventType, object? data = null)
+        {
+            var eventData = new Data(data, eventType);
+            PublishCore(node, eventType, eventData);
+        }
+
+        public static void Publish<T>(Node? node, in T? eventData = default) where T : EventTypedDataBase, new()
         {
             var data = new Data(eventData, GetEventType<T>());
             PublishCore(node, GetEventType<T>(), data);
@@ -190,25 +225,51 @@ namespace Facebook.Yoga
             PublishCore(node, eventType, eventData);
         }
 
+        [ThreadStatic]
+        private static Subscriber[]? t_subscriberBuffer;
+
         private static void PublishCore(Node? node, EventType eventType, Data eventData)
         {
-            List<Subscriber>? subscribersCopy;
+            int count;
+            Subscriber[] buffer;
+
             lock (_lock)
             {
-                subscribersCopy = _subscribers.Select(n => n.Subscriber).ToList();
+                int subscriberCount = _subscribers.Count;
+                if (subscriberCount == 0) return;
+
+                // Reuse thread-local buffer to avoid per-call allocation
+                buffer = t_subscriberBuffer ?? Array.Empty<Subscriber>();
+                if (buffer.Length < subscriberCount)
+                {
+                    buffer = new Subscriber[subscriberCount];
+                    t_subscriberBuffer = buffer;
+                }
+
+                count = 0;
+                foreach (var n in _subscribers)
+                {
+                    if (n.Subscriber is { } sub)
+                    {
+                        buffer[count++] = sub;
+                    }
+                }
             }
 
-            foreach (var subscriber in subscribersCopy)
+            for (int i = 0; i < count; i++)
             {
                 try
                 {
-                    subscriber?.Invoke(node, eventType, eventData);
+                    buffer[i].Invoke(node, eventType, eventData);
                 }
                 catch
                 {
                     // Swallow exceptions to match C++ behavior
                 }
             }
+
+            // Clear references to avoid leaking
+            Array.Clear(buffer, 0, count);
         }
 
         private static EventType GetEventType<T>() where T : EventTypedDataBase, new()

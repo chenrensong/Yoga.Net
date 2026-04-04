@@ -1,17 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <RootNamespace>Yoga</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+
+    <!-- AOT Support -->
+    <IsAotCompatible>true</IsAotCompatible>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <IsTrimmable>true</IsTrimmable>
+
+    <!-- NuGet Package Configuration -->
     <IsPackable>true</IsPackable>
     <PackageId>Yoga.Net</PackageId>
-    <Description>A C# port of Facebook's Yoga - a cross-platform layout engine implementing Flexbox.</Description>
+    <Version>3.2.0</Version>
+    <Authors>chenrensong</Authors>
+    <Description>A high-performance C# port of Meta's Yoga layout engine. Implements Flexbox and CSS Grid layout with full AOT/NativeAOT support. Zero reflection, zero LINQ — designed for performance-critical scenarios.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>yoga;flexbox;layout;css;grid;facebook;meta;aot;nativeaot;trimming</PackageTags>
     <RepositoryUrl>https://github.com/chenrensong/Yoga.Net</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/chenrensong/Yoga.Net</PackageProjectUrl>
     <Copyright>Copyright (c) 2026 Chen Ren Song; Copyright (c) Meta Platforms, Inc. and its affiliates.</Copyright>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
 </Project>

@@ -2,7 +2,7 @@ using System;
 
 namespace Facebook.Yoga
 {
-    public struct YGValue
+    public struct YGValue : IEquatable<YGValue>
     {
         public float Value;
         public Unit Unit;
@@ -12,6 +12,36 @@ namespace Facebook.Yoga
             Value = value;
             Unit = unit;
         }
+
+        public bool Equals(YGValue other)
+        {
+            if (Unit != other.Unit)
+                return false;
+
+            return Unit switch
+            {
+                Unit.Undefined or Unit.Auto or Unit.FitContent or Unit.MaxContent or Unit.Stretch => true,
+                Unit.Point or Unit.Percent => Value == other.Value,
+                _ => false,
+            };
+        }
+
+        public override bool Equals(object? obj) => obj is YGValue other && Equals(other);
+
+        public override int GetHashCode()
+        {
+            return Unit switch
+            {
+                Unit.Undefined or Unit.Auto or Unit.FitContent or Unit.MaxContent or Unit.Stretch
+                    => HashCode.Combine(Unit),
+                _ => HashCode.Combine(Value, Unit),
+            };
+        }
+
+        public static bool operator ==(YGValue lhs, YGValue rhs) => lhs.Equals(rhs);
+        public static bool operator !=(YGValue lhs, YGValue rhs) => !lhs.Equals(rhs);
+
+        public static YGValue operator -(YGValue value) => new(-value.Value, value.Unit);
     }
 
     public class StyleLength : IEquatable<StyleLength>

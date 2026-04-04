@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Facebook.Yoga
@@ -19,8 +18,6 @@ namespace Facebook.Yoga
 
     public class Node
     {
-        // Constants
-        private static int BitCount<T>() where T : Enum => Enum.GetValues(typeof(T)).Length;
 
         // Members
         private bool _hasNewLayout = true;
@@ -54,7 +51,7 @@ namespace Facebook.Yoga
         public bool HasNewLayout { get => _hasNewLayout; set => SetHasNewLayout(value); }
         public bool AlwaysFormsContainingBlock { get => _alwaysFormsContainingBlock; set => _alwaysFormsContainingBlock = value; }
         
-        public IEnumerable<Node> LayoutChildren => GetLayoutChildren();
+        public LayoutableChildren<Node> LayoutChildren => GetLayoutChildren();
 
         // Constructors
         public Node() : this(Config.Default) { }
@@ -69,7 +66,9 @@ namespace Facebook.Yoga
             }
         }
 
-        // Move Constructor equivalent in C# (usually done via method or copy, but here is logic)
+        // Copy constructor equivalent in C# - creates a deep copy of the node's own data
+        // but a shallow copy of child pointers (same as C++ default copy constructor).
+        // Does NOT change children's owner - that's the key difference from C++ move constructor.
         public void MoveFrom(Node other)
         {
             _hasNewLayout = other._hasNewLayout;
@@ -81,19 +80,14 @@ namespace Facebook.Yoga
             _measureFunc = other._measureFunc;
             _baselineFunc = other._baselineFunc;
             _dirtiedFunc = other._dirtiedFunc;
-            _style = other._style; // Needs copy in real impl
-            _layout = other._layout; // Needs copy
+            _style = other._style.Clone();
+            _layout = other._layout.Clone();
             _lineIndex = other._lineIndex;
             _contentsChildrenCount = other._contentsChildrenCount;
             _owner = other._owner;
-            _children = other._children;
+            _children = new List<Node>(other._children);
             _config = other._config;
-            _processedDimensions = other._processedDimensions;
-
-            foreach (var child in _children)
-            {
-                child.SetOwner(this);
-            }
+            _processedDimensions = (StyleSizeLength[])other._processedDimensions.Clone();
         }
 
         // Getters
@@ -157,24 +151,15 @@ namespace Facebook.Yoga
         public nuint GetLineIndex() => _lineIndex;
         public bool IsReferenceBaseline() => _isReferenceBaseline;
         public Node? GetOwner() => _owner;
-        public List<Node> GetChildren() => _children;
+        public IReadOnlyList<Node> GetChildren() => _children;
         
         public Node? GetChild(nuint index) => _children[(int)index];
         public nuint GetChildCount() => (nuint)_children.Count;
 
         // Layout Children (Iterator)
-        public IEnumerable<Node> GetLayoutChildren()
+        public LayoutableChildren<Node> GetLayoutChildren()
         {
-            // Simplified: if contentsChildrenCount == 0 return children, else filter
-            if (_contentsChildrenCount == 0)
-            {
-                return _children;
-            }
-            else
-            {
-                // Logic from LayoutableChildren
-                return _children.Where(c => true); // Placeholder logic
-            }
+            return new LayoutableChildren<Node>(this);
         }
 
         public nuint GetLayoutChildCount()
@@ -390,17 +375,21 @@ namespace Facebook.Yoga
 
         public void ProcessDimensions()
         {
-            foreach (Dimension dim in new[] { Dimension.Width, Dimension.Height })
+            ProcessSingleDimension(Dimension.Width);
+            ProcessSingleDimension(Dimension.Height);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessSingleDimension(Dimension dim)
+        {
+            if (_style.MaxDimension(dim).IsDefined() &&
+                Comparison.InexactEquals(_style.MaxDimension(dim).Resolve(float.NaN).Unwrap(), _style.MinDimension(dim).Resolve(float.NaN).Unwrap()))
             {
-                if (_style.MaxDimension(dim).IsDefined() &&
-                    Comparison.InexactEquals(_style.MaxDimension(dim).Resolve(float.NaN).Unwrap(), _style.MinDimension(dim).Resolve(float.NaN).Unwrap()))
-                {
-                    _processedDimensions[(int)dim] = _style.MaxDimension(dim);
-                }
-                else
-                {
-                    _processedDimensions[(int)dim] = _style.Dimension(dim);
-                }
+                _processedDimensions[(int)dim] = _style.MaxDimension(dim);
+            }
+            else
+            {
+                _processedDimensions[(int)dim] = _style.Dimension(dim);
             }
         }
 
@@ -421,22 +410,42 @@ namespace Facebook.Yoga
 
         public void ReplaceChild(Node child, nuint index)
         {
-            // Simplified logic for contentsChildrenCount
             var previousChild = _children[(int)index];
-            // Update contents children count based on Display::Contents logic
+            if (previousChild.Style.Display == Display.Contents &&
+                child.Style.Display != Display.Contents)
+            {
+                _contentsChildrenCount--;
+            }
+            else if (previousChild.Style.Display != Display.Contents &&
+                     child.Style.Display == Display.Contents)
+            {
+                _contentsChildrenCount++;
+            }
             _children[(int)index] = child;
         }
 
         public void ReplaceChild(Node oldChild, Node newChild)
         {
-            // Update contents children count
+            if (oldChild.Style.Display == Display.Contents &&
+                newChild.Style.Display != Display.Contents)
+            {
+                _contentsChildrenCount--;
+            }
+            else if (oldChild.Style.Display != Display.Contents &&
+                     newChild.Style.Display == Display.Contents)
+            {
+                _contentsChildrenCount++;
+            }
             int index = _children.IndexOf(oldChild);
             if (index >= 0) _children[index] = newChild;
         }
 
         public void InsertChild(Node child, nuint index)
         {
-            // contents children count logic
+            if (child.Style.Display == Display.Contents)
+            {
+                _contentsChildrenCount++;
+            }
             _children.Insert((int)index, child);
         }
 
@@ -445,13 +454,20 @@ namespace Facebook.Yoga
             bool removed = _children.Remove(child);
             if (removed)
             {
-                // contents children count logic
+                if (child.Style.Display == Display.Contents)
+                {
+                    _contentsChildrenCount--;
+                }
             }
             return removed;
         }
 
         public void RemoveChild(nuint index)
         {
+            if (_children[(int)index].Style.Display == Display.Contents)
+            {
+                _contentsChildrenCount--;
+            }
             _children.RemoveAt((int)index);
         }
 

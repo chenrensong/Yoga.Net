@@ -7,7 +7,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Facebook.Yoga
 {
@@ -29,7 +28,8 @@ namespace Facebook.Yoga
                 "Tried to construct YGNode with null config");
 
             var node = new Node(config);
-            // Event publishing (NodeAllocation) - simplified for now
+            Event.Publish(node, EventType.NodeAllocation,
+                new Event.NodeAllocationData { Config = config });
             return node;
         }
 
@@ -37,6 +37,8 @@ namespace Facebook.Yoga
         {
             var node = new Node(oldNode.GetConfig());
             node.MoveFrom(oldNode);
+            Event.Publish(node, EventType.NodeAllocation,
+                new Event.NodeAllocationData { Config = node.GetConfig() });
             node.SetOwner(null);
             return node;
         }
@@ -58,6 +60,8 @@ namespace Facebook.Yoga
             }
 
             node.ClearChildren();
+            Event.Publish(node, EventType.NodeDeallocation,
+                new Event.NodeDeallocationData { Config = node.GetConfig() });
         }
 
         public static void YGNodeFreeRecursive(Node root)
@@ -234,9 +238,10 @@ namespace Facebook.Yoga
             {
                 if (owner.GetChildCount() > 0)
                 {
+                    var childrenSet = new HashSet<Node>(children);
                     foreach (var oldChild in owner.GetChildren())
                     {
-                        if (!children.Contains(oldChild))
+                        if (!childrenSet.Contains(oldChild))
                         {
                             oldChild.SetLayout(new LayoutResults());
                             oldChild.SetOwner(null);
@@ -244,7 +249,7 @@ namespace Facebook.Yoga
                     }
                 }
 
-                var childrenList = children.ToList();
+                var childrenList = new List<Node>(children);
                 owner.SetChildren(childrenList);
                 foreach (var child in childrenList)
                 {

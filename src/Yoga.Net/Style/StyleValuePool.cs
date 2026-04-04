@@ -205,6 +205,13 @@ namespace Facebook.Yoga
             bool isNegative = (value & ValueSignMask) != 0;
             return (value & ValueMagnitudeMask) * (isNegative ? -1 : 1);
         }
+
+        public StyleValuePool Clone()
+        {
+            var clone = new StyleValuePool();
+            clone.buffer_ = buffer_.Clone();
+            return clone;
+        }
     }
 }
 
