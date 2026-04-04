@@ -1081,6 +1081,7 @@ namespace Facebook.Yoga
             {
                 node.Style.SetDimension(dim, value);
                 node.MarkDirtyAndPropagate();
+                node.ProcessDimensions();
             }
         }
 
@@ -1090,6 +1091,7 @@ namespace Facebook.Yoga
             {
                 node.Style.SetMinDimension(dim, value);
                 node.MarkDirtyAndPropagate();
+                node.ProcessDimensions();
             }
         }
 
@@ -1099,6 +1101,7 @@ namespace Facebook.Yoga
             {
                 node.Style.SetMaxDimension(dim, value);
                 node.MarkDirtyAndPropagate();
+                node.ProcessDimensions();
             }
         }
     }

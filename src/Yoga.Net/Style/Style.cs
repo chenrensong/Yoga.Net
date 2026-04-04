@@ -543,69 +543,69 @@ namespace Facebook.Yoga
 
         public float ComputeFlexStartBorder(FlexDirection axis, Direction direction)
         {
-            return Math.Max(
-                ComputeBorder(axis.FlexStartEdge(), direction).Resolve(0.0f).Unwrap(),
+            return Comparison.MaxOrDefined(
+                ComputeBorder(axis.FlexStartEdge(), direction).Resolve(0.0f).UnwrapOrDefault(0.0f),
                 0.0f);
         }
 
         public float ComputeInlineStartBorder(FlexDirection axis, Direction direction)
         {
-            return Math.Max(
+            return Comparison.MaxOrDefined(
                 ComputeBorder(axis.InlineStartEdge(direction), direction)
                     .Resolve(0.0f)
-                    .Unwrap(),
+                    .UnwrapOrDefault(0.0f),
                 0.0f);
         }
 
         public float ComputeFlexEndBorder(FlexDirection axis, Direction direction)
         {
-            return Math.Max(
-                ComputeBorder(axis.FlexEndEdge(), direction).Resolve(0.0f).Unwrap(),
+            return Comparison.MaxOrDefined(
+                ComputeBorder(axis.FlexEndEdge(), direction).Resolve(0.0f).UnwrapOrDefault(0.0f),
                 0.0f);
         }
 
         public float ComputeInlineEndBorder(FlexDirection axis, Direction direction)
         {
-            return Math.Max(
+            return Comparison.MaxOrDefined(
                 ComputeBorder(axis.InlineEndEdge(direction), direction)
                     .Resolve(0.0f)
-                    .Unwrap(),
+                    .UnwrapOrDefault(0.0f),
                 0.0f);
         }
 
         public float ComputeFlexStartPadding(FlexDirection axis, Direction direction, float widthSize)
         {
-            return Math.Max(
+            return Comparison.MaxOrDefined(
                 ComputePadding(axis.FlexStartEdge(), direction)
                     .Resolve(widthSize)
-                    .Unwrap(),
+                    .UnwrapOrDefault(0.0f),
                 0.0f);
         }
 
         public float ComputeInlineStartPadding(FlexDirection axis, Direction direction, float widthSize)
         {
-            return Math.Max(
+            return Comparison.MaxOrDefined(
                 ComputePadding(axis.InlineStartEdge(direction), direction)
                     .Resolve(widthSize)
-                    .Unwrap(),
+                    .UnwrapOrDefault(0.0f),
                 0.0f);
         }
 
         public float ComputeFlexEndPadding(FlexDirection axis, Direction direction, float widthSize)
         {
-            return Math.Max(
+            return Comparison.MaxOrDefined(
                 ComputePadding(axis.FlexEndEdge(), direction)
                     .Resolve(widthSize)
-                    .Unwrap(),
+                    .UnwrapOrDefault(0.0f),
                 0.0f);
         }
 
         public float ComputeInlineEndPadding(FlexDirection axis, Direction direction, float widthSize)
         {
-            return Math.Max(
+            return Comparison.MaxOrDefined(
                 ComputePadding(axis.InlineEndEdge(direction), direction)
                     .Resolve(widthSize)
-                    .Unwrap(),
+                    .UnwrapOrDefault(0.0f),
                 0.0f);
         }
 
@@ -660,13 +660,13 @@ namespace Facebook.Yoga
         public float ComputeGapForAxis(FlexDirection axis, float ownerSize)
         {
             var gap = axis.IsRow() ? ComputeColumnGap() : ComputeRowGap();
-            return Math.Max(gap.Resolve(ownerSize).Unwrap(), 0.0f);
+            return Comparison.MaxOrDefined(gap.Resolve(ownerSize).UnwrapOrDefault(0.0f), 0.0f);
         }
 
         public float ComputeGapForDimension(Dimension dimension, float ownerSize)
         {
             var gap = dimension == Facebook.Yoga.Dimension.Width ? ComputeColumnGap() : ComputeRowGap();
-            return Math.Max(gap.Resolve(ownerSize).Unwrap(), 0.0f);
+            return Comparison.MaxOrDefined(gap.Resolve(ownerSize).UnwrapOrDefault(0.0f), 0.0f);
         }
 
         public bool FlexStartMarginIsAuto(FlexDirection axis, Direction direction)

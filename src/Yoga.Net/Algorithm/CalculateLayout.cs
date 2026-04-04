@@ -147,8 +147,8 @@ namespace Facebook.Yoga
                 if (isColumnStyleDimDefined)
                 {
                     childHeight = child
-                        .GetResolvedDimension(
-                            direction, Dimension.Height, ownerHeight, ownerWidth)
+                            .GetResolvedDimension(
+                                direction, Dimension.Height, ownerHeight, ownerWidth)
                         .Unwrap() + marginColumn;
                     childHeightSizingMode = SizingMode.StretchFit;
                 }
@@ -534,7 +534,7 @@ namespace Facebook.Yoga
             {
                 childFlexBasis = BoundAxis.BoundAxisWithinMinAndMax(
                     currentLineChild, direction, mainAxis,
-                    currentLineChild.Layout.ComputedFlexBasis,
+                         currentLineChild.Layout.ComputedFlexBasis,
                     mainAxisOwnerSize, ownerWidth).Unwrap();
                 float updatedMainSize = childFlexBasis;
 
@@ -572,7 +572,7 @@ namespace Facebook.Yoga
                         updatedMainSize = BoundAxis.ComputeBoundAxis(
                             currentLineChild, mainAxis, direction,
                             childFlexBasis + flexLine.Layout.RemainingFreeSpace /
-                                flexLine.Layout.TotalFlexGrowFactors * flexGrowFactor,
+                                    flexLine.Layout.TotalFlexGrowFactors * flexGrowFactor,
                             availableInnerMainDim, availableInnerWidth);
                     }
                 }
@@ -677,7 +677,7 @@ namespace Facebook.Yoga
             {
                 float childFlexBasis = BoundAxis.BoundAxisWithinMinAndMax(
                     currentLineChild, direction, mainAxis,
-                    currentLineChild.Layout.ComputedFlexBasis,
+                               currentLineChild.Layout.ComputedFlexBasis,
                     mainAxisOwnerSize, ownerWidth).Unwrap();
 
                 if (flexLine.Layout.RemainingFreeSpace < 0)
@@ -776,7 +776,7 @@ namespace Facebook.Yoga
                 {
                     float minAvailableMainDim =
                         style.ResolvedMinDimension(
-                            direction, mainAxis.Dimension(), mainAxisOwnerSize, ownerWidth)
+                                direction, mainAxis.Dimension(), mainAxisOwnerSize, ownerWidth)
                             .Unwrap() - leadingPaddingAndBorderMain - trailingPaddingAndBorderMain;
                     float occupiedSpaceByChildNodes =
                         availableInnerMainDim - flexLine.Layout.RemainingFreeSpace;
@@ -1213,9 +1213,9 @@ namespace Facebook.Yoga
                                     true, LayoutPassReason.kStretch,
                                     ref layoutMarkerData, depth, generationCount);
                             }
-                        }
-                        else
-                        {
+                }
+                else
+                {
                             float remainingCrossDim = containerCrossAxis -
                                 child.DimensionWithMargin(crossAxis, availableInnerWidth);
 
@@ -1501,196 +1501,196 @@ namespace Facebook.Yoga
 
         public static bool CalculateLayoutInternal(
             Node node, float availableWidth, float availableHeight,
-            Direction ownerDirection,
+        Direction ownerDirection,
             SizingMode widthSizingMode, SizingMode heightSizingMode,
             float ownerWidth, float ownerHeight,
             bool performLayout, LayoutPassReason reason,
             ref LayoutData layoutMarkerData, uint depth, uint generationCount)
         {
             LayoutResults layout = node.Layout;
-            depth++;
+        depth++;
 
-            bool needToVisitNode =
-                (node.IsDirty() && layout.GenerationCount != generationCount) ||
+        bool needToVisitNode =
+            (node.IsDirty() && layout.GenerationCount != generationCount) ||
                 layout.ConfigVersion != node.Config.GetVersion() ||
-                layout.LastOwnerDirection != ownerDirection;
+            layout.LastOwnerDirection != ownerDirection;
 
-            if (needToVisitNode)
-            {
-                layout.NextCachedMeasurementsIndex = 0;
-                layout.CachedLayout.AvailableWidth = -1;
-                layout.CachedLayout.AvailableHeight = -1;
-                layout.CachedLayout.WidthSizingMode = SizingMode.MaxContent;
-                layout.CachedLayout.HeightSizingMode = SizingMode.MaxContent;
-                layout.CachedLayout.ComputedWidth = -1;
-                layout.CachedLayout.ComputedHeight = -1;
-            }
+        if (needToVisitNode)
+        {
+            layout.NextCachedMeasurementsIndex = 0;
+            layout.CachedLayout.AvailableWidth = -1;
+            layout.CachedLayout.AvailableHeight = -1;
+            layout.CachedLayout.WidthSizingMode = SizingMode.MaxContent;
+            layout.CachedLayout.HeightSizingMode = SizingMode.MaxContent;
+            layout.CachedLayout.ComputedWidth = -1;
+            layout.CachedLayout.ComputedHeight = -1;
+        }
 
             CachedMeasurement? cachedResults = null;
 
-            if (node.HasMeasureFunc())
-            {
+        if (node.HasMeasureFunc())
+        {
                 float marginAxisRow = node.Style.ComputeMarginForAxis(FlexDirection.Row, ownerWidth);
                 float marginAxisColumn = node.Style.ComputeMarginForAxis(FlexDirection.Column, ownerWidth);
 
-                if (Cache.CanUseCachedMeasurement(
+            if (Cache.CanUseCachedMeasurement(
                         widthSizingMode, availableWidth, heightSizingMode, availableHeight,
                         layout.CachedLayout.WidthSizingMode, layout.CachedLayout.AvailableWidth,
                         layout.CachedLayout.HeightSizingMode, layout.CachedLayout.AvailableHeight,
                         layout.CachedLayout.ComputedWidth, layout.CachedLayout.ComputedHeight,
                         marginAxisRow, marginAxisColumn, node.Config))
-                {
-                    cachedResults = layout.CachedLayout;
-                }
-                else
-                {
-                    for (int i = 0; i < layout.NextCachedMeasurementsIndex; i++)
-                    {
-                        if (Cache.CanUseCachedMeasurement(
-                                widthSizingMode, availableWidth, heightSizingMode, availableHeight,
-                                layout.CachedMeasurements[i].WidthSizingMode,
-                                layout.CachedMeasurements[i].AvailableWidth,
-                                layout.CachedMeasurements[i].HeightSizingMode,
-                                layout.CachedMeasurements[i].AvailableHeight,
-                                layout.CachedMeasurements[i].ComputedWidth,
-                                layout.CachedMeasurements[i].ComputedHeight,
-                                marginAxisRow, marginAxisColumn, node.Config))
-                        {
-                            cachedResults = layout.CachedMeasurements[i];
-                            break;
-                        }
-                    }
-                }
-            }
-            else if (performLayout)
             {
-                if (Comparison.InexactEquals(layout.CachedLayout.AvailableWidth, availableWidth) &&
-                    Comparison.InexactEquals(layout.CachedLayout.AvailableHeight, availableHeight) &&
-                    layout.CachedLayout.WidthSizingMode == widthSizingMode &&
-                    layout.CachedLayout.HeightSizingMode == heightSizingMode)
-                {
-                    cachedResults = layout.CachedLayout;
-                }
+                cachedResults = layout.CachedLayout;
             }
             else
             {
-                for (uint i = 0; i < layout.NextCachedMeasurementsIndex; i++)
+                for (int i = 0; i < layout.NextCachedMeasurementsIndex; i++)
                 {
-                    if (Comparison.InexactEquals(layout.CachedMeasurements[i].AvailableWidth, availableWidth) &&
-                        Comparison.InexactEquals(layout.CachedMeasurements[i].AvailableHeight, availableHeight) &&
-                        layout.CachedMeasurements[i].WidthSizingMode == widthSizingMode &&
-                        layout.CachedMeasurements[i].HeightSizingMode == heightSizingMode)
+                    if (Cache.CanUseCachedMeasurement(
+                                widthSizingMode, availableWidth, heightSizingMode, availableHeight,
+                            layout.CachedMeasurements[i].WidthSizingMode,
+                            layout.CachedMeasurements[i].AvailableWidth,
+                            layout.CachedMeasurements[i].HeightSizingMode,
+                            layout.CachedMeasurements[i].AvailableHeight,
+                            layout.CachedMeasurements[i].ComputedWidth,
+                            layout.CachedMeasurements[i].ComputedHeight,
+                                marginAxisRow, marginAxisColumn, node.Config))
                     {
                         cachedResults = layout.CachedMeasurements[i];
                         break;
                     }
                 }
             }
-
-            if (!needToVisitNode && cachedResults != null)
+        }
+        else if (performLayout)
+        {
+            if (Comparison.InexactEquals(layout.CachedLayout.AvailableWidth, availableWidth) &&
+                Comparison.InexactEquals(layout.CachedLayout.AvailableHeight, availableHeight) &&
+                layout.CachedLayout.WidthSizingMode == widthSizingMode &&
+                layout.CachedLayout.HeightSizingMode == heightSizingMode)
             {
+                cachedResults = layout.CachedLayout;
+            }
+        }
+        else
+        {
+            for (uint i = 0; i < layout.NextCachedMeasurementsIndex; i++)
+            {
+                if (Comparison.InexactEquals(layout.CachedMeasurements[i].AvailableWidth, availableWidth) &&
+                    Comparison.InexactEquals(layout.CachedMeasurements[i].AvailableHeight, availableHeight) &&
+                    layout.CachedMeasurements[i].WidthSizingMode == widthSizingMode &&
+                    layout.CachedMeasurements[i].HeightSizingMode == heightSizingMode)
+                {
+                    cachedResults = layout.CachedMeasurements[i];
+                    break;
+                }
+            }
+        }
+
+        if (!needToVisitNode && cachedResults != null)
+        {
                 layout.SetMeasuredDimension(Dimension.Width, cachedResults.Value.ComputedWidth);
                 layout.SetMeasuredDimension(Dimension.Height, cachedResults.Value.ComputedHeight);
                 if (performLayout) layoutMarkerData.CachedLayouts += 1;
                 else layoutMarkerData.CachedMeasures += 1;
-            }
-            else
-            {
+        }
+        else
+        {
                 CalculateLayoutImpl(node, availableWidth, availableHeight,
                     ownerDirection, widthSizingMode, heightSizingMode,
                     ownerWidth, ownerHeight, performLayout, reason,
                     ref layoutMarkerData, depth, generationCount);
 
-                layout.LastOwnerDirection = ownerDirection;
+            layout.LastOwnerDirection = ownerDirection;
                 layout.ConfigVersion = node.Config.GetVersion();
 
-                if (cachedResults == null)
-                {
-                    layoutMarkerData.MaxMeasureCache = Math.Max(
-                        layoutMarkerData.MaxMeasureCache,
-                        layout.NextCachedMeasurementsIndex + 1u);
+            if (cachedResults == null)
+            {
+                layoutMarkerData.MaxMeasureCache = Math.Max(
+                    layoutMarkerData.MaxMeasureCache,
+                    layout.NextCachedMeasurementsIndex + 1u);
 
-                    if (layout.NextCachedMeasurementsIndex == LayoutResults.MaxCachedMeasurements)
-                        layout.NextCachedMeasurementsIndex = 0;
+                if (layout.NextCachedMeasurementsIndex == LayoutResults.MaxCachedMeasurements)
+                    layout.NextCachedMeasurementsIndex = 0;
 
                     CachedMeasurement newCacheEntry;
-                    if (performLayout)
-                    {
-                        newCacheEntry = layout.CachedLayout;
-                    }
-                    else
-                    {
-                        newCacheEntry = layout.CachedMeasurements[layout.NextCachedMeasurementsIndex];
-                        layout.NextCachedMeasurementsIndex++;
-                    }
-
-                    newCacheEntry.AvailableWidth = availableWidth;
-                    newCacheEntry.AvailableHeight = availableHeight;
-                    newCacheEntry.WidthSizingMode = widthSizingMode;
-                    newCacheEntry.HeightSizingMode = heightSizingMode;
-                    newCacheEntry.ComputedWidth = layout.MeasuredDimension(Dimension.Width);
-                    newCacheEntry.ComputedHeight = layout.MeasuredDimension(Dimension.Height);
+                if (performLayout)
+                {
+                    newCacheEntry = layout.CachedLayout;
                 }
-            }
+                else
+                {
+                    newCacheEntry = layout.CachedMeasurements[layout.NextCachedMeasurementsIndex];
+                    layout.NextCachedMeasurementsIndex++;
+                }
 
-            if (performLayout)
-            {
+                newCacheEntry.AvailableWidth = availableWidth;
+                newCacheEntry.AvailableHeight = availableHeight;
+                newCacheEntry.WidthSizingMode = widthSizingMode;
+                newCacheEntry.HeightSizingMode = heightSizingMode;
+                newCacheEntry.ComputedWidth = layout.MeasuredDimension(Dimension.Width);
+                newCacheEntry.ComputedHeight = layout.MeasuredDimension(Dimension.Height);
+            }
+        }
+
+        if (performLayout)
+        {
                 node.SetLayoutDimension(node.Layout.MeasuredDimension(Dimension.Width), Dimension.Width);
                 node.SetLayoutDimension(node.Layout.MeasuredDimension(Dimension.Height), Dimension.Height);
-                node.SetHasNewLayout(true);
-                node.SetDirty(false);
-            }
-
-            layout.GenerationCount = generationCount;
-            return (needToVisitNode || cachedResults == null);
+            node.SetHasNewLayout(true);
+            node.SetDirty(false);
         }
+
+        layout.GenerationCount = generationCount;
+        return (needToVisitNode || cachedResults == null);
+    }
 
         public static void CalculateLayout(
             Node node, float ownerWidth, float ownerHeight, Direction ownerDirection)
         {
-            LayoutData markerData = new LayoutData();
+        LayoutData markerData = new LayoutData();
             gCurrentGenerationCount++;
             node.ProcessDimensions();
             Direction direction = node.ResolveDirection(ownerDirection);
             float width = YogaConstants.Undefined;
-            SizingMode widthSizingMode = SizingMode.MaxContent;
+        SizingMode widthSizingMode = SizingMode.MaxContent;
             var style = node.Style;
 
             if (node.HasDefiniteLength(Dimension.Width, ownerWidth))
             {
                 width = node.GetResolvedDimension(direction, FlexDirection.Row.Dimension(), ownerWidth, ownerWidth)
                     .Unwrap() + node.Style.ComputeMarginForAxis(FlexDirection.Row, ownerWidth);
-                widthSizingMode = SizingMode.StretchFit;
-            }
+            widthSizingMode = SizingMode.StretchFit;
+        }
             else if (style.ResolvedMaxDimension(direction, Dimension.Width, ownerWidth, ownerWidth).IsDefined())
-            {
+        {
                 width = style.ResolvedMaxDimension(direction, Dimension.Width, ownerWidth, ownerWidth).Unwrap();
-                widthSizingMode = SizingMode.FitContent;
-            }
-            else
-            {
-                width = ownerWidth;
-                widthSizingMode = Comparison.IsUndefined(width) ? SizingMode.MaxContent : SizingMode.StretchFit;
-            }
+            widthSizingMode = SizingMode.FitContent;
+        }
+        else
+        {
+            width = ownerWidth;
+            widthSizingMode = Comparison.IsUndefined(width) ? SizingMode.MaxContent : SizingMode.StretchFit;
+        }
 
             float height = YogaConstants.Undefined;
-            SizingMode heightSizingMode = SizingMode.MaxContent;
+        SizingMode heightSizingMode = SizingMode.MaxContent;
             if (node.HasDefiniteLength(Dimension.Height, ownerHeight))
             {
                 height = node.GetResolvedDimension(direction, FlexDirection.Column.Dimension(), ownerHeight, ownerWidth)
                     .Unwrap() + node.Style.ComputeMarginForAxis(FlexDirection.Column, ownerWidth);
-                heightSizingMode = SizingMode.StretchFit;
-            }
+            heightSizingMode = SizingMode.StretchFit;
+        }
             else if (style.ResolvedMaxDimension(direction, Dimension.Height, ownerHeight, ownerWidth).IsDefined())
-            {
+        {
                 height = style.ResolvedMaxDimension(direction, Dimension.Height, ownerHeight, ownerWidth).Unwrap();
-                heightSizingMode = SizingMode.FitContent;
-            }
-            else
-            {
-                height = ownerHeight;
-                heightSizingMode = Comparison.IsUndefined(height) ? SizingMode.MaxContent : SizingMode.StretchFit;
-            }
+            heightSizingMode = SizingMode.FitContent;
+        }
+        else
+        {
+            height = ownerHeight;
+            heightSizingMode = Comparison.IsUndefined(height) ? SizingMode.MaxContent : SizingMode.StretchFit;
+        }
 
             if (CalculateLayoutInternal(node, width, height, ownerDirection,
                     widthSizingMode, heightSizingMode, ownerWidth, ownerHeight,

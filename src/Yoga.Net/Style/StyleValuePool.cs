@@ -134,7 +134,7 @@ namespace Facebook.Yoga
         {
             if (handle.IsUndefined)
             {
-                return new FloatOptional();
+                return FloatOptional.Undefined;
             }
             else
             {

@@ -7,7 +7,7 @@ namespace Facebook.Yoga
         public const int MaxCachedMeasurements = 8;
 
         public uint ComputedFlexBasisGeneration = 0;
-        public FloatOptional ComputedFlexBasis = new FloatOptional();
+        public FloatOptional ComputedFlexBasis = FloatOptional.Undefined;
 
         public uint GenerationCount = 0;
         public uint ConfigVersion = 0;

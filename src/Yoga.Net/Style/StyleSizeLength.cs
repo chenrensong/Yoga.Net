@@ -122,7 +122,7 @@ namespace Facebook.Yoga
                 case Unit.Percent:
                     return new FloatOptional(_value.Unwrap() * referenceLength * 0.01f);
                 default:
-                    return default;
+                    return FloatOptional.Undefined;
             }
         }
 

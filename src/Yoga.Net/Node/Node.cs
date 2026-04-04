@@ -382,7 +382,7 @@ namespace Facebook.Yoga
                 return value;
             }
 
-            var dim = Dimension.Width; // Logic needed here
+            var dim = flexDirection.Dimension();
             var dimensionPaddingAndBorder = new FloatOptional(_style.ComputePaddingAndBorderForDimension(direction, dim, ownerWidth));
 
             return value + (dimensionPaddingAndBorder.IsDefined() ? dimensionPaddingAndBorder : FloatOptional.Zero);
