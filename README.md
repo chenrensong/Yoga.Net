@@ -84,56 +84,40 @@ dotnet pack --configuration Release
 
 ## Benchmarks
 
-Yoga.Net includes a benchmark suite to measure layout performance. The benchmarks compare C# performance against the original C++ implementation.
+Yoga.Net includes a benchmark suite to measure layout performance.
 
-### Running C# Benchmarks
+### Running Benchmarks
 
 ```bash
-# Run simple benchmark
+# Run JIT (non-AOT) benchmark
 dotnet run --project tests/Yoga.Net.Benchmarks/Yoga.Net.Benchmarks.csproj --configuration Release -- --simple
+
+# Run NativeAOT benchmark
+dotnet publish tests/Yoga.Net.Benchmarks/AotBenchmark.csproj -c Release -r win-x64
+./bin/Release/net10.0/win-x64/publish/AotBenchmark.exe
 
 # Run full BenchmarkDotNet suite (requires capture files from yoga repo)
 dotnet run --project tests/Yoga.Net.Benchmarks/Yoga.Net.Benchmarks.csproj --configuration Release
 ```
 
-### C# Performance Results
+### JIT vs NativeAOT Performance
 
 **Environment:**
 - Runtime: .NET 10.0.5
 - OS: Windows 11 (10.0.26200)
 - CPU: 13th Gen Intel Core i9-13900HX
+- AOT binary size: 1.4 MB
 
-**Results:**
+**Results (lower is better):**
 
-| Test | Time (ms/op) | Ops/sec |
-|------|-------------:|--------:|
-| Stack with flex (10 children) | 0.10 | 10,011 |
-| Align stretch (10 children) | 0.07 | 13,608 |
-| Simple layout (5 nodes) | 0.03 | 32,369 |
-| Row layout (10 children) | 0.06 | 17,577 |
+| Test | JIT (ms/op) | JIT (ops/sec) | NativeAOT (ms/op) | NativeAOT (ops/sec) | AOT Speedup |
+|------|-----------:|--------------:|-------------------:|--------------------:|:-----------:|
+| Stack with flex (10 children) | 0.11 | 9,163 | 0.029 | 35,442 | **3.9x** |
+| Align stretch (10 children) | 0.08 | 12,104 | 0.020 | 50,003 | **4.1x** |
+| Simple layout (5 nodes) | 0.03 | 31,455 | 0.008 | 125,696 | **4.0x** |
+| Row layout (10 children) | 0.07 | 16,158 | 0.016 | 61,613 | **3.8x** |
 
-### C++ vs C# Comparison
-
-To compare with the original C++ implementation:
-
-```bash
-# Build C++ benchmarks (requires CMake)
-cd /path/to/yoga/benchmark
-cmake -B build -S . -D CMAKE_BUILD_TYPE=Release
-cmake --build build
-
-# Run C++ benchmark
-./build/benchmark ./captures
-```
-
-| Test | C++ (ms/op) | C# (ms/op) | Ratio |
-|------|-------------|------------|-------|
-| Stack with flex (10 children) | *TBD* | 0.10 | *TBD* |
-| Align stretch (10 children) | *TBD* | 0.07 | *TBD* |
-| Simple layout (5 nodes) | *TBD* | 0.03 | *TBD* |
-| Row layout (10 children) | *TBD* | 0.06 | *TBD* |
-
-> **Note:** C++ benchmark results need to be run locally for comparison. The C# implementation aims for performance parity with the original C++ code while maintaining idiomatic C# patterns and AOT compatibility.
+> NativeAOT delivers ~4x throughput improvement over JIT by eliminating runtime overhead, enabling aggressive cross-method inlining, and producing CPU-optimized native code.
 
 ## Project Structure
 

@@ -33,3 +33,4 @@ TestResults/
 /tests/Yoga.Net.Benchmarks/BenchmarkDotNet.Artifacts/results
 /tests/Yoga.Net.Benchmarks/.omc/state
 /tests/Yoga.Net.Benchmarks/BenchmarkDotNet.Artifacts
+/.omc/sessions
