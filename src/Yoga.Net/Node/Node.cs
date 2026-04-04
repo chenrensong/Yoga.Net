@@ -129,15 +129,13 @@ namespace Facebook.Yoga
 
         public float DimensionWithMargin(FlexDirection axis, float widthSize)
         {
-            // Simplified: assumes dimension() helper exists
-            // In real impl: getLayout().measuredDimension(dimension(axis))
-            return 0 + _style.ComputeMarginForAxis(axis, widthSize);
+            return _layout.MeasuredDimension(axis.Dimension()) +
+                _style.ComputeMarginForAxis(axis, widthSize);
         }
 
         public bool IsLayoutDimensionDefined(FlexDirection axis)
         {
-            // Simplified
-            float value = 0; // getLayout().measuredDimension(dimension(axis))
+            float value = _layout.MeasuredDimension(axis.Dimension());
             return !float.IsNaN(value) && value >= 0.0f;
         }
 
@@ -324,6 +322,7 @@ namespace Facebook.Yoga
 
         public void SetPosition(Direction direction, float ownerWidth, float ownerHeight)
         {
+            // Root nodes should be always layouted as LTR, so we don't return negative values.
             var directionRespectingRoot = _owner != null ? direction : Direction.LTR;
             var mainAxis = _style.FlexDirection.ResolveDirection(directionRespectingRoot);
             var crossAxis = mainAxis.ResolveCrossDirection(directionRespectingRoot);
@@ -331,26 +330,30 @@ namespace Facebook.Yoga
             float relativePositionMain = RelativePosition(mainAxis, directionRespectingRoot, mainAxis.IsRow() ? ownerWidth : ownerHeight);
             float relativePositionCross = RelativePosition(crossAxis, directionRespectingRoot, mainAxis.IsRow() ? ownerHeight : ownerWidth);
 
-            // Simplified edges calculation
-            // setLayoutPosition(...) calls
-            
-            // Placeholder for full margin calculations
-            float mainAxisLeadingMargin = 0; // _style.computeInlineStartMargin(...)
-            float mainAxisTrailingMargin = 0; 
-            float crossAxisLeadingMargin = 0;
-            float crossAxisTrailingMargin = 0;
+            var mainAxisLeadingEdge = mainAxis.InlineStartEdge(direction);
+            var mainAxisTrailingEdge = mainAxis.InlineEndEdge(direction);
+            var crossAxisLeadingEdge = crossAxis.InlineStartEdge(direction);
+            var crossAxisTrailingEdge = crossAxis.InlineEndEdge(direction);
 
-            SetLayoutPosition((mainAxisLeadingMargin + relativePositionMain), PhysicalEdge.Left); // Simplified
-            SetLayoutPosition((mainAxisTrailingMargin + relativePositionMain), PhysicalEdge.Right);
-            SetLayoutPosition((crossAxisLeadingMargin + relativePositionCross), PhysicalEdge.Top); // Simplified
-            SetLayoutPosition((crossAxisTrailingMargin + relativePositionCross), PhysicalEdge.Bottom);
+            SetLayoutPosition(
+                _style.ComputeInlineStartMargin(mainAxis, direction, ownerWidth) + relativePositionMain,
+                mainAxisLeadingEdge);
+            SetLayoutPosition(
+                _style.ComputeInlineEndMargin(mainAxis, direction, ownerWidth) + relativePositionMain,
+                mainAxisTrailingEdge);
+            SetLayoutPosition(
+                _style.ComputeInlineStartMargin(crossAxis, direction, ownerWidth) + relativePositionCross,
+                crossAxisLeadingEdge);
+            SetLayoutPosition(
+                _style.ComputeInlineEndMargin(crossAxis, direction, ownerWidth) + relativePositionCross,
+                crossAxisTrailingEdge);
         }
 
         private float RelativePosition(FlexDirection axis, Direction direction, float axisSize)
         {
             if (_style.PositionType == PositionType.Static) return 0;
-            // Simplified: check inline start pos defined and not auto
-            if (false && !true) // _style.isInlineStartPositionDefined...
+            if (_style.IsInlineStartPositionDefined(axis, direction) &&
+                !_style.IsInlineStartPositionAuto(axis, direction))
             {
                 return _style.ComputeInlineStartPosition(axis, direction, axisSize);
             }

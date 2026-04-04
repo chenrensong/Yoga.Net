@@ -95,10 +95,8 @@ namespace Facebook.Yoga
             float availableHeight,
             YGDirection ownerDirection)
         {
-            // CalculateLayout is in algorithm\CalculateLayout.cs (currently excluded)
-            // Will be wired up when that file is included
-            throw new NotImplementedException(
-                "YGNodeCalculateLayout requires CalculateLayout.cs to be included in the project.");
+            LayoutAlgorithm.CalculateLayout(
+                node, availableWidth, availableHeight, ownerDirection.ToInternal());
         }
 
         public static bool YGNodeGetHasNewLayout(Node node)

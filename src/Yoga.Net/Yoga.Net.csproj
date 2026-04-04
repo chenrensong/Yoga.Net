@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -8,48 +8,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsPackable>true</IsPackable>
     <PackageId>Yoga.Net</PackageId>
-    <Description>A C# port of Facebook's Yoga — a cross-platform layout engine implementing Flexbox.</Description>
+    <Description>A C# port of Facebook's Yoga - a cross-platform layout engine implementing Flexbox.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/chenrensong/Yoga.Net</RepositoryUrl>
     <PackageProjectUrl>https://github.com/chenrensong/Yoga.Net</PackageProjectUrl>
-    <Copyright>Copyright (c) Meta Platforms, Inc. and its affiliates.</Copyright>
+    <Copyright>Copyright (c) 2026 Chen Ren Song; Copyright (c) Meta Platforms, Inc. and its affiliates.</Copyright>
   </PropertyGroup>
-
-  <ItemGroup>
-    <!-- algorithm files are now all included -->
-    <Compile Remove="config\**" />
-    <Compile Include="config\Config.cs" />
-    <Compile Remove="debug\**" />
-    <Compile Include="debug\Log.cs" />
-    <Compile Include="debug\AssertFatal.cs" />
-    <Compile Remove="event\**" />
-    <Compile Include="event\event.cs" />
-    <Compile Remove="node\**" />
-    <Compile Include="node\CachedMeasurement.cs" />
-    <Compile Include="node\LayoutResults.cs" />
-    <Compile Include="node\Node.cs" />
-    <Compile Include="node\LayoutableChildren.cs" />
-    <!-- EmbeddedResource Remove algorithm removed -->
-    <EmbeddedResource Remove="config\**" />
-    <EmbeddedResource Remove="debug\**" />
-    <EmbeddedResource Remove="event\**" />
-    <EmbeddedResource Remove="node\**" />
-    <EmbeddedResource Remove="numeric\**" />
-    <EmbeddedResource Remove="style\**" />
-    <!-- None Remove algorithm removed -->
-    <None Remove="config\**" />
-    <None Remove="debug\**" />
-    <None Remove="event\**" />
-    <None Remove="node\**" />
-    <None Remove="numeric\**" />
-    <None Remove="style\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="algorithm\AbsoluteLayout.cs" />
-    <Compile Remove="algorithm\CalculateLayout.cs" />
-    <!-- All YG* public API wrapper files are now included -->
-  </ItemGroup>
-
-
 </Project>

@@ -211,14 +211,6 @@ namespace Facebook.Yoga
             float containingBlockSize =
                 isAxisRow ? containingBlockWidth : containingBlockHeight;
 
-            // The inline-start position takes priority over the end position in the case
-            // that they are both set and the node has a fixed width. Thus we only have 2
-            // cases here: if inline-start is defined and if inline-end is defined.
-            //
-            // Despite checking inline-start to honor prioritization of insets, we write
-            // to the flex-start edge because this algorithm works by positioning on the
-            // flex-start edge and then filling in the flex-end direction at the end if
-            // necessary.
             if (child.Style.IsInlineStartPositionDefined(axis, direction) &&
                 !child.Style.IsInlineStartPositionAuto(axis, direction))
             {
@@ -283,9 +275,6 @@ namespace Facebook.Yoga
             uint depth,
             uint generationCount)
         {
-            // For grid containers, use inline (Row) and block (Column) axes for
-            // positioning, since grid alignment properties (justify-self, align-self)
-            // operate on inline/block axes, not main/cross axes based on flex-direction.
             FlexDirection mainAxis = node.Style.Display == Display.Grid
                 ? FlexDirection.Row.ResolveDirection(direction)
                 : node.Style.FlexDirection.ResolveDirection(direction);
@@ -317,8 +306,6 @@ namespace Facebook.Yoga
             }
             else
             {
-                // If the child doesn't have a specified width, compute the width based on
-                // the left/right offsets if they're defined.
                 if (child.Style.IsFlexStartPositionDefined(
                         FlexDirection.Row, direction) &&
                     child.Style.IsFlexEndPositionDefined(
@@ -360,8 +347,6 @@ namespace Facebook.Yoga
             }
             else
             {
-                // If the child doesn't have a specified height, compute the height based
-                // on the top/bottom offsets if they're defined.
                 if (child.Style.IsFlexStartPositionDefined(
                         FlexDirection.Column, direction) &&
                     child.Style.IsFlexEndPositionDefined(
@@ -391,9 +376,6 @@ namespace Facebook.Yoga
                 }
             }
 
-            // Exactly one dimension needs to be defined for us to be able to do aspect
-            // ratio calculation. One dimension being the anchor and the other being
-            // flexible.
             Style childStyle = child.Style;
             if (Comparison.IsUndefined(childWidth) ^ Comparison.IsUndefined(childHeight))
             {
@@ -412,7 +394,6 @@ namespace Facebook.Yoga
                 }
             }
 
-            // If we're still missing one or the other dimension, measure the content.
             if (Comparison.IsUndefined(childWidth) || Comparison.IsUndefined(childHeight))
             {
                 childWidthSizingMode = Comparison.IsUndefined(childWidth)
@@ -422,10 +403,6 @@ namespace Facebook.Yoga
                     ? SizingMode.MaxContent
                     : SizingMode.StretchFit;
 
-                // If the size of the owner is defined then try to constrain the absolute
-                // child to that size as well. This allows text within the absolute child
-                // to wrap to the size of its owner. This is the same behavior as many
-                // browsers implement.
                 if (!isMainAxisRow && Comparison.IsUndefined(childWidth) &&
                     widthMode != SizingMode.MaxContent &&
                     Comparison.IsDefined(containingBlockWidth) && containingBlockWidth > 0)
@@ -539,15 +516,6 @@ namespace Facebook.Yoga
 
                     hasNewLayout = hasNewLayout || child.HasNewLayout;
 
-                    /*
-                     * At this point the child has its position set but only on its the
-                     * parent's flexStart edge. Additionally, this position should be
-                     * interpreted relative to the containing block of the child if it had
-                     * insets defined. So we need to adjust the position by subtracting the
-                     * the parents offset from the containing block. However, getting that
-                     * offset is complicated since the two nodes can have different main/cross
-                     * axes.
-                     */
                     FlexDirection parentMainAxis = currentNode.Style.FlexDirection.ResolveDirection(
                         currentNodeDirection);
                     FlexDirection parentCrossAxis =
@@ -556,8 +524,8 @@ namespace Facebook.Yoga
                     if (TrailingPosition.NeedsTrailingPosition(parentMainAxis))
                     {
                         bool mainInsetsDefined = parentMainAxis.IsRow()
-                            ? child.Style.HorizontalInsetsDefined
-                            : child.Style.VerticalInsetsDefined;
+                            ? child.Style.HorizontalInsetsDefined()
+                            : child.Style.VerticalInsetsDefined();
                         TrailingPosition.SetChildTrailingPosition(
                             mainInsetsDefined ? containingNode : currentNode,
                             child,
@@ -566,30 +534,25 @@ namespace Facebook.Yoga
                     if (TrailingPosition.NeedsTrailingPosition(parentCrossAxis))
                     {
                         bool crossInsetsDefined = parentCrossAxis.IsRow()
-                            ? child.Style.HorizontalInsetsDefined
-                            : child.Style.VerticalInsetsDefined;
+                            ? child.Style.HorizontalInsetsDefined()
+                            : child.Style.VerticalInsetsDefined();
                         TrailingPosition.SetChildTrailingPosition(
                             crossInsetsDefined ? containingNode : currentNode,
                             child,
                             parentCrossAxis);
                     }
 
-                    /*
-                     * At this point we know the left and top physical edges of the child are
-                     * set with positions that are relative to the containing block if insets
-                     * are defined
-                     */
                     float childLeftPosition =
                         child.Layout.Position(PhysicalEdge.Left);
                     float childTopPosition =
                         child.Layout.Position(PhysicalEdge.Top);
 
                     float childLeftOffsetFromParent =
-                        child.Style.HorizontalInsetsDefined
+                        child.Style.HorizontalInsetsDefined()
                         ? (childLeftPosition - currentNodeLeftOffsetFromContainingBlock)
                         : childLeftPosition;
                     float childTopOffsetFromParent =
-                        child.Style.VerticalInsetsDefined
+                        child.Style.VerticalInsetsDefined()
                         ? (childTopPosition - currentNodeTopOffsetFromContainingBlock)
                         : childTopPosition;
 
@@ -600,17 +563,9 @@ namespace Facebook.Yoga
                     child.Style.PositionType == PositionType.Static &&
                     !child.AlwaysFormsContainingBlock)
                 {
-                    // We may write new layout results for absolute descendants of "child"
-                    // which are positioned relative to the current containing block instead
-                    // of their parent. "child" may not be dirty, or have new constraints, so
-                    // absolute positioning may be the first time during this layout pass that
-                    // we need to mutate these descendents. Make sure the path of
-                    // nodes to them is mutable before positioning.
                     child.CloneChildrenIfNeeded();
                     Direction childDirection =
                         child.ResolveDirection(currentNodeDirection);
-                    // By now all descendants of the containing block that are not absolute
-                    // will have their positions set for left and top.
                     float childLeftOffsetFromContainingBlock =
                         currentNodeLeftOffsetFromContainingBlock +
                         child.Layout.Position(PhysicalEdge.Left);
@@ -642,4 +597,3 @@ namespace Facebook.Yoga
         }
     }
 }
-
