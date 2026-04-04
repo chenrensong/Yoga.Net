@@ -9,12 +9,12 @@ Yoga enables building UI layouts using Flexbox and CSS Grid on platforms that do
 
 ## Features
 
-- **1:1 C++ port** — faithful translation of the original C++ Yoga engine (v3.2)
+- **1:1 C++ port** — faithful translation of the original C++ Yoga engine (v3.2.1)
 - **Flexbox & CSS Grid** — complete Flexbox algorithm and CSS Grid layout support
 - **High performance** — zero reflection, zero LINQ, `Span<T>` optimizations, `AggressiveInlining` on hot paths, struct value types for reduced allocations
 - **AOT/NativeAOT compatible** — fully trimming-safe, no runtime code generation
 - **Multi-target** — supports `net8.0`, `net9.0`, `net10.0`
-- **864 tests** — comprehensive test suite mirroring the original C++ gtest tests 1:1
+- **826 tests** — comprehensive test suite mirroring the original C++ gtest tests 1:1 (35 skipped tests match upstream C++ `GTEST_SKIP()`)
 - Measure callbacks for integrating with text measurement
 - Caching for layout performance
 - Deterministic layout (no undefined behavior from rounding)
@@ -125,6 +125,12 @@ The library exposes two layers:
 
 1. **C-style API** (`YGNodeAPI`, `YGNodeStyleAPI`, `YGNodeLayoutAPI`) — mirrors the original C/C++ Yoga API for 1:1 test compatibility
 2. **Internal C# types** (`Node`, `Config`, `Style`) — use idiomatic C# naming (PascalCase properties, methods, enums)
+
+## Version Alignment
+
+| Yoga.Net Version | Upstream C++ Yoga Version |
+|---|---|
+| 3.2.1 | [v3.2.1](https://github.com/facebook/yoga) |
 
 ## Acknowledgments
 

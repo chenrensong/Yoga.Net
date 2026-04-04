@@ -1,4 +1,4 @@
-﻿// Copyright (c) Meta Platforms, Inc. and affiliates.
+// Copyright (c) Meta Platforms, Inc. and affiliates.
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 // @generated from yoga/tests/generated/YGFlexWrapTest.cpp
@@ -17,7 +17,7 @@ public class YGFlexWrapTest
     [Fact]
     public void wrap_column()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);

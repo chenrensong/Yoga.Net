@@ -1,4 +1,4 @@
-﻿// Copyright (c) Meta Platforms, Inc. and affiliates.
+// Copyright (c) Meta Platforms, Inc. and affiliates.
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 // @generated from yoga/tests/generated/YGIntrinsicSizeTest.cpp
@@ -618,7 +618,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void fit_content_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -817,7 +817,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void fit_content_height()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -887,7 +887,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void stretch_height()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1015,7 +1015,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void fit_content_flex_basis_column()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1154,7 +1154,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void max_content_flex_basis_row()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1214,7 +1214,6 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void fit_content_flex_basis_row()
     {
-        Assert.Skip("Not yet implemented in C# port");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1285,7 +1284,6 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void stretch_flex_basis_row()
     {
-        Assert.Skip("Not yet implemented in C# port");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1356,7 +1354,6 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void max_content_max_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1417,7 +1414,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void fit_content_max_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1489,7 +1486,6 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void stretch_max_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1561,7 +1557,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void max_content_min_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1622,7 +1618,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void fit_content_min_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1694,7 +1690,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void stretch_min_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1766,7 +1762,6 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void max_content_max_height()
     {
-        Assert.Skip("Not yet implemented in C# port");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1826,7 +1821,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void fit_content_max_height()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1897,7 +1892,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void stretch_max_height()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1968,7 +1963,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void max_content_min_height()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -2028,7 +2023,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void fit_content_min_height()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -2099,7 +2094,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void stretch_min_height()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -2170,7 +2165,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void text_max_content_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -2216,7 +2211,6 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void text_stretch_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -2262,7 +2256,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void text_fit_content_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -2308,7 +2302,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void text_max_content_min_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -2355,7 +2349,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void text_stretch_min_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -2402,7 +2396,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void text_fit_content_min_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -2449,7 +2443,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void text_max_content_max_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -2496,7 +2490,6 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void text_stretch_max_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -2543,7 +2536,7 @@ public class YGIntrinsicSizeTest
     [Fact]
     public void text_fit_content_max_width()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);

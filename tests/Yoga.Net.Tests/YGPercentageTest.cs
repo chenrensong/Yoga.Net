@@ -1,4 +1,4 @@
-﻿// Copyright (c) Meta Platforms, Inc. and affiliates.
+// Copyright (c) Meta Platforms, Inc. and affiliates.
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 // @generated from yoga/tests/generated/YGPercentageTest.cpp
@@ -219,7 +219,7 @@ public class YGPercentageTest
     [Fact]
     public void percentage_flex_basis_cross_min_height()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1027,7 +1027,7 @@ public class YGPercentageTest
     [Fact]
     public void percent_of_min_main()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1063,7 +1063,7 @@ public class YGPercentageTest
     [Fact]
     public void percent_of_min_main_multiple()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1123,7 +1123,7 @@ public class YGPercentageTest
     [Fact]
     public void percent_of_max_main()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
@@ -1266,7 +1266,7 @@ public class YGPercentageTest
     [Fact]
     public void percent_of_min_cross_unstretched()
     {
-        Assert.Skip("Not yet implemented in C# port");
+        Assert.Skip("Skipped: matches upstream C++ GTEST_SKIP()");
         var config = YGConfigNew();
         var root = YGNodeNewWithConfig(config);
         YGNodeStyleSetPositionType(root, YGPositionType.Absolute);
