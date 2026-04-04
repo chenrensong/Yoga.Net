@@ -1,156 +1,115 @@
-using System;
-using System.Collections.Generic;
+// Copyright (c) Meta Platforms, Inc. and affiliates.
+//
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
+//
+// Original: yoga/YGConfig.h, yoga/YGConfig.cpp
 
-namespace Yoga
+namespace Facebook.Yoga
 {
-    [Flags]
-    public enum Errata
+    /// <summary>
+    /// Public C-style API for Yoga configuration.
+    /// Delegates to the internal Config class.
+    /// </summary>
+    public static class YGConfigAPI
     {
-        None = 0,
-        Classic = 1 << 0,
-        StretchFlexBasis = 1 << 1,
-        All = Classic | StretchFlexBasis
-    }
-
-    public enum ExperimentalFeature
-    {
-        WebFlexBaselines
-    }
-
-    public enum LogLevel
-    {
-        Error,
-        Warn,
-        Info,
-        Debug,
-        Verbose
-    }
-
-    public enum FlexDirection
-    {
-        Column,
-        ColumnReverse,
-        Row,
-        RowReverse
-    }
-
-    public enum PositionType
-    {
-        Static,
-        Relative,
-        Absolute
-    }
-
-    public delegate void YGLogger(
-        Config config,
-        Node node,
-        LogLevel level,
-        string format,
-        params object[] args);
-
-    public delegate Node YGCloneNodeFunc(
-        Node oldNode,
-        Node owner,
-        int childIndex);
-
-    public class Node
-    {
-    }
-
-    public class Config : IDisposable
-    {
-        private static readonly Lazy<Config> _default = new(() => CreateDefault());
-
-        private bool _useWebDefaults;
-        private float _pointScaleFactor = 1.0f;
-        private Errata _errata = Errata.None;
-        private YGLogger? _logger;
-        private object? _context;
-        private Dictionary<ExperimentalFeature, bool> _experimentalFeatures = new();
-        private YGCloneNodeFunc? _cloneNodeFunc;
-
-        private static YGLogger? _defaultLogger;
-
-        public static Config Default => _default.Value;
-
-        private static Config CreateDefault()
+        public static Config YGConfigNew()
         {
-            var config = new Config();
-            config._logger = GetDefaultLoggerInternal();
-            return config;
+            return new Config();
         }
 
-        private static YGLogger GetDefaultLoggerInternal()
+        public static void YGConfigFree(Config config)
         {
-            return (config, node, level, format, args) => { };
+            // In C#, GC handles deallocation. No-op.
         }
 
-        public static YGLogger GetDefaultLogger()
+        public static Config YGConfigGetDefault()
         {
-            _defaultLogger ??= GetDefaultLoggerInternal();
-            return _defaultLogger;
+            return Config.Default;
         }
 
-        public bool UseWebDefaults
+        public static void YGConfigSetUseWebDefaults(Config config, bool enabled)
         {
-            get => _useWebDefaults;
-            set => _useWebDefaults = value;
+            config.SetUseWebDefaults(enabled);
         }
 
-        public float PointScaleFactor
+        public static bool YGConfigGetUseWebDefaults(Config config)
         {
-            get => _pointScaleFactor;
-            set
+            return config.UseWebDefaults();
+        }
+
+        public static void YGConfigSetPointScaleFactor(Config config, float pixelsInPoint)
+        {
+            Debug.AssertFatal.AssertWithConfig(
+                config,
+                pixelsInPoint >= 0.0f,
+                "Scale factor should not be less than zero");
+
+            config.SetPointScaleFactor(pixelsInPoint);
+        }
+
+        public static float YGConfigGetPointScaleFactor(Config config)
+        {
+            return config.GetPointScaleFactor();
+        }
+
+        public static void YGConfigSetErrata(Config config, YGErrata errata)
+        {
+            config.SetErrata(errata.ToInternal());
+        }
+
+        public static YGErrata YGConfigGetErrata(Config config)
+        {
+            return config.GetErrata().ToYG();
+        }
+
+        public static void YGConfigSetLogger(Config config, YGLogger? logger)
+        {
+            if (logger != null)
             {
-                if (value < 0.0f)
-                    throw new ArgumentException("Scale factor should not be less than zero");
-                _pointScaleFactor = value;
+                config.SetLogger(logger);
+            }
+            else
+            {
+                config.SetLogger((c, n, l, m) => { });
             }
         }
 
-        public Errata Errata
+        public static void YGConfigSetContext(Config config, object? context)
         {
-            get => _errata;
-            set => _errata = value;
+            config.SetContext(context!);
         }
 
-        public YGLogger? Logger
+        public static object? YGConfigGetContext(Config config)
         {
-            get => _logger;
-            set => _logger = value ?? GetDefaultLogger();
+            return config.GetContext();
         }
 
-        public object? Context
+        public static void YGConfigSetExperimentalFeatureEnabled(
+            Config config,
+            YGExperimentalFeature feature,
+            bool enabled)
         {
-            get => _context;
-            set => _context = value;
+            config.SetExperimentalFeatureEnabled(feature.ToInternal(), enabled);
         }
 
-        public bool IsExperimentalFeatureEnabled(ExperimentalFeature feature)
+        public static bool YGConfigIsExperimentalFeatureEnabled(
+            Config config,
+            YGExperimentalFeature feature)
         {
-            return _experimentalFeatures.TryGetValue(feature, out var enabled) && enabled;
+            return config.IsExperimentalFeatureEnabled(feature.ToInternal());
         }
 
-        public void SetExperimentalFeatureEnabled(ExperimentalFeature feature, bool enabled)
+        public static void YGConfigSetCloneNodeFunc(Config config, YGCloneNodeFunc? callback)
         {
-            _experimentalFeatures[feature] = enabled;
-        }
-
-        public YGCloneNodeFunc? CloneNodeFunc
-        {
-            get => _cloneNodeFunc;
-            set => _cloneNodeFunc = value;
-        }
-
-        public void Log(Node node, LogLevel level, string format, params object[] args)
-        {
-            _logger?.Invoke(this, node, level, format, args);
-        }
-
-        public void Dispose()
-        {
-            _experimentalFeatures.Clear();
+            if (callback != null)
+            {
+                config.SetCloneNodeCallback(callback);
+            }
+            else
+            {
+                config.SetCloneNodeCallback(null!);
+            }
         }
     }
 }
-

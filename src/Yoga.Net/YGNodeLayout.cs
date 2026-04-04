@@ -2,182 +2,106 @@
 //
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
+//
+// Original: yoga/YGNodeLayout.h, yoga/YGNodeLayout.cpp
 
-namespace Yoga
+namespace Facebook.Yoga
 {
-    public enum YGDirection
+    /// <summary>
+    /// Public C-style API for reading layout results.
+    /// Delegates to the internal Node.GetLayout() / LayoutResults.
+    /// </summary>
+    public static class YGNodeLayoutAPI
     {
-        Inherit,
-        LTR,
-        RTL
-    }
-
-    public enum YGEdge
-    {
-        Left,
-        Top,
-        Right,
-        Bottom,
-        Start,
-        End,
-        Horizontal,
-        Vertical,
-        All
-    }
-
-    internal enum Edge
-    {
-        Left,
-        Top,
-        Right,
-        Bottom,
-        Start,
-        End,
-        Horizontal,
-        Vertical,
-        All
-    }
-
-    internal enum PhysicalEdge
-    {
-        Left,
-        Top,
-        Right,
-        Bottom
-    }
-
-    internal enum Dimension
-    {
-        Width,
-        Height
-    }
-
-    internal class LayoutResults
-    {
-        private float[] _position = new float[4];
-        private float[] _dimension = new float[2];
-        private float[] _rawDimension = new float[2];
-        private float[] _margin = new float[4];
-        private float[] _border = new float[4];
-        private float[] _padding = new float[4];
-        private YGDirection _direction;
-        private bool _hadOverflow;
-
-        public float position(PhysicalEdge edge) => _position[(int)edge];
-        public float dimension(Dimension dim) => _dimension[(int)dim];
-        public float rawDimension(Dimension dim) => _rawDimension[(int)dim];
-        public float margin(PhysicalEdge edge) => _margin[(int)edge];
-        public float border(PhysicalEdge edge) => _border[(int)edge];
-        public float padding(PhysicalEdge edge) => _padding[(int)edge];
-        public YGDirection direction() => _direction;
-        public bool hadOverflow() => _hadOverflow;
-
-        internal void SetPosition(PhysicalEdge edge, float value) => _position[(int)edge] = value;
-        internal void SetDimension(Dimension dim, float value) => _dimension[(int)dim] = value;
-        internal void SetRawDimension(Dimension dim, float value) => _rawDimension[(int)dim] = value;
-        internal void SetMargin(PhysicalEdge edge, float value) => _margin[(int)edge] = value;
-        internal void SetBorder(PhysicalEdge edge, float value) => _border[(int)edge] = value;
-        internal void SetPadding(PhysicalEdge edge, float value) => _padding[(int)edge] = value;
-        internal void SetDirection(YGDirection value) => _direction = value;
-        internal void SetHadOverflow(bool value) => _hadOverflow = value;
-    }
-
-    public class YogaNode
-    {
-        private LayoutResults _layout = new LayoutResults();
-
-        internal LayoutResults getLayout() => _layout;
-
-        internal static void AssertFatalWithNode(YogaNode node, bool condition, string message)
+        public static float YGNodeLayoutGetLeft(Node node)
         {
-            if (!condition)
-            {
-                throw new System.InvalidOperationException(message);
-            }
-        }
-    }
-
-    public static class YogaNodeLayout
-    {
-        public static float GetLeft(YogaNode node)
-        {
-            return node.getLayout().position(PhysicalEdge.Left);
+            return node.GetLayout().Position(PhysicalEdge.Left);
         }
 
-        public static float GetTop(YogaNode node)
+        public static float YGNodeLayoutGetTop(Node node)
         {
-            return node.getLayout().position(PhysicalEdge.Top);
+            return node.GetLayout().Position(PhysicalEdge.Top);
         }
 
-        public static float GetRight(YogaNode node)
+        public static float YGNodeLayoutGetRight(Node node)
         {
-            return node.getLayout().position(PhysicalEdge.Right);
+            return node.GetLayout().Position(PhysicalEdge.Right);
         }
 
-        public static float GetBottom(YogaNode node)
+        public static float YGNodeLayoutGetBottom(Node node)
         {
-            return node.getLayout().position(PhysicalEdge.Bottom);
+            return node.GetLayout().Position(PhysicalEdge.Bottom);
         }
 
-        public static float GetWidth(YogaNode node)
+        public static float YGNodeLayoutGetWidth(Node node)
         {
-            return node.getLayout().dimension(Dimension.Width);
+            return node.GetLayout().Dimension(Dimension.Width);
         }
 
-        public static float GetHeight(YogaNode node)
+        public static float YGNodeLayoutGetHeight(Node node)
         {
-            return node.getLayout().dimension(Dimension.Height);
+            return node.GetLayout().Dimension(Dimension.Height);
         }
 
-        public static YGDirection GetDirection(YogaNode node)
+        public static YGDirection YGNodeLayoutGetDirection(Node node)
         {
-            return node.getLayout().direction();
+            return node.GetLayout().GetDirection().ToYG();
         }
 
-        public static bool GetHadOverflow(YogaNode node)
+        public static bool YGNodeLayoutGetHadOverflow(Node node)
         {
-            return node.getLayout().hadOverflow();
+            return node.GetLayout().HadOverflow();
         }
 
-        public static float GetMargin(YogaNode node, YGEdge edge)
+        public static float YGNodeLayoutGetMargin(Node node, YGEdge edge)
         {
-            return GetResolvedLayoutProperty((n, e) => n.getLayout().margin(e), node, (Edge)edge);
+            return GetResolvedLayoutProperty(
+                (n, e) => n.GetLayout().Margin(e),
+                node,
+                edge.ToInternal());
         }
 
-        public static float GetBorder(YogaNode node, YGEdge edge)
+        public static float YGNodeLayoutGetBorder(Node node, YGEdge edge)
         {
-            return GetResolvedLayoutProperty((n, e) => n.getLayout().border(e), node, (Edge)edge);
+            return GetResolvedLayoutProperty(
+                (n, e) => n.GetLayout().Border(e),
+                node,
+                edge.ToInternal());
         }
 
-        public static float GetPadding(YogaNode node, YGEdge edge)
+        public static float YGNodeLayoutGetPadding(Node node, YGEdge edge)
         {
-            return GetResolvedLayoutProperty((n, e) => n.getLayout().padding(e), node, (Edge)edge);
+            return GetResolvedLayoutProperty(
+                (n, e) => n.GetLayout().Padding(e),
+                node,
+                edge.ToInternal());
         }
 
-        public static float GetRawHeight(YogaNode node)
+        public static float YGNodeLayoutGetRawHeight(Node node)
         {
-            return node.getLayout().rawDimension(Dimension.Height);
+            return node.GetLayout().RawDimension(Dimension.Height);
         }
 
-        public static float GetRawWidth(YogaNode node)
+        public static float YGNodeLayoutGetRawWidth(Node node)
         {
-            return node.getLayout().rawDimension(Dimension.Width);
+            return node.GetLayout().RawDimension(Dimension.Width);
         }
 
-        private delegate float LayoutPropertyGetter(YogaNode node, PhysicalEdge edge);
+        private delegate float LayoutPropertyGetter(Node node, PhysicalEdge edge);
 
-        private static float GetResolvedLayoutProperty(LayoutPropertyGetter getter, YogaNode node, Edge edge)
+        private static float GetResolvedLayoutProperty(
+            LayoutPropertyGetter getter,
+            Node node,
+            Edge edge)
         {
-            YogaNode.AssertFatalWithNode(
+            Debug.AssertFatal.AssertWithNode(
                 node,
                 edge <= Edge.End,
                 "Cannot get layout properties of multi-edge shorthands");
 
-            var layout = node.getLayout();
-
             if (edge == Edge.Start)
             {
-                if (layout.direction() == YGDirection.RTL)
+                if (node.GetLayout().GetDirection() == Direction.RTL)
                 {
                     return getter(node, PhysicalEdge.Right);
                 }
@@ -189,7 +113,7 @@ namespace Yoga
 
             if (edge == Edge.End)
             {
-                if (layout.direction() == YGDirection.RTL)
+                if (node.GetLayout().GetDirection() == Direction.RTL)
                 {
                     return getter(node, PhysicalEdge.Left);
                 }
@@ -199,8 +123,7 @@ namespace Yoga
                 }
             }
 
-            return getter(node, (PhysicalEdge)edge);
+            return getter(node, (PhysicalEdge)(byte)edge);
         }
     }
 }
-

@@ -1,36 +1,17 @@
-using System;
+// Copyright (c) Meta Platforms, Inc. and affiliates.
+//
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
+//
+// Original: yoga/YGPixelGrid.h, yoga/YGPixelGrid.cpp
 
 namespace Facebook.Yoga
 {
-    internal static class PixelGrid
-    {
-        public static float RoundValueToPixelGrid(
-            double value,
-            double pointScaleFactor,
-            bool forceCeil,
-            bool forceFloor)
-        {
-            double scaledValue = value * pointScaleFactor;
-            double roundedValue;
-
-            if (forceCeil)
-            {
-                roundedValue = Math.Ceiling(scaledValue);
-            }
-            else if (forceFloor)
-            {
-                roundedValue = Math.Floor(scaledValue);
-            }
-            else
-            {
-                roundedValue = Math.Round(scaledValue);
-            }
-
-            return (float)(roundedValue / pointScaleFactor);
-        }
-    }
-
-    public static partial class YogaNative
+    /// <summary>
+    /// Public C-style API wrapper for pixel grid rounding.
+    /// Delegates to the internal PixelGrid class.
+    /// </summary>
+    public static class YGPixelGridAPI
     {
         public static float YGRoundValueToPixelGrid(
             double value,
@@ -43,5 +24,3 @@ namespace Facebook.Yoga
         }
     }
 }
-</br>
-

@@ -55,7 +55,7 @@ namespace Facebook.Yoga
             uint depth,
             uint generationCount)
         {
-            var mainAxis = node.Style.FlexDirection().ResolveDirection(direction);
+            var mainAxis = node.Style.FlexDirection.ResolveDirection(direction);
             bool isMainAxisRow = mainAxis.IsRow();
             float mainAxisSize = isMainAxisRow ? width : height;
             float mainAxisOwnerSize = isMainAxisRow ? ownerWidth : ownerHeight;
@@ -663,7 +663,7 @@ namespace Facebook.Yoga
             float flexGrowFactor = 0;
             float deltaFreeSpace = 0;
             bool isMainAxisRow = mainAxis.IsRow();
-            bool isNodeFlexWrap = node.Style.FlexWrap() != Wrap.NoWrap;
+            bool isNodeFlexWrap = node.Style.FlexWrap != Wrap.NoWrap;
 
             foreach (var currentLineChild in flexLine.ItemsInFlow)
             {
@@ -1186,7 +1186,7 @@ namespace Facebook.Yoga
             uint generationCount)
         {
             uint kDefaultGenerationCount = 0;
-            FlexDirection mainAxis = node.Style.FlexDirection().ResolveDirection(ownerDirection);
+            FlexDirection mainAxis = node.Style.FlexDirection.ResolveDirection(ownerDirection);
             FlexDirection crossAxis = mainAxis.ToOpposite();
             bool isMainAxisRow = mainAxis.IsRow();
             SizingMode sizingModeMainDim =
@@ -1194,7 +1194,7 @@ namespace Facebook.Yoga
             SizingMode sizingModeCrossDim =
                 isMainAxisRow ? heightSizingMode : widthSizingMode;
 
-            bool isNodeFlexWrap = node.Style.FlexWrap() != Wrap.NoWrap;
+            bool isNodeFlexWrap = node.Style.FlexWrap != Wrap.NoWrap;
 
             float leadingPaddingAndBorderMain =
                 node.Style.ComputeFlexStartPaddingAndBorder(mainAxis, ownerDirection, ownerWidth);

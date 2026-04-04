@@ -29,9 +29,9 @@ namespace Facebook.Yoga
 
     public enum YGMeasureMode
     {
-        kYGMeasureModeUndefined,
-        kYGMeasureModeExactly,
-        kYGMeasureModeAtMost
+        Undefined,
+        Exactly,
+        AtMost
     }
 
     public struct LayoutData

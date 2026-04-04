@@ -48,14 +48,7 @@
   <ItemGroup>
     <Compile Remove="algorithm\AbsoluteLayout.cs" />
     <Compile Remove="algorithm\CalculateLayout.cs" />
-    <Compile Remove="YGConfig.cs" />
-    <Compile Remove="YGEnums.cs" />
-    <Compile Remove="YGNode.cs" />
-    <Compile Remove="YGNodeLayout.cs" />
-    <Compile Remove="YGNodeStyle.cs" />
-    <Compile Remove="YGPixelGrid.cs" />
-    <Compile Remove="YGValue.cs" />
-    <Compile Remove="Yoga.cs" />
+    <!-- All YG* public API wrapper files are now included -->
   </ItemGroup>
 
 

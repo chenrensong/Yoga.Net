@@ -1,410 +1,463 @@
-namespace YogaSharp;
+// Copyright (c) Meta Platforms, Inc. and affiliates.
+//
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
+//
+// Original: yoga/YGEnums.h, yoga/YGEnums.cpp
 
-public enum YGAlign
+namespace Facebook.Yoga
 {
-    Auto,
-    FlexStart,
-    Center,
-    FlexEnd,
-    Stretch,
-    Baseline,
-    SpaceBetween,
-    SpaceAround,
-    SpaceEvenly,
-    Start,
-    End
-}
+    // YG-prefixed enums for C-style public API compatibility.
+    // These mirror the internal enums (Direction, Align, etc.) with the same ordinal values.
 
-public enum YGBoxSizing
-{
-    BorderBox,
-    ContentBox
-}
-
-public enum YGDimension
-{
-    Width,
-    Height
-}
-
-public enum YGDirection
-{
-    Inherit,
-    LTR,
-    RTL
-}
-
-public enum YGDisplay
-{
-    Flex,
-    None,
-    Contents,
-    Grid
-}
-
-public enum YGEdge
-{
-    Left,
-    Top,
-    Right,
-    Bottom,
-    Start,
-    End,
-    Horizontal,
-    Vertical,
-    All
-}
-
-[System.Flags]
-public enum YGErrata
-{
-    None = 0,
-    StretchFlexBasis = 1,
-    AbsolutePositionWithoutInsetsExcludesPadding = 2,
-    AbsolutePercentAgainstInnerSize = 4,
-    All = 2147483647,
-    Classic = 2147483646
-}
-
-public enum YGExperimentalFeature
-{
-    WebFlexBasis,
-    FixFlexBasisFitContent
-}
-
-public enum YGFlexDirection
-{
-    Column,
-    ColumnReverse,
-    Row,
-    RowReverse
-}
-
-public enum YGGridTrackType
-{
-    Auto,
-    Points,
-    Percent,
-    Fr,
-    Minmax
-}
-
-public enum YGGutter
-{
-    Column,
-    Row,
-    All
-}
-
-public enum YGJustify
-{
-    Auto,
-    FlexStart,
-    Center,
-    FlexEnd,
-    SpaceBetween,
-    SpaceAround,
-    SpaceEvenly,
-    Stretch,
-    Start,
-    End
-}
-
-public enum YGLogLevel
-{
-    Error,
-    Warn,
-    Info,
-    Debug,
-    Verbose,
-    Fatal
-}
-
-public enum YGMeasureMode
-{
-    Undefined,
-    Exactly,
-    AtMost
-}
-
-public enum YGNodeType
-{
-    Default,
-    Text
-}
-
-public enum YGOverflow
-{
-    Visible,
-    Hidden,
-    Scroll
-}
-
-public enum YGPositionType
-{
-    Static,
-    Relative,
-    Absolute
-}
-
-public enum YGUnit
-{
-    Undefined,
-    Point,
-    Percent,
-    Auto,
-    MaxContent,
-    FitContent,
-    Stretch
-}
-
-public enum YGWrap
-{
-    NoWrap,
-    Wrap,
-    WrapReverse
-}
-
-public static class YGEnumExtensions
-{
-    public static string ToStringFast(this YGAlign value)
+    public enum YGAlign
     {
-        return value switch
-        {
-            YGAlign.Auto => "auto",
-            YGAlign.FlexStart => "flex-start",
-            YGAlign.Center => "center",
-            YGAlign.FlexEnd => "flex-end",
-            YGAlign.Stretch => "stretch",
-            YGAlign.Baseline => "baseline",
-            YGAlign.SpaceBetween => "space-between",
-            YGAlign.SpaceAround => "space-around",
-            YGAlign.SpaceEvenly => "space-evenly",
-            YGAlign.Start => "start",
-            YGAlign.End => "end",
-            _ => "unknown"
-        };
+        Auto,
+        FlexStart,
+        Center,
+        FlexEnd,
+        Stretch,
+        Baseline,
+        SpaceBetween,
+        SpaceAround,
+        SpaceEvenly,
+        Start,
+        End
     }
 
-    public static string ToStringFast(this YGBoxSizing value)
+    // YGBoxSizing is defined in enums\BoxSizing.cs
+
+    public enum YGDimension
     {
-        return value switch
-        {
-            YGBoxSizing.BorderBox => "border-box",
-            YGBoxSizing.ContentBox => "content-box",
-            _ => "unknown"
-        };
+        Width,
+        Height
     }
 
-    public static string ToStringFast(this YGDimension value)
+    public enum YGDirection
     {
-        return value switch
-        {
-            YGDimension.Width => "width",
-            YGDimension.Height => "height",
-            _ => "unknown"
-        };
+        Inherit,
+        LTR,
+        RTL
     }
 
-    public static string ToStringFast(this YGDirection value)
+    public enum YGDisplay
     {
-        return value switch
-        {
-            YGDirection.Inherit => "inherit",
-            YGDirection.LTR => "ltr",
-            YGDirection.RTL => "rtl",
-            _ => "unknown"
-        };
+        Flex,
+        None,
+        Contents,
+        Grid
     }
 
-    public static string ToStringFast(this YGDisplay value)
+    public enum YGEdge
     {
-        return value switch
-        {
-            YGDisplay.Flex => "flex",
-            YGDisplay.None => "none",
-            YGDisplay.Contents => "contents",
-            YGDisplay.Grid => "grid",
-            _ => "unknown"
-        };
+        Left,
+        Top,
+        Right,
+        Bottom,
+        Start,
+        End,
+        Horizontal,
+        Vertical,
+        All
     }
 
-    public static string ToStringFast(this YGEdge value)
+    // YGErrata is defined in enums\Errata.cs
+
+    public enum YGExperimentalFeature
     {
-        return value switch
-        {
-            YGEdge.Left => "left",
-            YGEdge.Top => "top",
-            YGEdge.Right => "right",
-            YGEdge.Bottom => "bottom",
-            YGEdge.Start => "start",
-            YGEdge.End => "end",
-            YGEdge.Horizontal => "horizontal",
-            YGEdge.Vertical => "vertical",
-            YGEdge.All => "all",
-            _ => "unknown"
-        };
+        WebFlexBasis,
+        FixFlexBasisFitContent
     }
 
-    public static string ToStringFast(this YGErrata value)
+    public enum YGFlexDirection
     {
-        return value switch
-        {
-            YGErrata.None => "none",
-            YGErrata.StretchFlexBasis => "stretch-flex-basis",
-            YGErrata.AbsolutePositionWithoutInsetsExcludesPadding => "absolute-position-without-insets-excludes-padding",
-            YGErrata.AbsolutePercentAgainstInnerSize => "absolute-percent-against-inner-size",
-            YGErrata.All => "all",
-            YGErrata.Classic => "classic",
-            _ => "unknown"
-        };
+        Column,
+        ColumnReverse,
+        Row,
+        RowReverse
     }
 
-    public static string ToStringFast(this YGExperimentalFeature value)
+    public enum YGGridTrackType
     {
-        return value switch
-        {
-            YGExperimentalFeature.WebFlexBasis => "web-flex-basis",
-            YGExperimentalFeature.FixFlexBasisFitContent => "fix-flex-basis-fit-content",
-            _ => "unknown"
-        };
+        Auto,
+        Points,
+        Percent,
+        Fr,
+        Minmax
     }
 
-    public static string ToStringFast(this YGFlexDirection value)
+    public enum YGGutter
     {
-        return value switch
-        {
-            YGFlexDirection.Column => "column",
-            YGFlexDirection.ColumnReverse => "column-reverse",
-            YGFlexDirection.Row => "row",
-            YGFlexDirection.RowReverse => "row-reverse",
-            _ => "unknown"
-        };
+        Column,
+        Row,
+        All
     }
 
-    public static string ToStringFast(this YGGridTrackType value)
+    public enum YGJustify
     {
-        return value switch
-        {
-            YGGridTrackType.Auto => "auto",
-            YGGridTrackType.Points => "points",
-            YGGridTrackType.Percent => "percent",
-            YGGridTrackType.Fr => "fr",
-            YGGridTrackType.Minmax => "minmax",
-            _ => "unknown"
-        };
+        Auto,
+        FlexStart,
+        Center,
+        FlexEnd,
+        SpaceBetween,
+        SpaceAround,
+        SpaceEvenly,
+        Stretch,
+        Start,
+        End
     }
 
-    public static string ToStringFast(this YGGutter value)
+    public enum YGLogLevel
     {
-        return value switch
-        {
-            YGGutter.Column => "column",
-            YGGutter.Row => "row",
-            YGGutter.All => "all",
-            _ => "unknown"
-        };
+        Error,
+        Warn,
+        Info,
+        Debug,
+        Verbose,
+        Fatal
     }
 
-    public static string ToStringFast(this YGJustify value)
+    // YGMeasureMode is defined in event\event.cs
+
+    public enum YGNodeType
     {
-        return value switch
-        {
-            YGJustify.Auto => "auto",
-            YGJustify.FlexStart => "flex-start",
-            YGJustify.Center => "center",
-            YGJustify.FlexEnd => "flex-end",
-            YGJustify.SpaceBetween => "space-between",
-            YGJustify.SpaceAround => "space-around",
-            YGJustify.SpaceEvenly => "space-evenly",
-            YGJustify.Stretch => "stretch",
-            YGJustify.Start => "start",
-            YGJustify.End => "end",
-            _ => "unknown"
-        };
+        Default,
+        Text
     }
 
-    public static string ToStringFast(this YGLogLevel value)
+    public enum YGOverflow
     {
-        return value switch
-        {
-            YGLogLevel.Error => "error",
-            YGLogLevel.Warn => "warn",
-            YGLogLevel.Info => "info",
-            YGLogLevel.Debug => "debug",
-            YGLogLevel.Verbose => "verbose",
-            YGLogLevel.Fatal => "fatal",
-            _ => "unknown"
-        };
+        Visible,
+        Hidden,
+        Scroll
     }
 
-    public static string ToStringFast(this YGMeasureMode value)
+    public enum YGPositionType
     {
-        return value switch
-        {
-            YGMeasureMode.Undefined => "undefined",
-            YGMeasureMode.Exactly => "exactly",
-            YGMeasureMode.AtMost => "at-most",
-            _ => "unknown"
-        };
+        Static,
+        Relative,
+        Absolute
     }
 
-    public static string ToStringFast(this YGNodeType value)
+    public enum YGUnit
     {
-        return value switch
-        {
-            YGNodeType.Default => "default",
-            YGNodeType.Text => "text",
-            _ => "unknown"
-        };
+        Undefined,
+        Point,
+        Percent,
+        Auto,
+        MaxContent,
+        FitContent,
+        Stretch
     }
 
-    public static string ToStringFast(this YGOverflow value)
+    public enum YGWrap
     {
-        return value switch
-        {
-            YGOverflow.Visible => "visible",
-            YGOverflow.Hidden => "hidden",
-            YGOverflow.Scroll => "scroll",
-            _ => "unknown"
-        };
+        NoWrap,
+        Wrap,
+        WrapReverse
     }
 
-    public static string ToStringFast(this YGPositionType value)
+    /// <summary>
+    /// Extension methods for fast string conversion and enum conversions between YG* and internal enums.
+    /// </summary>
+    public static class YGEnumExtensions
     {
-        return value switch
-        {
-            YGPositionType.Static => "static",
-            YGPositionType.Relative => "relative",
-            YGPositionType.Absolute => "absolute",
-            _ => "unknown"
-        };
-    }
+        // Conversion: YG* enum <-> internal enum (same ordinal values, safe to cast)
 
-    public static string ToStringFast(this YGUnit value)
-    {
-        return value switch
-        {
-            YGUnit.Undefined => "undefined",
-            YGUnit.Point => "point",
-            YGUnit.Percent => "percent",
-            YGUnit.Auto => "auto",
-            YGUnit.MaxContent => "max-content",
-            YGUnit.FitContent => "fit-content",
-            YGUnit.Stretch => "stretch",
-            _ => "unknown"
-        };
-    }
+        public static Direction ToInternal(this YGDirection value) => (Direction)(byte)value;
+        public static YGDirection ToYG(this Direction value) => (YGDirection)(byte)value;
 
-    public static string ToStringFast(this YGWrap value)
-    {
-        return value switch
+        public static Align ToInternal(this YGAlign value) => (Align)(byte)value;
+        public static YGAlign ToYG(this Align value) => (YGAlign)(byte)value;
+
+        public static FlexDirection ToInternal(this YGFlexDirection value) => (FlexDirection)(byte)value;
+        public static YGFlexDirection ToYG(this FlexDirection value) => (YGFlexDirection)(byte)value;
+
+        public static Justify ToInternal(this YGJustify value) => (Justify)(byte)value;
+        public static YGJustify ToYG(this Justify value) => (YGJustify)(byte)value;
+
+        public static Wrap ToInternal(this YGWrap value) => (Wrap)(byte)value;
+        public static YGWrap ToYG(this Wrap value) => (YGWrap)(byte)value;
+
+        public static Overflow ToInternal(this YGOverflow value) => (Overflow)(byte)value;
+        public static YGOverflow ToYG(this Overflow value) => (YGOverflow)(byte)value;
+
+        public static Display ToInternal(this YGDisplay value) => (Display)(byte)value;
+        public static YGDisplay ToYG(this Display value) => (YGDisplay)(byte)value;
+
+        public static PositionType ToInternal(this YGPositionType value) => (PositionType)(byte)value;
+        public static YGPositionType ToYG(this PositionType value) => (YGPositionType)(byte)value;
+
+        public static BoxSizing ToInternal(this YGBoxSizing value) => (BoxSizing)(byte)value;
+        public static YGBoxSizing ToYG(this BoxSizing value) => (YGBoxSizing)(byte)value;
+
+        public static Edge ToInternal(this YGEdge value) => (Edge)(byte)value;
+        public static YGEdge ToYG(this Edge value) => (YGEdge)(byte)value;
+
+        public static Gutter ToInternal(this YGGutter value) => (Gutter)(byte)value;
+        public static YGGutter ToYG(this Gutter value) => (YGGutter)(byte)value;
+
+        public static Dimension ToInternal(this YGDimension value) => (Dimension)(byte)value;
+        public static YGDimension ToYG(this Dimension value) => (YGDimension)(byte)value;
+
+        public static Errata ToInternal(this YGErrata value) => (Errata)(int)value;
+        public static YGErrata ToYG(this Errata value) => (YGErrata)(int)value;
+
+        public static ExperimentalFeature ToInternal(this YGExperimentalFeature value) => (ExperimentalFeature)(byte)value;
+        public static YGExperimentalFeature ToYG(this ExperimentalFeature value) => (YGExperimentalFeature)(byte)value;
+
+        public static LogLevel ToInternal(this YGLogLevel value) => (LogLevel)(byte)value;
+        public static YGLogLevel ToYG(this LogLevel value) => (YGLogLevel)(byte)value;
+
+        public static MeasureMode ToInternal(this YGMeasureMode value) => (MeasureMode)(byte)value;
+        public static YGMeasureMode ToYG(this MeasureMode value) => (YGMeasureMode)(byte)value;
+
+        public static NodeType ToInternal(this YGNodeType value) => (NodeType)(byte)value;
+        public static YGNodeType ToYG(this NodeType value) => (YGNodeType)(byte)value;
+
+        public static Unit ToInternal(this YGUnit value) => (Unit)(byte)value;
+        public static YGUnit ToYG(this Unit value) => (YGUnit)(byte)value;
+
+        // Fast string conversion methods
+
+        public static string ToStringFast(this YGAlign value)
         {
-            YGWrap.NoWrap => "no-wrap",
-            YGWrap.Wrap => "wrap",
-            YGWrap.WrapReverse => "wrap-reverse",
-            _ => "unknown"
-        };
+            return value switch
+            {
+                YGAlign.Auto => "auto",
+                YGAlign.FlexStart => "flex-start",
+                YGAlign.Center => "center",
+                YGAlign.FlexEnd => "flex-end",
+                YGAlign.Stretch => "stretch",
+                YGAlign.Baseline => "baseline",
+                YGAlign.SpaceBetween => "space-between",
+                YGAlign.SpaceAround => "space-around",
+                YGAlign.SpaceEvenly => "space-evenly",
+                YGAlign.Start => "start",
+                YGAlign.End => "end",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGBoxSizing value)
+        {
+            return value switch
+            {
+                YGBoxSizing.BorderBox => "border-box",
+                YGBoxSizing.ContentBox => "content-box",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGDimension value)
+        {
+            return value switch
+            {
+                YGDimension.Width => "width",
+                YGDimension.Height => "height",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGDirection value)
+        {
+            return value switch
+            {
+                YGDirection.Inherit => "inherit",
+                YGDirection.LTR => "ltr",
+                YGDirection.RTL => "rtl",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGDisplay value)
+        {
+            return value switch
+            {
+                YGDisplay.Flex => "flex",
+                YGDisplay.None => "none",
+                YGDisplay.Contents => "contents",
+                YGDisplay.Grid => "grid",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGEdge value)
+        {
+            return value switch
+            {
+                YGEdge.Left => "left",
+                YGEdge.Top => "top",
+                YGEdge.Right => "right",
+                YGEdge.Bottom => "bottom",
+                YGEdge.Start => "start",
+                YGEdge.End => "end",
+                YGEdge.Horizontal => "horizontal",
+                YGEdge.Vertical => "vertical",
+                YGEdge.All => "all",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGErrata value)
+        {
+            return value switch
+            {
+                YGErrata.None => "none",
+                YGErrata.StretchFlexBasis => "stretch-flex-basis",
+                YGErrata.AbsolutePositionWithoutInsetsExcludesPadding => "absolute-position-without-insets-excludes-padding",
+                YGErrata.AbsolutePercentAgainstInnerSize => "absolute-percent-against-inner-size",
+                YGErrata.All => "all",
+                YGErrata.Classic => "classic",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGExperimentalFeature value)
+        {
+            return value switch
+            {
+                YGExperimentalFeature.WebFlexBasis => "web-flex-basis",
+                YGExperimentalFeature.FixFlexBasisFitContent => "fix-flex-basis-fit-content",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGFlexDirection value)
+        {
+            return value switch
+            {
+                YGFlexDirection.Column => "column",
+                YGFlexDirection.ColumnReverse => "column-reverse",
+                YGFlexDirection.Row => "row",
+                YGFlexDirection.RowReverse => "row-reverse",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGGridTrackType value)
+        {
+            return value switch
+            {
+                YGGridTrackType.Auto => "auto",
+                YGGridTrackType.Points => "points",
+                YGGridTrackType.Percent => "percent",
+                YGGridTrackType.Fr => "fr",
+                YGGridTrackType.Minmax => "minmax",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGGutter value)
+        {
+            return value switch
+            {
+                YGGutter.Column => "column",
+                YGGutter.Row => "row",
+                YGGutter.All => "all",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGJustify value)
+        {
+            return value switch
+            {
+                YGJustify.Auto => "auto",
+                YGJustify.FlexStart => "flex-start",
+                YGJustify.Center => "center",
+                YGJustify.FlexEnd => "flex-end",
+                YGJustify.SpaceBetween => "space-between",
+                YGJustify.SpaceAround => "space-around",
+                YGJustify.SpaceEvenly => "space-evenly",
+                YGJustify.Stretch => "stretch",
+                YGJustify.Start => "start",
+                YGJustify.End => "end",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGLogLevel value)
+        {
+            return value switch
+            {
+                YGLogLevel.Error => "error",
+                YGLogLevel.Warn => "warn",
+                YGLogLevel.Info => "info",
+                YGLogLevel.Debug => "debug",
+                YGLogLevel.Verbose => "verbose",
+                YGLogLevel.Fatal => "fatal",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGMeasureMode value)
+        {
+            return value switch
+            {
+                YGMeasureMode.Undefined => "undefined",
+                YGMeasureMode.Exactly => "exactly",
+                YGMeasureMode.AtMost => "at-most",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGNodeType value)
+        {
+            return value switch
+            {
+                YGNodeType.Default => "default",
+                YGNodeType.Text => "text",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGOverflow value)
+        {
+            return value switch
+            {
+                YGOverflow.Visible => "visible",
+                YGOverflow.Hidden => "hidden",
+                YGOverflow.Scroll => "scroll",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGPositionType value)
+        {
+            return value switch
+            {
+                YGPositionType.Static => "static",
+                YGPositionType.Relative => "relative",
+                YGPositionType.Absolute => "absolute",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGUnit value)
+        {
+            return value switch
+            {
+                YGUnit.Undefined => "undefined",
+                YGUnit.Point => "point",
+                YGUnit.Percent => "percent",
+                YGUnit.Auto => "auto",
+                YGUnit.MaxContent => "max-content",
+                YGUnit.FitContent => "fit-content",
+                YGUnit.Stretch => "stretch",
+                _ => "unknown"
+            };
+        }
+
+        public static string ToStringFast(this YGWrap value)
+        {
+            return value switch
+            {
+                YGWrap.NoWrap => "no-wrap",
+                YGWrap.Wrap => "wrap",
+                YGWrap.WrapReverse => "wrap-reverse",
+                _ => "unknown"
+            };
+        }
     }
 }
-

@@ -1,56 +1,45 @@
-// Copyright (c) Meta Platforms, Inc. and its affiliates.
+// Copyright (c) Meta Platforms, Inc. and affiliates.
 //
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 //
 // Original: yoga/YGNodeStyle.h, yoga/YGNodeStyle.cpp
 
-namespace Yoga;
+using System;
 
-// These enums would be defined elsewhere (YGEnums.h equivalent)
-public enum YGFlexDirection { Column, ColumnReverse, Row, RowReverse }
-public enum YGJustify { FlexStart, Center, FlexEnd, SpaceBetween, SpaceAround, SpaceEvenly }
-public enum YGAlign { Auto, FlexStart, Center, FlexEnd, Stretch, Baseline, SpaceBetween, SpaceAround }
-public enum YGPositionType { Static, Relative, Absolute }
-public enum YGWrap { NoWrap, Wrap, WrapReverse }
-public enum YGOverflow { Visible, Hidden, Scroll }
-public enum YGDisplay { Flex, None }
-public enum YGGutter { Column, Row, All }
-public enum YGBoxSizing { BorderBox, ContentBox }
-public enum YGGridTrackType { Points, Percent, Fr, Auto, Minmax }
-
-
-public class Style { /* Implementation elsewhere */ }
-public class StyleSizeLength { /* Implementation elsewhere */ }
-public class StyleLength { /* Implementation elsewhere */ }
-public class FloatOptional { /* Implementation elsewhere */ }
-public class GridLine { /* Implementation elsewhere */ }
-public class GridTrackSize { /* Implementation elsewhere */ }
-
-public static class YogaStyleAPI
+namespace Facebook.Yoga
 {
+    /// <summary>
+    /// Public C-style API for Yoga node style properties.
+    /// Delegates to the internal Node/Style classes.
+    /// </summary>
+    public static class YGNodeStyleAPI
+    {
+        // Helper: update a style property (simple value)
     private static void UpdateStyle<TValue>(
-        YogaNode node,
+            Node node,
         Func<Style, TValue> getter,
         Action<Style, TValue> setter,
         TValue value)
+            where TValue : IEquatable<TValue>
     {
-        var style = node.style();
-        if (!Equals(getter(style), value))
+            var style = node.Style;
+            if (!getter(style).Equals(value))
         {
             setter(style, value);
             node.MarkDirtyAndPropagate();
         }
     }
 
-    private static void UpdateStyle<TIdx, TValue>(
-        YogaNode node,
+        // Helper: update a style property (indexed value)
+        private static void UpdateStyleIndexed<TIdx, TValue>(
+            Node node,
         Func<Style, TIdx, TValue> getter,
         Action<Style, TIdx, TValue> setter,
         TIdx idx,
         TValue value)
     {
-        var style = node.style();
+            var style = node.Style;
         if (!Equals(getter(style, idx), value))
         {
             setter(style, idx, value);
@@ -58,588 +47,1059 @@ public static class YogaStyleAPI
         }
     }
 
-    public static void CopyStyle(YogaNode dstNode, YogaNode srcNode)
-    {
-        if (dstNode.style() != srcNode.style())
+        // Helper: update an enum-style property
+        private static void UpdateStyleEnum<TEnum>(
+            Node node,
+            Func<Style, TEnum> getter,
+            Action<Style, TEnum> setter,
+            TEnum value)
+            where TEnum : struct
         {
-            dstNode.setStyle(srcNode.style());
+            var style = node.Style;
+            if (!getter(style).Equals(value))
+            {
+                setter(style, value);
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        // --- CopyStyle ---
+
+        public static void YGNodeCopyStyle(Node dstNode, Node srcNode)
+        {
+            if (!dstNode.Style.Equals(srcNode.Style))
+            {
+                dstNode.SetStyle(srcNode.Style);
             dstNode.MarkDirtyAndPropagate();
         }
     }
 
-    // Direction
-    public static void SetDirection(YogaNode node, YGDirection value)
-    {
-        UpdateStyle(node,
-            s => s.direction,
-            (s, v) => s.setDirection(v),
-            value);
-    }
+        // --- Direction ---
 
-    public static YGDirection GetDirection(YogaNode node)
-    {
-        return node.style().direction();
-    }
+        public static void YGNodeStyleSetDirection(Node node, YGDirection value)
+        {
+            UpdateStyleEnum(node,
+                s => s.Direction,
+                (s, v) => s.Direction = v,
+                value.ToInternal());
+        }
 
-    // FlexDirection
-    public static void SetFlexDirection(YogaNode node, YGFlexDirection value)
-    {
-        UpdateStyle(node,
-            s => s.flexDirection,
-            (s, v) => s.setFlexDirection(v),
-            value);
-    }
+        public static YGDirection YGNodeStyleGetDirection(Node node)
+        {
+            return node.Style.Direction.ToYG();
+        }
 
-    public static YGFlexDirection GetFlexDirection(YogaNode node)
-    {
-        return node.style().flexDirection();
-    }
+        // --- FlexDirection ---
 
-    // JustifyContent
-    public static void SetJustifyContent(YogaNode node, YGJustify value)
-    {
-        UpdateStyle(node,
-            s => s.justifyContent,
-            (s, v) => s.setJustifyContent(v),
-            value);
-    }
+        public static void YGNodeStyleSetFlexDirection(Node node, YGFlexDirection value)
+        {
+            UpdateStyleEnum(node,
+                s => s.FlexDirection,
+                (s, v) => s.FlexDirection = v,
+                value.ToInternal());
+        }
 
-    public static YGJustify GetJustifyContent(YogaNode node)
-    {
-        return node.style().justifyContent();
-    }
+        public static YGFlexDirection YGNodeStyleGetFlexDirection(Node node)
+        {
+            return node.Style.FlexDirection.ToYG();
+        }
 
-    // JustifyItems
-    public static void SetJustifyItems(YogaNode node, YGJustify value)
-    {
-        UpdateStyle(node,
-            s => s.justifyItems,
-            (s, v) => s.setJustifyItems(v),
-            value);
-    }
+        // --- JustifyContent ---
 
-    public static YGJustify GetJustifyItems(YogaNode node)
-    {
-        return node.style().justifyItems();
-    }
+        public static void YGNodeStyleSetJustifyContent(Node node, YGJustify value)
+        {
+            UpdateStyleEnum(node,
+                s => s.JustifyContent,
+                (s, v) => s.JustifyContent = v,
+                value.ToInternal());
+        }
 
-    // JustifySelf
-    public static void SetJustifySelf(YogaNode node, YGJustify value)
-    {
-        UpdateStyle(node,
-            s => s.justifySelf,
-            (s, v) => s.setJustifySelf(v),
-            value);
-    }
+        public static YGJustify YGNodeStyleGetJustifyContent(Node node)
+        {
+            return node.Style.JustifyContent.ToYG();
+        }
 
-    public static YGJustify GetJustifySelf(YogaNode node)
-    {
-        return node.style().justifySelf();
-    }
+        // --- JustifyItems ---
 
-    // AlignContent
-    public static void SetAlignContent(YogaNode node, YGAlign value)
-    {
-        UpdateStyle(node,
-            s => s.alignContent,
-            (s, v) => s.setAlignContent(v),
-            value);
-    }
+        public static void YGNodeStyleSetJustifyItems(Node node, YGJustify value)
+        {
+            UpdateStyleEnum(node,
+                s => s.JustifyItems,
+                (s, v) => s.JustifyItems = v,
+                value.ToInternal());
+        }
 
-    public static YGAlign GetAlignContent(YogaNode node)
-    {
-        return node.style().alignContent();
-    }
+        public static YGJustify YGNodeStyleGetJustifyItems(Node node)
+        {
+            return node.Style.JustifyItems.ToYG();
+        }
 
-    // AlignItems
-    public static void SetAlignItems(YogaNode node, YGAlign value)
-    {
-        UpdateStyle(node,
-            s => s.alignItems,
-            (s, v) => s.setAlignItems(v),
-            value);
-    }
+        // --- JustifySelf ---
 
-    public static YGAlign GetAlignItems(YogaNode node)
-    {
-        return node.style().alignItems();
-    }
+        public static void YGNodeStyleSetJustifySelf(Node node, YGJustify value)
+        {
+            UpdateStyleEnum(node,
+                s => s.JustifySelf,
+                (s, v) => s.JustifySelf = v,
+                value.ToInternal());
+        }
 
-    // AlignSelf
-    public static void SetAlignSelf(YogaNode node, YGAlign value)
-    {
-        UpdateStyle(node,
-            s => s.alignSelf,
-            (s, v) => s.setAlignSelf(v),
-            value);
-    }
+        public static YGJustify YGNodeStyleGetJustifySelf(Node node)
+        {
+            return node.Style.JustifySelf.ToYG();
+        }
 
-    public static YGAlign GetAlignSelf(YogaNode node)
-    {
-        return node.style().alignSelf();
-    }
+        // --- AlignContent ---
 
-    // PositionType
-    public static void SetPositionType(YogaNode node, YGPositionType value)
-    {
-        UpdateStyle(node,
-            s => s.positionType,
-            (s, v) => s.setPositionType(v),
-            value);
-    }
+        public static void YGNodeStyleSetAlignContent(Node node, YGAlign value)
+        {
+            UpdateStyleEnum(node,
+                s => s.AlignContent,
+                (s, v) => s.AlignContent = v,
+                value.ToInternal());
+        }
 
-    public static YGPositionType GetPositionType(YogaNode node)
-    {
-        return node.style().positionType();
-    }
+        public static YGAlign YGNodeStyleGetAlignContent(Node node)
+        {
+            return node.Style.AlignContent.ToYG();
+        }
 
-    // FlexWrap
-    public static void SetFlexWrap(YogaNode node, YGWrap value)
-    {
-        UpdateStyle(node,
-            s => s.flexWrap,
-            (s, v) => s.setFlexWrap(v),
-            value);
-    }
+        // --- AlignItems ---
 
-    public static YGWrap GetFlexWrap(YogaNode node)
-    {
-        return node.style().flexWrap();
-    }
+        public static void YGNodeStyleSetAlignItems(Node node, YGAlign value)
+        {
+            UpdateStyleEnum(node,
+                s => s.AlignItems,
+                (s, v) => s.AlignItems = v,
+                value.ToInternal());
+        }
 
-    // Overflow
-    public static void SetOverflow(YogaNode node, YGOverflow value)
-    {
-        UpdateStyle(node,
-            s => s.overflow,
-            (s, v) => s.setOverflow(v),
-            value);
-    }
+        public static YGAlign YGNodeStyleGetAlignItems(Node node)
+        {
+            return node.Style.AlignItems.ToYG();
+        }
 
-    public static YGOverflow GetOverflow(YogaNode node)
-    {
-        return node.style().overflow();
-    }
+        // --- AlignSelf ---
 
-    // Display
-    public static void SetDisplay(YogaNode node, YGDisplay value)
-    {
-        UpdateStyle(node,
-            s => s.display,
-            (s, v) => s.setDisplay(v),
-            value);
-    }
+        public static void YGNodeStyleSetAlignSelf(Node node, YGAlign value)
+        {
+            UpdateStyleEnum(node,
+                s => s.AlignSelf,
+                (s, v) => s.AlignSelf = v,
+                value.ToInternal());
+        }
 
-    public static YGDisplay GetDisplay(YogaNode node)
-    {
-        return node.style().display();
-    }
+        public static YGAlign YGNodeStyleGetAlignSelf(Node node)
+        {
+            return node.Style.AlignSelf.ToYG();
+        }
 
-    // Flex
-    public static void SetFlex(YogaNode node, float value)
-    {
-        UpdateStyle(node,
-            s => s.flex,
-            (s, v) => s.setFlex(new FloatOptional(v)),
-            new FloatOptional(value));
-    }
+        // --- PositionType ---
 
-    public static float GetFlex(YogaNode node)
-    {
-        var flex = node.style().flex();
-        return flex.isUndefined() ? float.NaN : flex.unwrap();
-    }
+        public static void YGNodeStyleSetPositionType(Node node, YGPositionType value)
+        {
+            UpdateStyleEnum(node,
+                s => s.PositionType,
+                (s, v) => s.PositionType = v,
+                value.ToInternal());
+        }
 
-    // FlexGrow
-    public static void SetFlexGrow(YogaNode node, float value)
-    {
-        UpdateStyle(node,
-            s => s.flexGrow,
-            (s, v) => s.setFlexGrow(v),
-            new FloatOptional(value));
-    }
+        public static YGPositionType YGNodeStyleGetPositionType(Node node)
+        {
+            return node.Style.PositionType.ToYG();
+        }
 
-    public static float GetFlexGrow(YogaNode node)
-    {
-        var flexGrow = node.style().flexGrow();
-        return flexGrow.isUndefined() ? 0.0f : flexGrow.unwrap();
-    }
+        // --- FlexWrap ---
 
-    // FlexShrink
-    public static void SetFlexShrink(YogaNode node, float value)
-    {
-        UpdateStyle(node,
-            s => s.flexShrink,
-            (s, v) => s.setFlexShrink(v),
-            new FloatOptional(value));
-    }
+        public static void YGNodeStyleSetFlexWrap(Node node, YGWrap value)
+        {
+            UpdateStyleEnum(node,
+                s => s.FlexWrap,
+                (s, v) => s.FlexWrap = v,
+                value.ToInternal());
+        }
 
-    public static float GetFlexShrink(YogaNode node)
-    {
-        var flexShrink = node.style().flexShrink();
-        return flexShrink.isUndefined()
-            ? (node.getConfig().useWebDefaults() ? 1.0f : 0.0f)
-            : flexShrink.unwrap();
-    }
+        public static YGWrap YGNodeStyleGetFlexWrap(Node node)
+        {
+            return node.Style.FlexWrap.ToYG();
+        }
 
-    // FlexBasis
-    public static void SetFlexBasis(YogaNode node, float value)
-    {
-        UpdateStyle(node,
-            s => s.flexBasis,
-            (s, v) => s.setFlexBasis(v),
-            StyleSizeLength.points(value));
-    }
+        // --- Overflow ---
 
-    public static void SetFlexBasisPercent(YogaNode node, float value)
-    {
-        UpdateStyle(node,
-            s => s.flexBasis,
-            (s, v) => s.setFlexBasis(v),
-            StyleSizeLength.percent(value));
-    }
+        public static void YGNodeStyleSetOverflow(Node node, YGOverflow value)
+        {
+            UpdateStyleEnum(node,
+                s => s.Overflow,
+                (s, v) => s.Overflow = v,
+                value.ToInternal());
+        }
 
-    public static void SetFlexBasisAuto(YogaNode node)
-    {
-        UpdateStyle(node,
-            s => s.flexBasis,
-            (s, v) => s.setFlexBasis(v),
-            StyleSizeLength.ofAuto());
-    }
+        public static YGOverflow YGNodeStyleGetOverflow(Node node)
+        {
+            return node.Style.Overflow.ToYG();
+        }
 
-    public static void SetFlexBasisMaxContent(YogaNode node)
-    {
-        UpdateStyle(node,
-            s => s.flexBasis,
-            (s, v) => s.setFlexBasis(v),
-            StyleSizeLength.ofMaxContent());
-    }
+        // --- Display ---
 
-    public static void SetFlexBasisFitContent(YogaNode node)
-    {
-        UpdateStyle(node,
-            s => s.flexBasis,
-            (s, v) => s.setFlexBasis(v),
-            StyleSizeLength.ofFitContent());
-    }
+        public static void YGNodeStyleSetDisplay(Node node, YGDisplay value)
+        {
+            UpdateStyleEnum(node,
+                s => s.Display,
+                (s, v) => s.Display = v,
+                value.ToInternal());
+        }
 
-    public static void SetFlexBasisStretch(YogaNode node)
-    {
-        UpdateStyle(node,
-            s => s.flexBasis,
-            (s, v) => s.setFlexBasis(v),
-            StyleSizeLength.ofStretch());
-    }
+        public static YGDisplay YGNodeStyleGetDisplay(Node node)
+        {
+            return node.Style.Display.ToYG();
+        }
 
-    public static YGValue GetFlexBasis(YogaNode node)
-    {
-        return (YGValue)node.style().flexBasis();
-    }
+        // --- Flex ---
 
-    // Position
-    public static void SetPosition(YogaNode node, YGEdge edge, float points)
-    {
-        UpdateStyle(node,
-            (s, e) => s.position(e),
-            (s, e, v) => s.setPosition(e, v),
-            edge,
-            StyleLength.points(points));
-    }
+        public static void YGNodeStyleSetFlex(Node node, float flex)
+        {
+            var newValue = new FloatOptional(flex);
+            if (node.Style.Flex != newValue)
+            {
+                node.Style.Flex = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
 
-    public static void SetPositionPercent(YogaNode node, YGEdge edge, float percent)
-    {
-        UpdateStyle(node,
-            (s, e) => s.position(e),
-            (s, e, v) => s.setPosition(e, v),
-            edge,
-            StyleLength.percent(percent));
-    }
+        public static float YGNodeStyleGetFlex(Node node)
+        {
+            return node.Style.Flex.IsUndefined()
+                ? YogaConstants.Undefined
+                : node.Style.Flex.Unwrap();
+        }
 
-    public static void SetPositionAuto(YogaNode node, YGEdge edge)
-    {
-        UpdateStyle(node,
-            (s, e) => s.position(e),
-            (s, e, v) => s.setPosition(e, v),
-            edge,
-            StyleLength.ofAuto());
-    }
+        // --- FlexGrow ---
 
-    public static YGValue GetPosition(YogaNode node, YGEdge edge)
-    {
-        return (YGValue)node.style().position(edge);
-    }
+        public static void YGNodeStyleSetFlexGrow(Node node, float flexGrow)
+        {
+            var newValue = new FloatOptional(flexGrow);
+            if (node.Style.FlexGrow != newValue)
+            {
+                node.Style.FlexGrow = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
 
-    // Margin
-    public static void SetMargin(YogaNode node, YGEdge edge, float points)
-    {
-        UpdateStyle(node,
-            (s, e) => s.margin(e),
-            (s, e, v) => s.setMargin(e, v),
-            edge,
-            StyleLength.points(points));
-    }
+        public static float YGNodeStyleGetFlexGrow(Node node)
+        {
+            return node.Style.FlexGrow.IsUndefined()
+                ? Style.DefaultFlexGrow
+                : node.Style.FlexGrow.Unwrap();
+        }
 
-    public static void SetMarginPercent(YogaNode node, YGEdge edge, float percent)
-    {
-        UpdateStyle(node,
-            (s, e) => s.margin(e),
-            (s, e, v) => s.setMargin(e, v),
-            edge,
-            StyleLength.percent(percent));
-    }
+        // --- FlexShrink ---
 
-    public static void SetMarginAuto(YogaNode node, YGEdge edge)
-    {
-        UpdateStyle(node,
-            (s, e) => s.margin(e),
-            (s, e, v) => s.setMargin(e, v),
-            edge,
-            StyleLength.ofAuto());
-    }
+        public static void YGNodeStyleSetFlexShrink(Node node, float flexShrink)
+        {
+            var newValue = new FloatOptional(flexShrink);
+            if (node.Style.FlexShrink != newValue)
+            {
+                node.Style.FlexShrink = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
 
-    public static YGValue GetMargin(YogaNode node, YGEdge edge)
-    {
-        return (YGValue)node.style().margin(edge);
-    }
+        public static float YGNodeStyleGetFlexShrink(Node node)
+        {
+            return node.Style.FlexShrink.IsUndefined()
+                ? (node.GetConfig()!.UseWebDefaults()
+                    ? Style.WebDefaultFlexShrink
+                    : Style.DefaultFlexShrink)
+                : node.Style.FlexShrink.Unwrap();
+        }
 
-    // Padding
-    public static void SetPadding(YogaNode node, YGEdge edge, float points)
-    {
-        UpdateStyle(node,
-            (s, e) => s.padding(e),
-            (s, e, v) => s.setPadding(e, v),
-            edge,
-            StyleLength.points(points));
-    }
+        // --- FlexBasis ---
 
-    public static void SetPaddingPercent(YogaNode node, YGEdge edge, float percent)
-    {
-        UpdateStyle(node,
-            (s, e) => s.padding(e),
-            (s, e, v) => s.setPadding(e, v),
-            edge,
-            StyleLength.percent(percent));
-    }
+        public static void YGNodeStyleSetFlexBasis(Node node, float flexBasis)
+        {
+            var newValue = StyleSizeLength.Points(flexBasis);
+            if (node.Style.FlexBasis != newValue)
+            {
+                node.Style.FlexBasis = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
 
-    public static YGValue GetPadding(YogaNode node, YGEdge edge)
-    {
-        return (YGValue)node.style().padding(edge);
-    }
+        public static void YGNodeStyleSetFlexBasisPercent(Node node, float flexBasisPercent)
+        {
+            var newValue = StyleSizeLength.Percent(flexBasisPercent);
+            if (node.Style.FlexBasis != newValue)
+            {
+                node.Style.FlexBasis = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
 
-    // Border
-    public static void SetBorder(YogaNode node, YGEdge edge, float border)
-    {
-        UpdateStyle(node,
-            (s, e) => s.border(e),
-            (s, e, v) => s.setBorder(e, v),
-            edge,
-            StyleLength.points(border));
-    }
+        public static void YGNodeStyleSetFlexBasisAuto(Node node)
+        {
+            var newValue = StyleSizeLength.OfAuto();
+            if (node.Style.FlexBasis != newValue)
+            {
+                node.Style.FlexBasis = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
 
-    public static float GetBorder(YogaNode node, YGEdge edge)
-    {
-        var border = node.style().border(edge);
-        if (border.isUndefined() || border.isAuto())
-            return float.NaN;
+        public static void YGNodeStyleSetFlexBasisMaxContent(Node node)
+        {
+            var newValue = StyleSizeLength.OfMaxContent();
+            if (node.Style.FlexBasis != newValue)
+            {
+                node.Style.FlexBasis = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetFlexBasisFitContent(Node node)
+        {
+            var newValue = StyleSizeLength.OfFitContent();
+            if (node.Style.FlexBasis != newValue)
+            {
+                node.Style.FlexBasis = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetFlexBasisStretch(Node node)
+        {
+            var newValue = StyleSizeLength.OfStretch();
+            if (node.Style.FlexBasis != newValue)
+            {
+                node.Style.FlexBasis = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static YGValue YGNodeStyleGetFlexBasis(Node node)
+        {
+            return node.Style.FlexBasis.ToYGValue();
+        }
+
+        // --- Position ---
+
+        public static void YGNodeStyleSetPosition(Node node, YGEdge edge, float points)
+        {
+            var internalEdge = edge.ToInternal();
+            var newValue = StyleLength.Points(points);
+            if (node.Style.Position(internalEdge) != newValue)
+            {
+                node.Style.SetPosition(internalEdge, newValue);
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetPositionPercent(Node node, YGEdge edge, float percent)
+        {
+            var internalEdge = edge.ToInternal();
+            var newValue = StyleLength.Percent(percent);
+            if (node.Style.Position(internalEdge) != newValue)
+            {
+                node.Style.SetPosition(internalEdge, newValue);
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetPositionAuto(Node node, YGEdge edge)
+        {
+            var internalEdge = edge.ToInternal();
+            var newValue = StyleLength.OfAuto();
+            if (node.Style.Position(internalEdge) != newValue)
+            {
+                node.Style.SetPosition(internalEdge, newValue);
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static YGValue YGNodeStyleGetPosition(Node node, YGEdge edge)
+        {
+            return (YGValue)node.Style.Position(edge.ToInternal());
+        }
+
+        // --- Margin ---
+
+        public static void YGNodeStyleSetMargin(Node node, YGEdge edge, float points)
+        {
+            var internalEdge = edge.ToInternal();
+            var newValue = StyleLength.Points(points);
+            if (node.Style.Margin(internalEdge) != newValue)
+            {
+                node.Style.SetMargin(internalEdge, newValue);
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetMarginPercent(Node node, YGEdge edge, float percent)
+        {
+            var internalEdge = edge.ToInternal();
+            var newValue = StyleLength.Percent(percent);
+            if (node.Style.Margin(internalEdge) != newValue)
+            {
+                node.Style.SetMargin(internalEdge, newValue);
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetMarginAuto(Node node, YGEdge edge)
+        {
+            var internalEdge = edge.ToInternal();
+            var newValue = StyleLength.OfAuto();
+            if (node.Style.Margin(internalEdge) != newValue)
+            {
+                node.Style.SetMargin(internalEdge, newValue);
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static YGValue YGNodeStyleGetMargin(Node node, YGEdge edge)
+        {
+            return (YGValue)node.Style.Margin(edge.ToInternal());
+        }
+
+        // --- Padding ---
+
+        public static void YGNodeStyleSetPadding(Node node, YGEdge edge, float points)
+        {
+            var internalEdge = edge.ToInternal();
+            var newValue = StyleLength.Points(points);
+            if (node.Style.Padding(internalEdge) != newValue)
+            {
+                node.Style.SetPadding(internalEdge, newValue);
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetPaddingPercent(Node node, YGEdge edge, float percent)
+        {
+            var internalEdge = edge.ToInternal();
+            var newValue = StyleLength.Percent(percent);
+            if (node.Style.Padding(internalEdge) != newValue)
+            {
+                node.Style.SetPadding(internalEdge, newValue);
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static YGValue YGNodeStyleGetPadding(Node node, YGEdge edge)
+        {
+            return (YGValue)node.Style.Padding(edge.ToInternal());
+        }
+
+        // --- Border ---
+
+        public static void YGNodeStyleSetBorder(Node node, YGEdge edge, float border)
+        {
+            var internalEdge = edge.ToInternal();
+            var newValue = StyleLength.Points(border);
+            if (node.Style.Border(internalEdge) != newValue)
+            {
+                node.Style.SetBorder(internalEdge, newValue);
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static float YGNodeStyleGetBorder(Node node, YGEdge edge)
+        {
+            var border = node.Style.Border(edge.ToInternal());
+            if (border.IsUndefined() || border.IsAuto())
+            {
+                return YogaConstants.Undefined;
+            }
 
         return ((YGValue)border).Value;
     }
 
-    // Gap
-    public static void SetGap(YogaNode node, YGGutter gutter, float gapLength)
-    {
-        UpdateStyle(node,
-            (s, g) => s.gap(g),
-            (s, g, v) => s.setGap(g, v),
-            gutter,
-            StyleLength.points(gapLength));
-    }
+        // --- Gap ---
 
-    public static void SetGapPercent(YogaNode node, YGGutter gutter, float percent)
-    {
-        UpdateStyle(node,
-            (s, g) => s.gap(g),
-            (s, g, v) => s.setGap(g, v),
-            gutter,
-            StyleLength.percent(percent));
-    }
+        public static void YGNodeStyleSetGap(Node node, YGGutter gutter, float gapLength)
+        {
+            var internalGutter = gutter.ToInternal();
+            var newValue = StyleLength.Points(gapLength);
+            if (node.Style.Gap(internalGutter) != newValue)
+            {
+                node.Style.SetGap(internalGutter, newValue);
+                node.MarkDirtyAndPropagate();
+            }
+        }
 
-    public static YGValue GetGap(YogaNode node, YGGutter gutter)
-    {
-        return (YGValue)node.style().gap(gutter);
-    }
+        public static void YGNodeStyleSetGapPercent(Node node, YGGutter gutter, float percent)
+        {
+            var internalGutter = gutter.ToInternal();
+            var newValue = StyleLength.Percent(percent);
+            if (node.Style.Gap(internalGutter) != newValue)
+            {
+                node.Style.SetGap(internalGutter, newValue);
+                node.MarkDirtyAndPropagate();
+            }
+        }
 
-    // AspectRatio
-    public static void SetAspectRatio(YogaNode node, float aspectRatio)
-    {
-        UpdateStyle(node,
-            s => s.aspectRatio,
-            (s, v) => s.setAspectRatio(v),
-            new FloatOptional(aspectRatio));
-    }
+        public static YGValue YGNodeStyleGetGap(Node node, YGGutter gutter)
+        {
+            return (YGValue)node.Style.Gap(gutter.ToInternal());
+        }
 
-    public static float GetAspectRatio(YogaNode node)
-    {
-        var op = node.style().aspectRatio();
-        return op.isUndefined() ? float.NaN : op.unwrap();
-    }
+        // --- AspectRatio ---
 
-    // BoxSizing
-    public static void SetBoxSizing(YogaNode node, YGBoxSizing boxSizing)
-    {
-        UpdateStyle(node,
-            s => s.boxSizing,
-            (s, v) => s.setBoxSizing(v),
-            boxSizing);
-    }
+        public static void YGNodeStyleSetAspectRatio(Node node, float aspectRatio)
+        {
+            var newValue = new FloatOptional(aspectRatio);
+            if (node.Style.AspectRatio != newValue)
+            {
+                node.Style.AspectRatio = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
 
-    public static YGBoxSizing GetBoxSizing(YogaNode node)
-    {
-        return node.style().boxSizing();
-    }
+        public static float YGNodeStyleGetAspectRatio(Node node)
+        {
+            var op = node.Style.AspectRatio;
+            return op.IsUndefined() ? YogaConstants.Undefined : op.Unwrap();
+        }
 
-    // Width & Height (Dimension setters)
-    public static void SetWidth(YogaNode node, float points)
-    {
-        UpdateStyle(node,
-            (s, d) => s.dimension(d),
-            (s, d, v) => s.setDimension(d, v),
-            Dimension.Width,
-            StyleSizeLength.points(points));
-    }
+        // --- BoxSizing ---
 
-    public static void SetWidthPercent(YogaNode node, float percent)
-    {
-        UpdateStyle(node,
-            (s, d) => s.dimension(d),
-            (s, d, v) => s.setDimension(d, v),
-            Dimension.Width,
-            StyleSizeLength.percent(percent));
-    }
+        public static void YGNodeStyleSetBoxSizing(Node node, YGBoxSizing boxSizing)
+        {
+            UpdateStyleEnum(node,
+                s => s.BoxSizing,
+                (s, v) => s.BoxSizing = v,
+                boxSizing.ToInternal());
+        }
 
-    public static void SetWidthAuto(YogaNode node)
-    {
-        UpdateStyle(node,
-            (s, d) => s.dimension(d),
-            (s, d, v) => s.setDimension(d, v),
-            Dimension.Width,
-            StyleSizeLength.ofAuto());
-    }
+        public static YGBoxSizing YGNodeStyleGetBoxSizing(Node node)
+        {
+            return node.Style.BoxSizing.ToYG();
+        }
 
-    public static void SetWidthMaxContent(YogaNode node)
-    {
-        UpdateStyle(node,
-            (s, d) => s.dimension(d),
-            (s, d, v) => s.setDimension(d, v),
-            Dimension.Width,
-            StyleSizeLength.ofMaxContent());
-    }
+        // --- Width ---
 
-    public static void SetWidthFitContent(YogaNode node)
-    {
-        UpdateStyle(node,
-            (s, d) => s.dimension(d),
-            (s, d, v) => s.setDimension(d, v),
-            Dimension.Width,
-            StyleSizeLength.ofFitContent());
-    }
+        public static void YGNodeStyleSetWidth(Node node, float points)
+        {
+            SetDimension(node, Dimension.Width, StyleSizeLength.Points(points));
+        }
 
-    public static void SetWidthStretch(YogaNode node)
-    {
-        UpdateStyle(node,
-            (s, d) => s.dimension(d),
-            (s, d, v) => s.setDimension(d, v),
-            Dimension.Width,
-            StyleSizeLength.ofStretch());
-    }
+        public static void YGNodeStyleSetWidthPercent(Node node, float percent)
+        {
+            SetDimension(node, Dimension.Width, StyleSizeLength.Percent(percent));
+        }
 
-    public static YGValue GetWidth(YogaNode node)
-    {
-        return (YGValue)node.style().dimension(Dimension.Width);
-    }
+        public static void YGNodeStyleSetWidthAuto(Node node)
+        {
+            SetDimension(node, Dimension.Width, StyleSizeLength.OfAuto());
+        }
 
-    public static void SetHeight(YogaNode node, float points)
-    {
-        UpdateStyle(node,
-            (s, d) => s.dimension(d),
-            (s, d, v) => s.setDimension(d, v),
-            Dimension.Height,
-            StyleSizeLength.points(points));
-    }
+        public static void YGNodeStyleSetWidthMaxContent(Node node)
+        {
+            SetDimension(node, Dimension.Width, StyleSizeLength.OfMaxContent());
+        }
 
-    public static void SetHeightPercent(YogaNode node, float percent)
-    {
-        UpdateStyle(node,
-            (s, d) => s.dimension(d),
-            (s, d, v) => s.setDimension(d, v),
-            Dimension.Height,
-            StyleSizeLength.percent(percent));
-    }
+        public static void YGNodeStyleSetWidthFitContent(Node node)
+        {
+            SetDimension(node, Dimension.Width, StyleSizeLength.OfFitContent());
+        }
 
-    public static void SetHeightAuto(YogaNode node)
-    {
-        UpdateStyle(node,
-            (s, d) => s.dimension(d),
-            (s, d, v) => s.setDimension(d, v),
-            Dimension.Height,
-            StyleSizeLength.ofAuto());
-    }
+        public static void YGNodeStyleSetWidthStretch(Node node)
+        {
+            SetDimension(node, Dimension.Width, StyleSizeLength.OfStretch());
+        }
 
-    public static void SetHeightMaxContent(YogaNode node)
-    {
-        UpdateStyle(node,
-            (s, d) => s.dimension(d),
-            (s, d, v) => s.setDimension(d, v),
-            Dimension.Height,
-            StyleSizeLength.ofMaxContent());
-    }
+        public static YGValue YGNodeStyleGetWidth(Node node)
+        {
+            return node.Style.Dimension(Dimension.Width).ToYGValue();
+        }
 
-    public static void SetHeightFitContent(YogaNode node)
-    {
-        UpdateStyle(node,
-            (s, d) => s.dimension(d),
-            (s, d, v) => s.setDimension(d, v),
-            Dimension.Height,
-            StyleSizeLength.ofFitContent());
-    }
+        // --- Height ---
 
-    public static void SetHeightStretch(YogaNode node)
-    {
-        UpdateStyle(node,
-            (s, d) => s.dimension(d),
-            (s, d, v) => s.setDimension(d, v),
-            Dimension.Height,
-            StyleSizeLength.ofStretch());
-    }
+        public static void YGNodeStyleSetHeight(Node node, float points)
+        {
+            SetDimension(node, Dimension.Height, StyleSizeLength.Points(points));
+        }
 
-    public static YGValue GetHeight(YogaNode node)
-    {
-        return (YGValue)node.style().dimension(Dimension.Height);
-    }
+        public static void YGNodeStyleSetHeightPercent(Node node, float percent)
+        {
+            SetDimension(node, Dimension.Height, StyleSizeLength.Percent(percent));
+        }
 
-    // Min/Max Dimensions (simplified - similar pattern for all)
-    public static void SetMinWidth(YogaNode node, float minWidth)
-    {
-        UpdateStyle(node,
-            (s, d) => s.minDimension(d),
-            (s, d, v) => s.setMinDimension(d, v),
-            Dimension.Width,
-            StyleSizeLength.points(minWidth));
-    }
+        public static void YGNodeStyleSetHeightAuto(Node node)
+        {
+            SetDimension(node, Dimension.Height, StyleSizeLength.OfAuto());
+        }
 
-    public static void SetMinWidthPercent(YogaNode node, float minWidth)
-    {
-        UpdateStyle(node,
-            (s, d) => s.minDimension(d),
-            (s, d, v) => s.setMinDimension(d, v),
-            Dimension.Width,
-            StyleSizeLength.percent(minWidth));
-    }
+        public static void YGNodeStyleSetHeightMaxContent(Node node)
+        {
+            SetDimension(node, Dimension.Height, StyleSizeLength.OfMaxContent());
+        }
 
-    public static YGValue GetMinWidth(YogaNode node)
-    {
-        return (YGValue)node.style().minDimension(Dimension.Width);
-    }
+        public static void YGNodeStyleSetHeightFitContent(Node node)
+        {
+            SetDimension(node, Dimension.Height, StyleSizeLength.OfFitContent());
+        }
 
-    // Grid properties would follow the same pattern...
+        public static void YGNodeStyleSetHeightStretch(Node node)
+        {
+            SetDimension(node, Dimension.Height, StyleSizeLength.OfStretch());
+        }
+
+        public static YGValue YGNodeStyleGetHeight(Node node)
+        {
+            return node.Style.Dimension(Dimension.Height).ToYGValue();
+        }
+
+        // --- MinWidth ---
+
+        public static void YGNodeStyleSetMinWidth(Node node, float minWidth)
+        {
+            SetMinDimension(node, Dimension.Width, StyleSizeLength.Points(minWidth));
+        }
+
+        public static void YGNodeStyleSetMinWidthPercent(Node node, float minWidth)
+        {
+            SetMinDimension(node, Dimension.Width, StyleSizeLength.Percent(minWidth));
+        }
+
+        public static void YGNodeStyleSetMinWidthMaxContent(Node node)
+        {
+            SetMinDimension(node, Dimension.Width, StyleSizeLength.OfMaxContent());
+        }
+
+        public static void YGNodeStyleSetMinWidthFitContent(Node node)
+        {
+            SetMinDimension(node, Dimension.Width, StyleSizeLength.OfFitContent());
+        }
+
+        public static void YGNodeStyleSetMinWidthStretch(Node node)
+        {
+            SetMinDimension(node, Dimension.Width, StyleSizeLength.OfStretch());
+        }
+
+        public static YGValue YGNodeStyleGetMinWidth(Node node)
+        {
+            return node.Style.MinDimension(Dimension.Width).ToYGValue();
+        }
+
+        // --- MinHeight ---
+
+        public static void YGNodeStyleSetMinHeight(Node node, float minHeight)
+        {
+            SetMinDimension(node, Dimension.Height, StyleSizeLength.Points(minHeight));
+        }
+
+        public static void YGNodeStyleSetMinHeightPercent(Node node, float minHeight)
+        {
+            SetMinDimension(node, Dimension.Height, StyleSizeLength.Percent(minHeight));
+        }
+
+        public static void YGNodeStyleSetMinHeightMaxContent(Node node)
+        {
+            SetMinDimension(node, Dimension.Height, StyleSizeLength.OfMaxContent());
+        }
+
+        public static void YGNodeStyleSetMinHeightFitContent(Node node)
+        {
+            SetMinDimension(node, Dimension.Height, StyleSizeLength.OfFitContent());
+        }
+
+        public static void YGNodeStyleSetMinHeightStretch(Node node)
+        {
+            SetMinDimension(node, Dimension.Height, StyleSizeLength.OfStretch());
+        }
+
+        public static YGValue YGNodeStyleGetMinHeight(Node node)
+        {
+            return node.Style.MinDimension(Dimension.Height).ToYGValue();
+        }
+
+        // --- MaxWidth ---
+
+        public static void YGNodeStyleSetMaxWidth(Node node, float maxWidth)
+        {
+            SetMaxDimension(node, Dimension.Width, StyleSizeLength.Points(maxWidth));
+        }
+
+        public static void YGNodeStyleSetMaxWidthPercent(Node node, float maxWidth)
+        {
+            SetMaxDimension(node, Dimension.Width, StyleSizeLength.Percent(maxWidth));
+        }
+
+        public static void YGNodeStyleSetMaxWidthMaxContent(Node node)
+        {
+            SetMaxDimension(node, Dimension.Width, StyleSizeLength.OfMaxContent());
+        }
+
+        public static void YGNodeStyleSetMaxWidthFitContent(Node node)
+        {
+            SetMaxDimension(node, Dimension.Width, StyleSizeLength.OfFitContent());
+        }
+
+        public static void YGNodeStyleSetMaxWidthStretch(Node node)
+        {
+            SetMaxDimension(node, Dimension.Width, StyleSizeLength.OfStretch());
+        }
+
+        public static YGValue YGNodeStyleGetMaxWidth(Node node)
+        {
+            return node.Style.MaxDimension(Dimension.Width).ToYGValue();
+        }
+
+        // --- MaxHeight ---
+
+        public static void YGNodeStyleSetMaxHeight(Node node, float maxHeight)
+        {
+            SetMaxDimension(node, Dimension.Height, StyleSizeLength.Points(maxHeight));
+        }
+
+        public static void YGNodeStyleSetMaxHeightPercent(Node node, float maxHeight)
+        {
+            SetMaxDimension(node, Dimension.Height, StyleSizeLength.Percent(maxHeight));
+        }
+
+        public static void YGNodeStyleSetMaxHeightMaxContent(Node node)
+        {
+            SetMaxDimension(node, Dimension.Height, StyleSizeLength.OfMaxContent());
+        }
+
+        public static void YGNodeStyleSetMaxHeightFitContent(Node node)
+        {
+            SetMaxDimension(node, Dimension.Height, StyleSizeLength.OfFitContent());
+        }
+
+        public static void YGNodeStyleSetMaxHeightStretch(Node node)
+        {
+            SetMaxDimension(node, Dimension.Height, StyleSizeLength.OfStretch());
+        }
+
+        public static YGValue YGNodeStyleGetMaxHeight(Node node)
+        {
+            return node.Style.MaxDimension(Dimension.Height).ToYGValue();
+        }
+
+        // --- Grid Item Properties ---
+
+        // GridColumnStart
+        public static void YGNodeStyleSetGridColumnStart(Node node, int gridColumnStart)
+        {
+            var newValue = GridLine.FromInteger(gridColumnStart);
+            if (node.Style.GridColumnStart != newValue)
+            {
+                node.Style.GridColumnStart = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetGridColumnStartAuto(Node node)
+        {
+            var newValue = GridLine.Auto();
+            if (node.Style.GridColumnStart != newValue)
+            {
+                node.Style.GridColumnStart = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetGridColumnStartSpan(Node node, int span)
+        {
+            var newValue = GridLine.Span(span);
+            if (node.Style.GridColumnStart != newValue)
+            {
+                node.Style.GridColumnStart = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static int YGNodeStyleGetGridColumnStart(Node node)
+        {
+            var gridLine = node.Style.GridColumnStart;
+            return gridLine.IsInteger() ? gridLine.Integer : 0;
+        }
+
+        // GridColumnEnd
+        public static void YGNodeStyleSetGridColumnEnd(Node node, int gridColumnEnd)
+        {
+            var newValue = GridLine.FromInteger(gridColumnEnd);
+            if (node.Style.GridColumnEnd != newValue)
+            {
+                node.Style.GridColumnEnd = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetGridColumnEndAuto(Node node)
+        {
+            var newValue = GridLine.Auto();
+            if (node.Style.GridColumnEnd != newValue)
+            {
+                node.Style.GridColumnEnd = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetGridColumnEndSpan(Node node, int span)
+        {
+            var newValue = GridLine.Span(span);
+            if (node.Style.GridColumnEnd != newValue)
+            {
+                node.Style.GridColumnEnd = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static int YGNodeStyleGetGridColumnEnd(Node node)
+        {
+            var gridLine = node.Style.GridColumnEnd;
+            return gridLine.IsInteger() ? gridLine.Integer : 0;
+        }
+
+        // GridRowStart
+        public static void YGNodeStyleSetGridRowStart(Node node, int gridRowStart)
+        {
+            var newValue = GridLine.FromInteger(gridRowStart);
+            if (node.Style.GridRowStart != newValue)
+            {
+                node.Style.GridRowStart = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetGridRowStartAuto(Node node)
+        {
+            var newValue = GridLine.Auto();
+            if (node.Style.GridRowStart != newValue)
+            {
+                node.Style.GridRowStart = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetGridRowStartSpan(Node node, int span)
+        {
+            var newValue = GridLine.Span(span);
+            if (node.Style.GridRowStart != newValue)
+            {
+                node.Style.GridRowStart = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static int YGNodeStyleGetGridRowStart(Node node)
+        {
+            var gridLine = node.Style.GridRowStart;
+            return gridLine.IsInteger() ? gridLine.Integer : 0;
+        }
+
+        // GridRowEnd
+        public static void YGNodeStyleSetGridRowEnd(Node node, int gridRowEnd)
+        {
+            var newValue = GridLine.FromInteger(gridRowEnd);
+            if (node.Style.GridRowEnd != newValue)
+            {
+                node.Style.GridRowEnd = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetGridRowEndAuto(Node node)
+        {
+            var newValue = GridLine.Auto();
+            if (node.Style.GridRowEnd != newValue)
+            {
+                node.Style.GridRowEnd = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static void YGNodeStyleSetGridRowEndSpan(Node node, int span)
+        {
+            var newValue = GridLine.Span(span);
+            if (node.Style.GridRowEnd != newValue)
+            {
+                node.Style.GridRowEnd = newValue;
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        public static int YGNodeStyleGetGridRowEnd(Node node)
+        {
+            var gridLine = node.Style.GridRowEnd;
+            return gridLine.IsInteger() ? gridLine.Integer : 0;
+        }
+
+        // --- Grid Container Properties ---
+
+        // Helper: convert YGGridTrackType to GridTrackSize
+        private static GridTrackSize GridTrackSizeFromTypeAndValue(YGGridTrackType type, float value)
+        {
+            return type switch
+            {
+                YGGridTrackType.Points => GridTrackSize.Length(value),
+                YGGridTrackType.Percent => GridTrackSize.Percent(value),
+                YGGridTrackType.Fr => GridTrackSize.Fr(value),
+                YGGridTrackType.Auto => GridTrackSize.Auto(),
+                YGGridTrackType.Minmax => GridTrackSize.Auto(),
+                _ => throw new InvalidOperationException("Unknown YGGridTrackType"),
+            };
+        }
+
+        // Helper: convert YGGridTrackType to StyleSizeLength (for minmax)
+        private static StyleSizeLength StyleSizeLengthFromTypeAndValue(YGGridTrackType type, float value)
+        {
+            return type switch
+            {
+                YGGridTrackType.Points => StyleSizeLength.Points(value),
+                YGGridTrackType.Percent => StyleSizeLength.Percent(value),
+                YGGridTrackType.Fr => StyleSizeLength.Stretch(value),
+                YGGridTrackType.Auto => StyleSizeLength.OfAuto(),
+                YGGridTrackType.Minmax => StyleSizeLength.OfAuto(),
+                _ => throw new InvalidOperationException("Unknown YGGridTrackType"),
+            };
+        }
+
+        // GridTemplateColumns
+        public static void YGNodeStyleSetGridTemplateColumnsCount(Node node, int count)
+        {
+            node.Style.ResizeGridTemplateColumns(count);
+            node.MarkDirtyAndPropagate();
+        }
+
+        public static void YGNodeStyleSetGridTemplateColumn(Node node, int index, YGGridTrackType type, float value)
+        {
+            node.Style.SetGridTemplateColumnAt(index, GridTrackSizeFromTypeAndValue(type, value));
+            node.MarkDirtyAndPropagate();
+        }
+
+        public static void YGNodeStyleSetGridTemplateColumnMinMax(
+            Node node,
+            int index,
+            YGGridTrackType minType,
+            float minValue,
+            YGGridTrackType maxType,
+            float maxValue)
+        {
+            node.Style.SetGridTemplateColumnAt(
+                index,
+                GridTrackSize.MinMax(
+                    StyleSizeLengthFromTypeAndValue(minType, minValue),
+                    StyleSizeLengthFromTypeAndValue(maxType, maxValue)));
+            node.MarkDirtyAndPropagate();
+        }
+
+        // GridTemplateRows
+        public static void YGNodeStyleSetGridTemplateRowsCount(Node node, int count)
+        {
+            node.Style.ResizeGridTemplateRows(count);
+            node.MarkDirtyAndPropagate();
+        }
+
+        public static void YGNodeStyleSetGridTemplateRow(Node node, int index, YGGridTrackType type, float value)
+        {
+            node.Style.SetGridTemplateRowAt(index, GridTrackSizeFromTypeAndValue(type, value));
+            node.MarkDirtyAndPropagate();
+        }
+
+        public static void YGNodeStyleSetGridTemplateRowMinMax(
+            Node node,
+            int index,
+            YGGridTrackType minType,
+            float minValue,
+            YGGridTrackType maxType,
+            float maxValue)
+        {
+            node.Style.SetGridTemplateRowAt(
+                index,
+                GridTrackSize.MinMax(
+                    StyleSizeLengthFromTypeAndValue(minType, minValue),
+                    StyleSizeLengthFromTypeAndValue(maxType, maxValue)));
+            node.MarkDirtyAndPropagate();
+        }
+
+        // GridAutoColumns
+        public static void YGNodeStyleSetGridAutoColumnsCount(Node node, int count)
+        {
+            node.Style.ResizeGridAutoColumns(count);
+            node.MarkDirtyAndPropagate();
+        }
+
+        public static void YGNodeStyleSetGridAutoColumn(Node node, int index, YGGridTrackType type, float value)
+        {
+            node.Style.SetGridAutoColumnAt(index, GridTrackSizeFromTypeAndValue(type, value));
+            node.MarkDirtyAndPropagate();
+        }
+
+        public static void YGNodeStyleSetGridAutoColumnMinMax(
+            Node node,
+            int index,
+            YGGridTrackType minType,
+            float minValue,
+            YGGridTrackType maxType,
+            float maxValue)
+        {
+            node.Style.SetGridAutoColumnAt(
+                index,
+                GridTrackSize.MinMax(
+                    StyleSizeLengthFromTypeAndValue(minType, minValue),
+                    StyleSizeLengthFromTypeAndValue(maxType, maxValue)));
+            node.MarkDirtyAndPropagate();
+        }
+
+        // GridAutoRows
+        public static void YGNodeStyleSetGridAutoRowsCount(Node node, int count)
+        {
+            node.Style.ResizeGridAutoRows(count);
+            node.MarkDirtyAndPropagate();
+        }
+
+        public static void YGNodeStyleSetGridAutoRow(Node node, int index, YGGridTrackType type, float value)
+        {
+            node.Style.SetGridAutoRowAt(index, GridTrackSizeFromTypeAndValue(type, value));
+            node.MarkDirtyAndPropagate();
+        }
+
+        public static void YGNodeStyleSetGridAutoRowMinMax(
+            Node node,
+            int index,
+            YGGridTrackType minType,
+            float minValue,
+            YGGridTrackType maxType,
+            float maxValue)
+        {
+            node.Style.SetGridAutoRowAt(
+                index,
+                GridTrackSize.MinMax(
+                    StyleSizeLengthFromTypeAndValue(minType, minValue),
+                    StyleSizeLengthFromTypeAndValue(maxType, maxValue)));
+            node.MarkDirtyAndPropagate();
+        }
+
+        // --- Internal Helpers for Dimension/MinDimension/MaxDimension ---
+
+        private static void SetDimension(Node node, Dimension dim, StyleSizeLength value)
+        {
+            if (node.Style.Dimension(dim) != value)
+            {
+                node.Style.SetDimension(dim, value);
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        private static void SetMinDimension(Node node, Dimension dim, StyleSizeLength value)
+        {
+            if (node.Style.MinDimension(dim) != value)
+            {
+                node.Style.SetMinDimension(dim, value);
+                node.MarkDirtyAndPropagate();
+            }
+        }
+
+        private static void SetMaxDimension(Node node, Dimension dim, StyleSizeLength value)
+        {
+            if (node.Style.MaxDimension(dim) != value)
+            {
+                node.Style.SetMaxDimension(dim, value);
+                node.MarkDirtyAndPropagate();
+            }
+        }
+    }
 }

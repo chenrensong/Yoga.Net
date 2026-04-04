@@ -48,8 +48,13 @@ namespace Facebook.Yoga
 
         // Public properties for external access
         public Config Config => _config!;
-        public LayoutResults Layout => _layout;
+        public LayoutResults Layout { get => _layout; set => _layout = value; }
         public Style Style => _style;
+        
+        public bool HasNewLayout { get => _hasNewLayout; set => SetHasNewLayout(value); }
+        public bool AlwaysFormsContainingBlock { get => _alwaysFormsContainingBlock; set => _alwaysFormsContainingBlock = value; }
+        
+        public IEnumerable<Node> LayoutChildren => GetLayoutChildren();
 
         // Constructors
         public Node() : this(Config.Default) { }
@@ -93,7 +98,6 @@ namespace Facebook.Yoga
 
         // Getters
         public object? GetContext() => _context;
-        public bool AlwaysFormsContainingBlock() => _alwaysFormsContainingBlock;
         public bool GetHasNewLayout() => _hasNewLayout;
         public NodeType GetNodeType() => _nodeType;
         
@@ -288,6 +292,30 @@ namespace Facebook.Yoga
         }
 
         public void SetLayoutDirection(Direction direction) => _layout.SetDirection(direction);
+        
+        public StyleSizeLength ProcessedDimension(Dimension dimension) => _processedDimensions[(int)dimension];
+        
+        public void MarkChildrenWithDisplayNone()
+        {
+            // Mark children that should not participate in layout
+            foreach (var child in _children)
+            {
+                if (child.Style.Display == Display.None)
+                {
+                    child.SetHasNewLayout(true);
+                }
+            }
+        }
+        
+        public void SetLayoutComputedMainDimension(float dimension, FlexDirection mainAxis)
+        {
+            _layout.SetMeasuredDimension(mainAxis.Dimension(), dimension);
+        }
+        
+        public void SetLayoutComputedCrossDimension(float dimension, FlexDirection crossAxis)
+        {
+            _layout.SetMeasuredDimension(crossAxis.Dimension(), dimension);
+        }
         
         public void SetLayoutMargin(float margin, PhysicalEdge edge) => _layout.SetMargin(edge, margin);
         public void SetLayoutBorder(float border, PhysicalEdge edge) => _layout.SetBorder(edge, border);

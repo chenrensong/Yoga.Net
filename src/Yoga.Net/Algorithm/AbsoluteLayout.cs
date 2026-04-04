@@ -18,7 +18,7 @@ namespace Facebook.Yoga
         {
             float position = child.Style.ComputeFlexStartMargin(
                 axis, direction, containingBlockWidth) +
-                parent.Layout.Border(flexStartEdge: axis.FlexStartEdge());
+                parent.Layout.Border(axis.FlexStartEdge());
 
             // https://www.w3.org/TR/css-grid-1/#abspos
             // absolute positioned grid items are positioned relative to the padding edge
@@ -26,7 +26,7 @@ namespace Facebook.Yoga
             if (!child.HasErrata(Errata.AbsolutePositionWithoutInsetsExcludesPadding) &&
                 parent.Style.Display != Display.Grid)
             {
-                position += parent.Layout.Padding(flexStartEdge: axis.FlexStartEdge());
+                position += parent.Layout.Padding(axis.FlexStartEdge());
             }
 
             child.SetLayoutPosition(position, axis.FlexStartEdge());
@@ -39,7 +39,7 @@ namespace Facebook.Yoga
             FlexDirection axis,
             float containingBlockWidth)
         {
-            float flexEndPosition = parent.Layout.Border(flexEndEdge: axis.FlexEndEdge()) +
+            float flexEndPosition = parent.Layout.Border(axis.FlexEndEdge()) +
                 child.Style.ComputeFlexEndMargin(
                     axis, direction, containingBlockWidth);
 
@@ -49,7 +49,7 @@ namespace Facebook.Yoga
             if (!child.HasErrata(Errata.AbsolutePositionWithoutInsetsExcludesPadding) &&
                 parent.Style.Display != Display.Grid)
             {
-                flexEndPosition += parent.Layout.Padding(flexEndEdge: axis.FlexEndEdge());
+                flexEndPosition += parent.Layout.Padding(axis.FlexEndEdge());
             }
 
             child.SetLayoutPosition(
@@ -66,8 +66,8 @@ namespace Facebook.Yoga
         {
             float parentContentBoxSize =
                 parent.Layout.MeasuredDimension(axis.Dimension()) -
-                parent.Layout.Border(flexStartEdge: axis.FlexStartEdge()) -
-                parent.Layout.Border(flexEndEdge: axis.FlexEndEdge());
+                parent.Layout.Border(axis.FlexStartEdge()) -
+                parent.Layout.Border(axis.FlexEndEdge());
 
             // https://www.w3.org/TR/css-grid-1/#abspos
             // absolute positioned grid items are positioned relative to the padding edge
@@ -75,8 +75,8 @@ namespace Facebook.Yoga
             if (!child.HasErrata(Errata.AbsolutePositionWithoutInsetsExcludesPadding) &&
                 parent.Style.Display != Display.Grid)
             {
-                parentContentBoxSize -= parent.Layout.Padding(flexStartEdge: axis.FlexStartEdge());
-                parentContentBoxSize -= parent.Layout.Padding(flexEndEdge: axis.FlexEndEdge());
+                parentContentBoxSize -= parent.Layout.Padding(axis.FlexStartEdge());
+                parentContentBoxSize -= parent.Layout.Padding(axis.FlexEndEdge());
             }
 
             float childOuterSize =
@@ -84,7 +84,7 @@ namespace Facebook.Yoga
                 child.Style.ComputeMarginForAxis(axis, containingBlockWidth);
 
             float position = (parentContentBoxSize - childOuterSize) / 2.0f +
-                parent.Layout.Border(flexStartEdge: axis.FlexStartEdge()) +
+                parent.Layout.Border(axis.FlexStartEdge()) +
                 child.Style.ComputeFlexStartMargin(
                     axis, direction, containingBlockWidth);
 
@@ -94,7 +94,7 @@ namespace Facebook.Yoga
             if (!child.HasErrata(Errata.AbsolutePositionWithoutInsetsExcludesPadding) &&
                 parent.Style.Display != Display.Grid)
             {
-                position += parent.Layout.Padding(flexStartEdge: axis.FlexStartEdge());
+                position += parent.Layout.Padding(axis.FlexStartEdge());
             }
 
             child.SetLayoutPosition(position, axis.FlexStartEdge());
@@ -108,7 +108,7 @@ namespace Facebook.Yoga
             float containingBlockWidth)
         {
             Justify justify = parent.Style.Display == Display.Grid
-                ? Align.ResolveChildJustification(parent, child)
+                ? AlignHelper.ResolveChildJustification(parent, child)
                 : parent.Style.JustifyContent;
 
             switch (justify)
@@ -142,7 +142,7 @@ namespace Facebook.Yoga
             FlexDirection crossAxis,
             float containingBlockWidth)
         {
-            Align itemAlign = Align.ResolveChildAlignment(parent, child);
+            Align itemAlign = AlignHelper.ResolveChildAlignment(parent, child);
             Wrap parentWrap = parent.Style.FlexWrap;
             if (parentWrap == Wrap.WrapReverse)
             {
@@ -337,7 +337,7 @@ namespace Facebook.Yoga
                              FlexDirection.Row, direction, containingBlockWidth) +
                          child.Style.ComputeFlexEndPosition(
                              FlexDirection.Row, direction, containingBlockWidth));
-                    childWidth = BoundAxis.BoundAxis(
+                    childWidth = BoundAxis.ComputeBoundAxis(
                         child,
                         FlexDirection.Row,
                         direction,
@@ -381,7 +381,7 @@ namespace Facebook.Yoga
                              FlexDirection.Column, direction, containingBlockHeight) +
                          child.Style.ComputeFlexEndPosition(
                              FlexDirection.Column, direction, containingBlockHeight));
-                    childHeight = BoundAxis.BoundAxis(
+                    childHeight = BoundAxis.ComputeBoundAxis(
                         child,
                         FlexDirection.Column,
                         direction,
@@ -395,16 +395,16 @@ namespace Facebook.Yoga
             // ratio calculation. One dimension being the anchor and the other being
             // flexible.
             Style childStyle = child.Style;
-            if (YogaMath.IsUndefined(childWidth) ^ YogaMath.IsUndefined(childHeight))
+            if (Comparison.IsUndefined(childWidth) ^ Comparison.IsUndefined(childHeight))
             {
                 if (childStyle.AspectRatio.IsDefined())
                 {
-                    if (YogaMath.IsUndefined(childWidth))
+                    if (Comparison.IsUndefined(childWidth))
                     {
                         childWidth = marginRow +
                             (childHeight - marginColumn) * childStyle.AspectRatio.Unwrap();
                     }
-                    else if (YogaMath.IsUndefined(childHeight))
+                    else if (Comparison.IsUndefined(childHeight))
                     {
                         childHeight = marginColumn +
                             (childWidth - marginRow) / childStyle.AspectRatio.Unwrap();
@@ -413,12 +413,12 @@ namespace Facebook.Yoga
             }
 
             // If we're still missing one or the other dimension, measure the content.
-            if (YogaMath.IsUndefined(childWidth) || YogaMath.IsUndefined(childHeight))
+            if (Comparison.IsUndefined(childWidth) || Comparison.IsUndefined(childHeight))
             {
-                childWidthSizingMode = YogaMath.IsUndefined(childWidth)
+                childWidthSizingMode = Comparison.IsUndefined(childWidth)
                     ? SizingMode.MaxContent
                     : SizingMode.StretchFit;
-                childHeightSizingMode = YogaMath.IsUndefined(childHeight)
+                childHeightSizingMode = Comparison.IsUndefined(childHeight)
                     ? SizingMode.MaxContent
                     : SizingMode.StretchFit;
 
@@ -426,15 +426,15 @@ namespace Facebook.Yoga
                 // child to that size as well. This allows text within the absolute child
                 // to wrap to the size of its owner. This is the same behavior as many
                 // browsers implement.
-                if (!isMainAxisRow && YogaMath.IsUndefined(childWidth) &&
+                if (!isMainAxisRow && Comparison.IsUndefined(childWidth) &&
                     widthMode != SizingMode.MaxContent &&
-                    YogaMath.IsDefined(containingBlockWidth) && containingBlockWidth > 0)
+                    Comparison.IsDefined(containingBlockWidth) && containingBlockWidth > 0)
                 {
                     childWidth = containingBlockWidth;
                     childWidthSizingMode = SizingMode.FitContent;
                 }
 
-                CalculateLayout.CalculateLayoutInternal(
+                LayoutAlgorithm.CalculateLayoutInternal(
                     child,
                     childWidth,
                     childHeight,
@@ -444,7 +444,7 @@ namespace Facebook.Yoga
                     containingBlockWidth,
                     containingBlockHeight,
                     false,
-                    LayoutPassReason.AbsMeasureChild,
+                    LayoutPassReason.kAbsMeasureChild,
                     ref layoutMarkerData,
                     depth,
                     generationCount);
@@ -456,7 +456,7 @@ namespace Facebook.Yoga
                         FlexDirection.Column, containingBlockWidth);
             }
 
-            CalculateLayout.CalculateLayoutInternal(
+            LayoutAlgorithm.CalculateLayoutInternal(
                 child,
                 childWidth,
                 childHeight,
@@ -466,7 +466,7 @@ namespace Facebook.Yoga
                 containingBlockWidth,
                 containingBlockHeight,
                 true,
-                LayoutPassReason.AbsLayout,
+                LayoutPassReason.kAbsLayout,
                 ref layoutMarkerData,
                 depth,
                 generationCount);

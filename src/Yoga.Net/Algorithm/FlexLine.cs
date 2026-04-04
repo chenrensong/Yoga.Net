@@ -11,6 +11,8 @@ namespace Facebook.Yoga
         public float RemainingFreeSpace { get; set; } = 0.0f;
         public float MainDim { get; set; } = 0.0f;
         public float CrossDim { get; set; } = 0.0f;
+        public float Gap { get; set; } = 0.0f;
+        public float MaxBaseline { get; set; } = 0.0f;
 
         public FlexLineRunningLayout() { }
 

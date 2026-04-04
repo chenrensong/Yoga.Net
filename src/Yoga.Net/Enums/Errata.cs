@@ -24,24 +24,24 @@ namespace Facebook.Yoga
     {
         public static string ToString(Errata e)
         {
-            return YGErrataToString((YGErrata)e);
+            return YGErrataToString((YGErrata)(int)e);
         }
 
         private static string YGErrataToString(YGErrata errata)
         {
             switch (errata)
             {
-                case YGErrata.YGErrataNone:
+                case YGErrata.None:
                     return "none";
-                case YGErrata.YGErrataStretchFlexBasis:
+                case YGErrata.StretchFlexBasis:
                     return "stretch-flex-basis";
-                case YGErrata.YGErrataAbsolutePositionWithoutInsetsExcludesPadding:
+                case YGErrata.AbsolutePositionWithoutInsetsExcludesPadding:
                     return "absolute-position-without-insets-excludes-padding";
-                case YGErrata.YGErrataAbsolutePercentAgainstInnerSize:
+                case YGErrata.AbsolutePercentAgainstInnerSize:
                     return "absolute-percent-against-inner-size";
-                case YGErrata.YGErrataAll:
+                case YGErrata.All:
                     return "all";
-                case YGErrata.YGErrataClassic:
+                case YGErrata.Classic:
                     return "classic";
                 default:
                     return "unknown";
@@ -49,14 +49,15 @@ namespace Facebook.Yoga
         }
     }
 
-    internal enum YGErrata
+    [Flags]
+    public enum YGErrata
     {
-        YGErrataNone = 0,
-        YGErrataStretchFlexBasis = 1,
-        YGErrataAbsolutePositionWithoutInsetsExcludesPadding = 2,
-        YGErrataAbsolutePercentAgainstInnerSize = 4,
-        YGErrataAll = 2147483647,
-        YGErrataClassic = 2147483646,
+        None = 0,
+        StretchFlexBasis = 1,
+        AbsolutePositionWithoutInsetsExcludesPadding = 2,
+        AbsolutePercentAgainstInnerSize = 4,
+        All = 2147483647,
+        Classic = 2147483646,
     }
 }
 
