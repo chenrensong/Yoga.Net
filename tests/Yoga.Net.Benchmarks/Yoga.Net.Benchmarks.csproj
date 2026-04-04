@@ -8,22 +8,14 @@
     <IsPackable>false</IsPackable>
     <LangVersion>latest</LangVersion>
 
-    <!-- AOT Support -->
+    <!-- AOT Support (BenchmarkDotNet NativeAOT job) -->
     <IsAotCompatible>true</IsAotCompatible>
-    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
-    <IsTrimmable>true</IsTrimmable>
-
-    <!-- Publishing Configuration -->
-    <InvariantGlobalization>true</InvariantGlobalization>
-    <StackTraceSupport>false</StackTraceSupport>
-    <UseWindowsThreadPool>true</UseWindowsThreadPool>
-    <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
-    <IlcInstructionSet>avx2</IlcInstructionSet>
+    <PublishAot>true</PublishAot>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
-    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+    <!-- System.Text.Json is included by default in .NET 10 -->
   </ItemGroup>
 
   <ItemGroup>
@@ -34,11 +26,6 @@
     <None Include="..\..\..\yoga\benchmark\captures\*.json" LinkBase="Captures">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="AotProgram.cs" />
-    <Compile Remove="AotBenchmark.csproj" />
   </ItemGroup>
 
 </Project>

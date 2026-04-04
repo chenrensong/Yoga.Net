@@ -10,9 +10,8 @@ namespace Yoga.Net.Benchmarks;
 [MemoryDiagnoser]
 public class CaptureBenchmark
 {
-    private string _captureName = null!;
+    private JsonDocument _captureDoc = null!;
     private JsonElement _captureData;
-    private string _jsonText = null!;
 
     [Params("chat-mac", "feed-android", "profile-ios", "rendering-sample-mac")]
     public string CaptureFile { get; set; } = null!;
@@ -20,9 +19,8 @@ public class CaptureBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        _captureName = CaptureFile;
         var capturesDir = Path.Combine(AppContext.BaseDirectory, "Captures");
-        var filePath = Path.Combine(capturesDir, $"{_captureName}.json");
+        var filePath = Path.Combine(capturesDir, $"{CaptureFile}.json");
 
         // Fallback: try to find from yoga repo
         if (!File.Exists(filePath))
@@ -30,7 +28,7 @@ public class CaptureBenchmark
             var yogaCapturesDir = Path.Combine(
                 AppContext.BaseDirectory,
                 "..", "..", "..", "..", "..", "yoga", "benchmark", "captures");
-            filePath = Path.GetFullPath(Path.Combine(yogaCapturesDir, $"{_captureName}.json"));
+            filePath = Path.GetFullPath(Path.Combine(yogaCapturesDir, $"{CaptureFile}.json"));
         }
 
         if (!File.Exists(filePath))
@@ -38,44 +36,62 @@ public class CaptureBenchmark
             throw new FileNotFoundException($"Capture file not found: {filePath}");
         }
 
-        _jsonText = File.ReadAllText(filePath);
+        var jsonText = File.ReadAllText(filePath);
         var options = new JsonDocumentOptions { MaxDepth = 256 };
-        _captureData = JsonDocument.Parse(_jsonText, options).RootElement;
+        // Keep JsonDocument alive so RootElement stays valid
+        _captureDoc = JsonDocument.Parse(jsonText, options);
+        _captureData = _captureDoc.RootElement;
     }
 
+    [GlobalCleanup]
+    public void Cleanup()
+    {
+        _captureDoc?.Dispose();
+    }
+
+    // Matches Benchmark.cpp:311-317 tree creation measurement
+    // Parse once in GlobalSetup, only measure BuildTree here
     [Benchmark(Description = "Tree Creation")]
     public Node TreeCreation()
     {
-        // Re-parse JSON for fair comparison with C++
-        var options = new JsonDocumentOptions { MaxDepth = 256 };
-        var capture = JsonDocument.Parse(_jsonText, options).RootElement;
-        return TreeDeserializer.BuildTree(capture.GetProperty("tree"));
+        return TreeDeserializer.BuildTree(_captureData.GetProperty("tree"));
     }
 
-    [Benchmark(Description = "Layout Calculation")]
-    public Node LayoutCalculation()
-    {
-        var options = new JsonDocumentOptions { MaxDepth = 256 };
-        var capture = JsonDocument.Parse(_jsonText, options).RootElement;
-        var root = TreeDeserializer.BuildTree(capture.GetProperty("tree"));
+    private Node _layoutTree = null!;
 
-        var layoutInputs = capture.GetProperty("layout-inputs");
+    // Build tree outside of measurement, only measure layout
+    [IterationSetup(Target = nameof(LayoutCalculation))]
+    public void SetupLayoutCalculation()
+    {
+        _layoutTree = TreeDeserializer.BuildTree(_captureData.GetProperty("tree"));
+    }
+
+    // Matches Benchmark.cpp:324-327 layout-only measurement
+    [Benchmark(Description = "Layout Calculation")]
+    public void LayoutCalculation()
+    {
+        var layoutInputs = _captureData.GetProperty("layout-inputs");
         float availableWidth = layoutInputs.GetProperty("available-width").GetSingle();
         float availableHeight = layoutInputs.GetProperty("available-height").GetSingle();
-        var direction = ParseDirection(layoutInputs.GetProperty("owner-direction").GetString()!);
+        var direction = TreeDeserializer.ParseDirection(
+            layoutInputs.GetProperty("owner-direction").GetString()!);
 
-        YGNodeCalculateLayout(root, availableWidth, availableHeight, direction);
-        return root;
+        YGNodeCalculateLayout(_layoutTree, availableWidth, availableHeight, direction);
     }
 
-    private static YGDirection ParseDirection(string str)
+    // Matches Benchmark.cpp:329-331 + 380-382 total measurement
+    [Benchmark(Description = "Total")]
+    public Node Total()
     {
-        return str switch
-        {
-            "ltr" => YGDirection.LTR,
-            "rtl" => YGDirection.RTL,
-            "inherit" => YGDirection.Inherit,
-            _ => throw new ArgumentException($"Invalid direction: {str}")
-        };
+        var tree = TreeDeserializer.BuildTree(_captureData.GetProperty("tree"));
+
+        var layoutInputs = _captureData.GetProperty("layout-inputs");
+        float availableWidth = layoutInputs.GetProperty("available-width").GetSingle();
+        float availableHeight = layoutInputs.GetProperty("available-height").GetSingle();
+        var direction = TreeDeserializer.ParseDirection(
+            layoutInputs.GetProperty("owner-direction").GetString()!);
+
+        YGNodeCalculateLayout(tree, availableWidth, availableHeight, direction);
+        return tree;
     }
 }

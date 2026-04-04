@@ -5,246 +5,133 @@ using static Facebook.Yoga.YGNodeStyleAPI;
 
 namespace Yoga.Net.Benchmarks;
 
-[SimpleJob(launchCount: 3, warmupCount: 5, iterationCount: 100)]
+[SimpleJob(launchCount: 1, warmupCount: 5, iterationCount: 100)]
 [MemoryDiagnoser]
 public class SyntheticBenchmark
 {
+    // Matches YGBenchmark.c:78-89
+    private static YGSize _measure(
+        Node node,
+        float width,
+        MeasureMode widthMode,
+        float height,
+        MeasureMode heightMode)
+    {
+        return new YGSize
+        {
+            Width = widthMode == MeasureMode.Undefined ? 10 : width,
+            Height = heightMode == MeasureMode.Undefined ? 10 : height,
+        };
+    }
+
+    // YGBenchmark.c:92-106
     [Benchmark(Description = "Stack with flex")]
     public void StackWithFlex()
     {
         var root = YGNodeNew();
         YGNodeStyleSetWidth(root, 100);
         YGNodeStyleSetHeight(root, 100);
-        YGNodeStyleSetFlexDirection(root, YGFlexDirection.Column);
 
         for (int i = 0; i < 10; i++)
         {
             var child = YGNodeNew();
-            YGNodeStyleSetFlexGrow(child, 1);
-            YGNodeInsertChild(root, child, (nuint)i);
+            YGNodeSetMeasureFunc(child, _measure);
+            YGNodeStyleSetFlex(child, 1);
+            YGNodeInsertChild(root, child, 0);
         }
 
         YGNodeCalculateLayout(root, float.NaN, float.NaN, YGDirection.LTR);
+        YGNodeFreeRecursive(root);
     }
 
+    // YGBenchmark.c:108-120
     [Benchmark(Description = "Align stretch in undefined axis")]
     public void AlignStretchInUndefinedAxis()
     {
         var root = YGNodeNew();
-        YGNodeStyleSetWidth(root, 100);
-        YGNodeStyleSetFlexDirection(root, YGFlexDirection.Row);
 
         for (int i = 0; i < 10; i++)
         {
             var child = YGNodeNew();
             YGNodeStyleSetHeight(child, 20);
-            YGNodeInsertChild(root, child, (nuint)i);
+            YGNodeSetMeasureFunc(child, _measure);
+            YGNodeInsertChild(root, child, 0);
         }
 
         YGNodeCalculateLayout(root, float.NaN, float.NaN, YGDirection.LTR);
+        YGNodeFreeRecursive(root);
     }
 
-    [Benchmark(Description = "Nested flex (10x10)")]
+    // YGBenchmark.c:122-140
+    [Benchmark(Description = "Nested flex")]
     public void NestedFlex()
     {
         var root = YGNodeNew();
-        YGNodeStyleSetWidth(root, 100);
-        YGNodeStyleSetHeight(root, 100);
-        YGNodeStyleSetFlexDirection(root, YGFlexDirection.Column);
 
         for (int i = 0; i < 10; i++)
         {
-            var row = YGNodeNew();
-            YGNodeStyleSetFlexDirection(row, YGFlexDirection.Row);
-            YGNodeStyleSetFlexGrow(row, 1);
+            var child = YGNodeNew();
+            YGNodeStyleSetFlex(child, 1);
+            YGNodeInsertChild(root, child, 0);
 
-            for (int j = 0; j < 10; j++)
+            for (int ii = 0; ii < 10; ii++)
             {
-                var cell = YGNodeNew();
-                YGNodeStyleSetFlexGrow(cell, 1);
-                YGNodeInsertChild(row, cell, (nuint)j);
+                var grandChild = YGNodeNew();
+                YGNodeSetMeasureFunc(grandChild, _measure);
+                YGNodeStyleSetFlex(grandChild, 1);
+                YGNodeInsertChild(child, grandChild, 0);
             }
-
-            YGNodeInsertChild(root, row, (nuint)i);
         }
 
         YGNodeCalculateLayout(root, float.NaN, float.NaN, YGDirection.LTR);
+        YGNodeFreeRecursive(root);
     }
 
-    [Benchmark(Description = "Huge nested layout (1000 nodes)")]
+    // YGBenchmark.c:142-182
+    [Benchmark(Description = "Huge nested layout")]
     public void HugeNestedLayout()
     {
         var root = YGNodeNew();
-        YGNodeStyleSetWidth(root, 100);
-        YGNodeStyleSetHeight(root, 100);
-        YGNodeStyleSetFlexDirection(root, YGFlexDirection.Column);
 
-        // Create 10x10x10 nested structure = 1000 nodes
         for (int i = 0; i < 10; i++)
         {
-            var level1 = YGNodeNew();
-            YGNodeStyleSetFlexDirection(level1, YGFlexDirection.Row);
-            YGNodeStyleSetFlexGrow(level1, 1);
-
-            for (int j = 0; j < 10; j++)
-            {
-                var level2 = YGNodeNew();
-                YGNodeStyleSetFlexDirection(level2, YGFlexDirection.Column);
-                YGNodeStyleSetFlexGrow(level2, 1);
-
-                for (int k = 0; k < 10; k++)
-                {
-                    var leaf = YGNodeNew();
-                    YGNodeStyleSetFlexGrow(leaf, 1);
-                    YGNodeInsertChild(level2, leaf, (nuint)k);
-                }
-
-                YGNodeInsertChild(level1, level2, (nuint)j);
-            }
-
-            YGNodeInsertChild(root, level1, (nuint)i);
-        }
-
-        YGNodeCalculateLayout(root, float.NaN, float.NaN, YGDirection.LTR);
-    }
-
-    [Benchmark(Description = "Deep nested layout (4 levels)")]
-    public void DeepNestedLayout()
-    {
-        var root = YGNodeNew();
-        YGNodeStyleSetWidth(root, 100);
-        YGNodeStyleSetHeight(root, 100);
-        YGNodeStyleSetFlexDirection(root, YGFlexDirection.Column);
-
-        CreateDeepTree(root, 4, 10);
-
-        YGNodeCalculateLayout(root, float.NaN, float.NaN, YGDirection.LTR);
-    }
-
-    private void CreateDeepTree(Node parent, int depth, int childrenPerLevel)
-    {
-        if (depth <= 0) return;
-
-        var flexDir = depth % 2 == 0 ? YGFlexDirection.Row : YGFlexDirection.Column;
-
-        for (int i = 0; i < childrenPerLevel; i++)
-        {
             var child = YGNodeNew();
-            YGNodeStyleSetFlexDirection(child, flexDir);
             YGNodeStyleSetFlexGrow(child, 1);
-            YGNodeInsertChild(parent, child, (nuint)i);
+            YGNodeStyleSetWidth(child, 10);
+            YGNodeStyleSetHeight(child, 10);
+            YGNodeInsertChild(root, child, 0);
 
-            CreateDeepTree(child, depth - 1, childrenPerLevel);
-        }
-    }
-
-    [Benchmark(Description = "Grid-like layout with gaps")]
-    public void GridLikeLayout()
-    {
-        var root = YGNodeNew();
-        YGNodeStyleSetWidth(root, 300);
-        YGNodeStyleSetHeight(root, 300);
-        YGNodeStyleSetFlexDirection(root, YGFlexDirection.Column);
-        YGNodeStyleSetGap(root, YGGutter.All, 10);
-
-        for (int i = 0; i < 5; i++)
-        {
-            var row = YGNodeNew();
-            YGNodeStyleSetFlexDirection(row, YGFlexDirection.Row);
-            YGNodeStyleSetFlexGrow(row, 1);
-            YGNodeStyleSetGap(row, YGGutter.All, 10);
-
-            for (int j = 0; j < 5; j++)
+            for (int ii = 0; ii < 10; ii++)
             {
-                var cell = YGNodeNew();
-                YGNodeStyleSetFlexGrow(cell, 1);
-                YGNodeInsertChild(row, cell, (nuint)j);
+                var grandChild = YGNodeNew();
+                YGNodeStyleSetFlexDirection(grandChild, YGFlexDirection.Row);
+                YGNodeStyleSetFlexGrow(grandChild, 1);
+                YGNodeStyleSetWidth(grandChild, 10);
+                YGNodeStyleSetHeight(grandChild, 10);
+                YGNodeInsertChild(child, grandChild, 0);
+
+                for (int iii = 0; iii < 10; iii++)
+                {
+                    var grandGrandChild = YGNodeNew();
+                    YGNodeStyleSetFlexGrow(grandGrandChild, 1);
+                    YGNodeStyleSetWidth(grandGrandChild, 10);
+                    YGNodeStyleSetHeight(grandGrandChild, 10);
+                    YGNodeInsertChild(grandChild, grandGrandChild, 0);
+
+                    for (int iiii = 0; iiii < 10; iiii++)
+                    {
+                        var grandGrandGrandChild = YGNodeNew();
+                        YGNodeStyleSetFlexDirection(grandGrandGrandChild, YGFlexDirection.Row);
+                        YGNodeStyleSetFlexGrow(grandGrandGrandChild, 1);
+                        YGNodeStyleSetWidth(grandGrandGrandChild, 10);
+                        YGNodeStyleSetHeight(grandGrandGrandChild, 10);
+                        YGNodeInsertChild(grandGrandChild, grandGrandGrandChild, 0);
+                    }
+                }
             }
-
-            YGNodeInsertChild(root, row, (nuint)i);
         }
 
         YGNodeCalculateLayout(root, float.NaN, float.NaN, YGDirection.LTR);
-    }
-
-    [Benchmark(Description = "Absolute positioning")]
-    public void AbsolutePositioning()
-    {
-        var root = YGNodeNew();
-        YGNodeStyleSetWidth(root, 100);
-        YGNodeStyleSetHeight(root, 100);
-
-        for (int i = 0; i < 10; i++)
-        {
-            var child = YGNodeNew();
-            YGNodeStyleSetPositionType(child, YGPositionType.Absolute);
-            YGNodeStyleSetPosition(child, YGEdge.Left, i * 5);
-            YGNodeStyleSetPosition(child, YGEdge.Top, i * 5);
-            YGNodeStyleSetWidth(child, 20);
-            YGNodeStyleSetHeight(child, 20);
-            YGNodeInsertChild(root, child, (nuint)i);
-        }
-
-        YGNodeCalculateLayout(root, float.NaN, float.NaN, YGDirection.LTR);
-    }
-
-    [Benchmark(Description = "Complex mixed layout")]
-    public void ComplexMixedLayout()
-    {
-        var root = YGNodeNew();
-        YGNodeStyleSetWidth(root, 800);
-        YGNodeStyleSetHeight(root, 600);
-        YGNodeStyleSetFlexDirection(root, YGFlexDirection.Column);
-        YGNodeStyleSetPadding(root, YGEdge.All, 20);
-        YGNodeStyleSetGap(root, YGGutter.All, 10);
-
-        // Header
-        var header = YGNodeNew();
-        YGNodeStyleSetHeight(header, 60);
-        YGNodeInsertChild(root, header, 0);
-
-        // Content area
-        var content = YGNodeNew();
-        YGNodeStyleSetFlexDirection(content, YGFlexDirection.Row);
-        YGNodeStyleSetFlexGrow(content, 1);
-        YGNodeStyleSetGap(content, YGGutter.All, 10);
-
-        // Sidebar
-        var sidebar = YGNodeNew();
-        YGNodeStyleSetWidth(sidebar, 200);
-        YGNodeInsertChild(content, sidebar, 0);
-
-        // Main area with nested content
-        var main = YGNodeNew();
-        YGNodeStyleSetFlexGrow(main, 1);
-        YGNodeStyleSetFlexDirection(main, YGFlexDirection.Column);
-        YGNodeStyleSetGap(main, YGGutter.All, 5);
-
-        for (int i = 0; i < 5; i++)
-        {
-            var row = YGNodeNew();
-            YGNodeStyleSetFlexDirection(row, YGFlexDirection.Row);
-            YGNodeStyleSetFlexGrow(row, 1);
-            YGNodeStyleSetGap(row, YGGutter.All, 5);
-
-            for (int j = 0; j < 3; j++)
-            {
-                var item = YGNodeNew();
-                YGNodeStyleSetFlexGrow(item, 1);
-                YGNodeInsertChild(row, item, (nuint)j);
-            }
-
-            YGNodeInsertChild(main, row, (nuint)i);
-        }
-
-        YGNodeInsertChild(content, main, 1);
-        YGNodeInsertChild(root, content, 1);
-
-        // Footer
-        var footer = YGNodeNew();
-        YGNodeStyleSetHeight(footer, 40);
-        YGNodeInsertChild(root, footer, 2);
-
-        YGNodeCalculateLayout(root, float.NaN, float.NaN, YGDirection.LTR);
+        YGNodeFreeRecursive(root);
     }
 }

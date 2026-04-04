@@ -84,40 +84,46 @@ dotnet pack --configuration Release
 
 ## Benchmarks
 
-Yoga.Net includes a benchmark suite to measure layout performance.
+Yoga.Net includes a benchmark suite aligned with the upstream C++ `yoga/benchmark` — same test cases, same tree structures, same measure functions. Two modes are available:
 
-### Running Benchmarks
+### Benchmark Modes
 
 ```bash
-# Run JIT (non-AOT) benchmark
-dotnet run --project tests/Yoga.Net.Benchmarks/Yoga.Net.Benchmarks.csproj --configuration Release -- --simple
+# Quick mode — simple stopwatch (no dependencies)
+dotnet run --project tests/Yoga.Net.Benchmarks/Yoga.Net.Benchmarks.csproj -c Release -- --simple
 
-# Run NativeAOT benchmark
-dotnet publish tests/Yoga.Net.Benchmarks/AotBenchmark.csproj -c Release -r win-x64
-./bin/Release/net10.0/win-x64/publish/AotBenchmark.exe
+# Full mode — BenchmarkDotNet with statistical analysis (requires capture files from yoga repo)
+dotnet run --project tests/Yoga.Net.Benchmarks/Yoga.Net.Benchmarks.csproj -c Release
 
-# Run full BenchmarkDotNet suite (requires capture files from yoga repo)
-dotnet run --project tests/Yoga.Net.Benchmarks/Yoga.Net.Benchmarks.csproj --configuration Release
+# Filter specific benchmark class
+dotnet run --project tests/Yoga.Net.Benchmarks/Yoga.Net.Benchmarks.csproj -c Release -- --filter "*SyntheticBenchmark*"
 ```
 
-### JIT vs NativeAOT Performance
+### Benchmark Suite
+
+| Class | Description | Aligns with |
+|---|---|---|
+| `SimpleBenchmark` | Quick stopwatch, 1000 iterations | `yoga/benchmark/YGBenchmark.c` |
+| `SyntheticBenchmark` | BenchmarkDotNet, JIT + NativeAOT | `yoga/benchmark/YGBenchmark.c` |
+| `CaptureBenchmark` | Real-world UI layout trees | `yoga/benchmark/Benchmark.cpp` |
+
+All synthetic benchmarks (Stack with flex, Align stretch, Nested flex, Huge nested layout) are 1:1 ports of the C++ benchmark cases, including measure functions, node counts, and memory cleanup.
+
+### Results (JIT)
 
 **Environment:**
-- Runtime: .NET 10.0.5
+- Runtime: .NET 10.0.5 (RyuJIT x86-64-v3)
 - OS: Windows 11 (10.0.26200)
 - CPU: 13th Gen Intel Core i9-13900HX
-- AOT binary size: 1.4 MB
 
-**Results (lower is better):**
+**SyntheticBenchmark (BenchmarkDotNet, lower is better):**
 
-| Test | JIT (ms/op) | JIT (ops/sec) | NativeAOT (ms/op) | NativeAOT (ops/sec) | AOT Speedup |
-|------|-----------:|--------------:|-------------------:|--------------------:|:-----------:|
-| Stack with flex (10 children) | 0.11 | 9,163 | 0.029 | 35,442 | **3.9x** |
-| Align stretch (10 children) | 0.08 | 12,104 | 0.020 | 50,003 | **4.1x** |
-| Simple layout (5 nodes) | 0.03 | 31,455 | 0.008 | 125,696 | **4.0x** |
-| Row layout (10 children) | 0.07 | 16,158 | 0.016 | 61,613 | **3.8x** |
-
-> NativeAOT delivers ~4x throughput improvement over JIT by eliminating runtime overhead, enabling aggressive cross-method inlining, and producing CPU-optimized native code.
+| Method | Mean | Allocated |
+|---|---:|---:|
+| Stack with flex | 12.37 us | 43.85 KB |
+| Align stretch in undefined axis | 16.87 us | 42.73 KB |
+| Nested flex (10x10) | 336.62 us | 651.3 KB |
+| Huge nested layout (10,000 nodes) | 62.94 ms | 38.9 MB |
 
 ## Project Structure
 
@@ -139,7 +145,12 @@ Yoga.Net/
 │   ├── YGNodeLayout.cs        # Public C-style Layout API
 │   ├── YGConfig.cs            # Public C-style Config API
 │   └── YGEnums.cs             # Public YG-prefixed enums
-└── tests/Yoga.Net.Tests/      # xUnit v3 tests (1:1 with C++ gtest)
+├── tests/Yoga.Net.Tests/      # xUnit v3 tests (1:1 with C++ gtest)
+└── tests/Yoga.Net.Benchmarks/ # Benchmarks (aligned with yoga/benchmark)
+    ├── SimpleBenchmark.cs     # Quick stopwatch (YGBenchmark.c)
+    ├── SyntheticBenchmark.cs  # BenchmarkDotNet JIT + NativeAOT (YGBenchmark.c)
+    ├── CaptureBenchmark.cs    # Real-world UI layouts (Benchmark.cpp)
+    └── TreeDeserializer.cs    # JSON capture tree deserialization with measure funcs
 ```
 
 ## Performance Optimizations

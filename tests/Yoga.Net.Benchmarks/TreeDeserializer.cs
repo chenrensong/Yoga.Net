@@ -89,8 +89,97 @@ public static class TreeDeserializer
                 case "always-forms-containing-block":
                     node.SetAlwaysFormsContainingBlock(property.Value.GetBoolean());
                     break;
+                case "measure-funcs":
+                    var entries = new List<SerializedMeasureFunc>();
+                    foreach (var mf in property.Value.EnumerateArray())
+                    {
+                        entries.Add(ParseMeasureFunc(mf));
+                    }
+
+                    if (entries.Count > 0)
+                    {
+                        var captured = entries.ToArray();
+                        node.SetMeasureFunc((n, w, wm, h, hm) =>
+                            MockMeasureFunc(captured, w, wm, h, hm));
+                    }
+                    break;
             }
         }
+    }
+
+    // Matches Benchmark.cpp:54-89 mockMeasureFunc
+    private static YGSize MockMeasureFunc(
+        SerializedMeasureFunc[] entries,
+        float width,
+        MeasureMode widthMode,
+        float height,
+        MeasureMode heightMode)
+    {
+        foreach (var entry in entries)
+        {
+            if (InputsMatch(
+                    width, entry.InputWidth,
+                    height, entry.InputHeight,
+                    widthMode, entry.WidthMode,
+                    heightMode, entry.HeightMode))
+            {
+                if (entry.DurationNs >= 1_000_000)
+                {
+                    Thread.Sleep((int)(entry.DurationNs / 1_000_000));
+                }
+
+                return new YGSize { Width = entry.OutputWidth, Height = entry.OutputHeight };
+            }
+        }
+
+        // Matches Benchmark.cpp:49-52 defaultMeasureFunctionResult
+        return new YGSize { Width = 10, Height = 10 };
+    }
+
+    // Matches Benchmark.cpp:28-47 inputsMatch
+    private static bool InputsMatch(
+        float actualWidth,
+        float expectedWidth,
+        float actualHeight,
+        float expectedHeight,
+        MeasureMode actualWidthMode,
+        MeasureMode expectedWidthMode,
+        MeasureMode actualHeightMode,
+        MeasureMode expectedHeightMode)
+    {
+        bool widthsMatch =
+            (float.IsNaN(actualWidth) && float.IsNaN(expectedWidth)) ||
+            actualWidth == expectedWidth;
+        bool heightsMatch =
+            (float.IsNaN(actualHeight) && float.IsNaN(expectedHeight)) ||
+            actualHeight == expectedHeight;
+
+        return widthsMatch &&
+               heightsMatch &&
+               actualWidthMode == expectedWidthMode &&
+               actualHeightMode == expectedHeightMode;
+    }
+
+    // Matches TreeDeserialization.cpp:238-247 serializedMeasureFuncFromJson
+    private static SerializedMeasureFunc ParseMeasureFunc(JsonElement j)
+    {
+        float inputWidth = j.TryGetProperty("width", out var w) && w.ValueKind != JsonValueKind.Null
+            ? w.GetSingle()
+            : float.NaN;
+        var widthMode = ParseMeasureMode(j.GetProperty("width-mode").GetString()!);
+        float inputHeight = j.TryGetProperty("height", out var h) && h.ValueKind != JsonValueKind.Null
+            ? h.GetSingle()
+            : float.NaN;
+        var heightMode = ParseMeasureMode(j.GetProperty("height-mode").GetString()!);
+        float outputWidth = j.GetProperty("output-width").GetSingle();
+        float outputHeight = j.GetProperty("output-height").GetSingle();
+        long durationNs = j.GetProperty("duration-ns").GetInt64();
+
+        return new SerializedMeasureFunc(
+            inputWidth, widthMode,
+            inputHeight, heightMode,
+            outputWidth, outputHeight,
+            durationNs);
     }
 
     private static void SetStyles(JsonElement styleElement, Node node)
@@ -354,6 +443,25 @@ public static class TreeDeserializer
     }
 
     // Parsers
+
+    // Matches TreeDeserialization.cpp:226-236 measureModeFromString
+    private static MeasureMode ParseMeasureMode(string str) => str switch
+    {
+        "undefined" => MeasureMode.Undefined,
+        "exactly" => MeasureMode.Exactly,
+        "at-most" => MeasureMode.AtMost,
+        _ => throw new ArgumentException($"Invalid measure mode: {str}")
+    };
+
+    // Matches TreeDeserialization.cpp:214-224 directionFromString
+    internal static YGDirection ParseDirection(string str) => str switch
+    {
+        "ltr" => YGDirection.LTR,
+        "rtl" => YGDirection.RTL,
+        "inherit" => YGDirection.Inherit,
+        _ => throw new ArgumentException($"Invalid direction: {str}")
+    };
+
     private static YGFlexDirection ParseFlexDirection(string str) => str switch
     {
         "row" => YGFlexDirection.Row,
@@ -474,3 +582,13 @@ public static class TreeDeserializer
         _ => throw new ArgumentException($"Invalid experimental feature: {str}")
     };
 }
+
+// Matches capture/CaptureTree.h SerializedMeasureFunc
+public record struct SerializedMeasureFunc(
+    float InputWidth,
+    MeasureMode WidthMode,
+    float InputHeight,
+    MeasureMode HeightMode,
+    float OutputWidth,
+    float OutputHeight,
+    long DurationNs);
