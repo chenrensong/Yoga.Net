@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Yoga</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsPackable>true</IsPackable>
+    <PackageId>Yoga.Net</PackageId>
+    <Description>A C# port of Facebook's Yoga — a cross-platform layout engine implementing Flexbox.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/chenrensong/Yoga.Net</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/chenrensong/Yoga.Net</PackageProjectUrl>
+    <Copyright>Copyright (c) Meta Platforms, Inc. and its affiliates.</Copyright>
+  </PropertyGroup>
+
+</Project>
