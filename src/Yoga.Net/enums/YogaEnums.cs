@@ -16,7 +16,9 @@ namespace Facebook.Yoga
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ToUnderlying<TEnum>(TEnum e) where TEnum : struct, Enum
         {
-            return Unsafe.As<TEnum, int>(ref e);
+            // All Yoga enums are byte-backed. Read only 1 byte to avoid
+            // reading garbage from adjacent bytes under NativeAOT.
+            return Unsafe.As<TEnum, byte>(ref e);
         }
 
         public static IEnumerable<TEnum> Ordinals<TEnum>() where TEnum : struct, Enum
@@ -24,7 +26,7 @@ namespace Facebook.Yoga
             int ordinalCount = OrdinalCount<TEnum>();
             for (int i = 0; i < ordinalCount; i++)
             {
-                yield return Unsafe.As<int, TEnum>(ref i);
+                yield return Unsafe.As<byte, TEnum>(ref Unsafe.As<int, byte>(ref i));
             }
         }
 
