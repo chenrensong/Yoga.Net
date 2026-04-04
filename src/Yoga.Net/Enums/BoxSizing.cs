@@ -1,11 +1,40 @@
-// Original: yoga/enums/BoxSizing.h
+using System;
 
-namespace Yoga.Enums;
-
-/// <summary>
-/// Box sizing enumeration.
-/// TODO: Translate from yoga/enums/BoxSizing.h
-/// </summary>
-public enum BoxSizing
+namespace Facebook.Yoga
 {
+    public enum YGBoxSizing
+    {
+        BorderBox,
+        ContentBox
+    }
+
+    public enum BoxSizing : byte
+    {
+        BorderBox = YGBoxSizing.BorderBox,
+        ContentBox = YGBoxSizing.ContentBox,
+    }
+
+    public static partial class YogaEnums
+    {
+        public static int OrdinalCount(BoxSizing type)
+        {
+            return 2;
+        }
+
+        public static BoxSizing ScopedEnum(YGBoxSizing unscoped)
+        {
+            return (BoxSizing)unscoped;
+        }
+
+        public static YGBoxSizing UnscopedEnum(BoxSizing scoped)
+        {
+            return (YGBoxSizing)scoped;
+        }
+
+        public static string ToString(BoxSizing e)
+        {
+            return UnscopedEnum(e).ToString();
+        }
+    }
 }
+

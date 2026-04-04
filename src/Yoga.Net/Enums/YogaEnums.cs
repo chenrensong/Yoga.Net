@@ -1,11 +1,113 @@
-// Original: yoga/enums/YogaEnums.h
+// Copyright (c) Meta Platforms, Inc. and affiliates.
+//
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
 
-namespace Yoga.Enums;
+using System.Numerics;
 
-/// <summary>
-/// Enum utility functions (count, toString, etc.).
-/// TODO: Translate from yoga/enums/YogaEnums.h
-/// </summary>
-public static class YogaEnums
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
+namespace Facebook.Yoga
 {
+    public static partial class YogaEnums
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ToUnderlying<TEnum>(TEnum e) where TEnum : struct, Enum
+        {
+            return Unsafe.As<TEnum, int>(ref e);
+        }
+
+        public static IEnumerable<TEnum> Ordinals<TEnum>() where TEnum : struct, Enum
+        {
+            int ordinalCount = OrdinalCount<TEnum>();
+            for (int i = 0; i < ordinalCount; i++)
+            {
+                yield return Unsafe.As<int, TEnum>(ref i);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int OrdinalCount<TEnum>() where TEnum : struct, Enum
+        {
+            if (typeof(TEnum) == typeof(Align))
+            {
+                return 9;
+            }
+            if (typeof(TEnum) == typeof(Dimension))
+            {
+                return 2;
+            }
+            if (typeof(TEnum) == typeof(Direction))
+            {
+                return 3;
+            }
+            if (typeof(TEnum) == typeof(Display))
+            {
+                return 2;
+            }
+            if (typeof(TEnum) == typeof(Edge))
+            {
+                return 9;
+            }
+            if (typeof(TEnum) == typeof(Errata))
+            {
+                return 4;
+            }
+            if (typeof(TEnum) == typeof(ExperimentalFeature))
+            {
+                return 2;
+            }
+            if (typeof(TEnum) == typeof(FlexDirection))
+            {
+                return 4;
+            }
+            if (typeof(TEnum) == typeof(Gutter))
+            {
+                return 3;
+            }
+            if (typeof(TEnum) == typeof(Justify))
+            {
+                return 6;
+            }
+            if (typeof(TEnum) == typeof(LogLevel))
+            {
+                return 5;
+            }
+            if (typeof(TEnum) == typeof(MeasureMode))
+            {
+                return 3;
+            }
+            if (typeof(TEnum) == typeof(NodeType))
+            {
+                return 2;
+            }
+            if (typeof(TEnum) == typeof(Overflow))
+            {
+                return 3;
+            }
+            if (typeof(TEnum) == typeof(PositionType))
+            {
+                return 2;
+            }
+            if (typeof(TEnum) == typeof(Unit))
+            {
+                return 5;
+            }
+            if (typeof(TEnum) == typeof(Wrap))
+            {
+                return 3;
+            }
+            throw new NotSupportedException($"Type {typeof(TEnum).Name} does not have ordinality defined.");
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int BitCount<TEnum>() where TEnum : struct, Enum
+        {
+            int count = OrdinalCount<TEnum>() - 1;
+            return 32 - BitOperations.LeadingZeroCount((uint)count);
+        }
+    }
 }
+

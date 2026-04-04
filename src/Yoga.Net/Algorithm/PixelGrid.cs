@@ -1,11 +1,135 @@
-// Original: yoga/algorithm/PixelGrid.h, yoga/algorithm/PixelGrid.cpp
+using System;
 
-namespace Yoga.Algorithm;
-
-/// <summary>
-/// Pixel grid snapping for deterministic layout.
-/// TODO: Translate from yoga/algorithm/PixelGrid.h and .cpp
-/// </summary>
-public static class PixelGrid
+namespace Facebook.Yoga
 {
+    public static partial class YogaGlobal
+    {
+        public static bool InexactEquals(double a, double b)
+        {
+            if (double.IsNaN(a) || double.IsNaN(b))
+            {
+                return double.IsNaN(a) && double.IsNaN(b);
+            }
+            return Math.Abs(a - b) < 1.0e-5;
+        }
+    }
 }
+
+namespace Facebook.Yoga.Algorithm
+{
+    public static class PixelGrid
+    {
+        public const float YGUndefined = float.NaN;
+
+        public static float RoundValueToPixelGrid(
+            double value,
+            double pointScaleFactor,
+            bool forceCeil,
+            bool forceFloor)
+        {
+            double scaledValue = value * pointScaleFactor;
+            double fractial = scaledValue % 1.0;
+
+            if (fractial < 0)
+            {
+                fractial += 1.0;
+            }
+
+            if (YogaGlobal.InexactEquals(fractial, 0))
+            {
+                scaledValue = scaledValue - fractial;
+            }
+            else if (YogaGlobal.InexactEquals(fractial, 1.0))
+            {
+                scaledValue = scaledValue - fractial + 1.0;
+            }
+            else if (forceCeil)
+            {
+                scaledValue = scaledValue - fractial + 1.0;
+            }
+            else if (forceFloor)
+            {
+                scaledValue = scaledValue - fractial;
+            }
+            else
+            {
+                scaledValue = scaledValue - fractial +
+                    (!double.IsNaN(fractial) &&
+                         (fractial > 0.5 || YogaGlobal.InexactEquals(fractial, 0.5))
+                     ? 1.0
+                     : 0.0);
+            }
+
+            return (double.IsNaN(scaledValue) || double.IsNaN(pointScaleFactor))
+                ? YGUndefined
+                : (float)(scaledValue / pointScaleFactor);
+        }
+
+        public static void RoundLayoutResultsToPixelGrid(
+            Node node,
+            double absoluteLeft,
+            double absoluteTop)
+        {
+            var pointScaleFactor = (double)node.getConfig().PointScaleFactor;
+
+            double nodeLeft = node.getLayout().Position(PhysicalEdge.Left);
+            double nodeTop = node.getLayout().Position(PhysicalEdge.Top);
+
+            double nodeWidth = node.getLayout().Dimension(Dimension.Width);
+            double nodeHeight = node.getLayout().Dimension(Dimension.Height);
+
+            double absoluteNodeLeft = absoluteLeft + nodeLeft;
+            double absoluteNodeTop = absoluteTop + nodeTop;
+
+            double absoluteNodeRight = absoluteNodeLeft + nodeWidth;
+            double absoluteNodeBottom = absoluteNodeTop + nodeHeight;
+
+            if (pointScaleFactor != 0.0)
+            {
+                bool textRounding = node.getNodeType() == NodeType.Text;
+
+                node.setLayoutPosition(
+                    RoundValueToPixelGrid(nodeLeft, pointScaleFactor, false, textRounding),
+                    PhysicalEdge.Left);
+
+                node.setLayoutPosition(
+                    RoundValueToPixelGrid(nodeTop, pointScaleFactor, false, textRounding),
+                    PhysicalEdge.Top);
+
+                double scaledNodeWith = nodeWidth * pointScaleFactor;
+                bool hasFractionalWidth =
+                    !YogaGlobal.InexactEquals(Math.Round(scaledNodeWith), scaledNodeWith);
+
+                double scaledNodeHeight = nodeHeight * pointScaleFactor;
+                bool hasFractionalHeight =
+                    !YogaGlobal.InexactEquals(Math.Round(scaledNodeHeight), scaledNodeHeight);
+
+                node.getLayout().SetDimension(
+                    Dimension.Width,
+                    RoundValueToPixelGrid(
+                        absoluteNodeRight,
+                        pointScaleFactor,
+                        (textRounding && hasFractionalWidth),
+                        (textRounding && !hasFractionalWidth)) -
+                    RoundValueToPixelGrid(
+                        absoluteNodeLeft, pointScaleFactor, false, textRounding));
+
+                node.getLayout().SetDimension(
+                    Dimension.Height,
+                    RoundValueToPixelGrid(
+                        absoluteNodeBottom,
+                        pointScaleFactor,
+                        (textRounding && hasFractionalHeight),
+                        (textRounding && !hasFractionalHeight)) -
+                    RoundValueToPixelGrid(
+                        absoluteNodeTop, pointScaleFactor, false, textRounding));
+            }
+
+            foreach (Node child in node.getChildren())
+            {
+                RoundLayoutResultsToPixelGrid(child, absoluteNodeLeft, absoluteNodeTop);
+            }
+        }
+    }
+}
+

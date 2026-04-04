@@ -1,16 +1,47 @@
-// Copyright (c) Meta Platforms, Inc. and its affiliates.
-//
-// This source code is licensed under the MIT license found in the
-// LICENSE file in the root directory of this source tree.
-//
-// Original: yoga/YGPixelGrid.h, yoga/YGPixelGrid.cpp
+using System;
 
-namespace Yoga;
-
-/// <summary>
-/// Pixel grid snapping utilities.
-/// TODO: Translate from yoga/YGPixelGrid.h and yoga/YGPixelGrid.cpp
-/// </summary>
-public static class YGPixelGrid
+namespace Facebook.Yoga
 {
+    internal static class PixelGrid
+    {
+        public static float RoundValueToPixelGrid(
+            double value,
+            double pointScaleFactor,
+            bool forceCeil,
+            bool forceFloor)
+        {
+            double scaledValue = value * pointScaleFactor;
+            double roundedValue;
+
+            if (forceCeil)
+            {
+                roundedValue = Math.Ceiling(scaledValue);
+            }
+            else if (forceFloor)
+            {
+                roundedValue = Math.Floor(scaledValue);
+            }
+            else
+            {
+                roundedValue = Math.Round(scaledValue);
+            }
+
+            return (float)(roundedValue / pointScaleFactor);
+        }
+    }
+
+    public static partial class YogaNative
+    {
+        public static float YGRoundValueToPixelGrid(
+            double value,
+            double pointScaleFactor,
+            bool forceCeil,
+            bool forceFloor)
+        {
+            return PixelGrid.RoundValueToPixelGrid(
+                value, pointScaleFactor, forceCeil, forceFloor);
+        }
+    }
 }
+</br>
+

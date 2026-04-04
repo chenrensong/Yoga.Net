@@ -1,11 +1,9 @@
-// Original: yoga/enums/PhysicalEdge.h
+namespace Facebook.Yoga;
 
-namespace Yoga.Enums;
-
-/// <summary>
-/// Physical edge enumeration (resolved for LTR/RTL).
-/// TODO: Translate from yoga/enums/PhysicalEdge.h
-/// </summary>
-public enum PhysicalEdge
+public enum PhysicalEdge : uint
 {
+    Left = (uint)Edge.Left,
+    Top = (uint)Edge.Top,
+    Right = (uint)Edge.Right,
+    Bottom = (uint)Edge.Bottom,
 }

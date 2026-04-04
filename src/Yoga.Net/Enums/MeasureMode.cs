@@ -1,11 +1,31 @@
-// Original: yoga/enums/MeasureMode.h
+using System;
 
-namespace Yoga.Enums;
-
-/// <summary>
-/// Measure mode enumeration (undefined/exactly/at-most).
-/// TODO: Translate from yoga/enums/MeasureMode.h
-/// </summary>
-public enum MeasureMode
+namespace Facebook.Yoga
 {
+    public enum MeasureMode : byte
+    {
+        Undefined = 0,
+        Exactly = 1,
+        AtMost = 2,
+    }
+
+    public static partial class YogaEnums
+    {
+        public static int OrdinalCount(MeasureMode mode) => 3;
+    }
+
+    public static class MeasureModeExtensions
+    {
+        public static string ToStringFast(this MeasureMode mode)
+        {
+            return mode switch
+            {
+                MeasureMode.Undefined => "undefined",
+                MeasureMode.Exactly => "exactly",
+                MeasureMode.AtMost => "at-most",
+                _ => mode.ToString()
+            };
+        }
+    }
 }
+
