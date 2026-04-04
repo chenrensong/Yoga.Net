@@ -49,17 +49,17 @@ namespace Facebook.Yoga
             IEnumerator<Node> iterator,
             int lineCount)
         {
-            var itemsInFlow = new List<Node>(node.GetChildCount());
+            var itemsInFlow = new List<Node>((int)node.GetChildCount());
 
             float sizeConsumed = 0.0f;
             float totalFlexGrowFactors = 0.0f;
             float totalFlexShrinkScaledFactors = 0.0f;
             int numberOfAutoMargins = 0;
-            Node firstElementInLine = null;
+            Node? firstElementInLine = null;
 
             float sizeConsumedIncludingMinConstraint = 0;
             Direction direction = node.ResolveDirection(ownerDirection);
-            FlexDirection mainAxis = ResolveDirection(node.Style.FlexDirection, direction);
+            FlexDirection mainAxis = node.Style.FlexDirection.ResolveDirection(direction);
             bool isNodeFlexWrap = node.Style.FlexWrap != Wrap.NoWrap;
             float gap = node.Style.ComputeGapForAxis(mainAxis, availableInnerMainDim);
 
@@ -86,11 +86,11 @@ namespace Facebook.Yoga
                     numberOfAutoMargins++;
                 }
 
-                child.SetLineIndex(lineCount);
+                child.SetLineIndex((nuint)lineCount);
                 float childMarginMainAxis = child.Style.ComputeMarginForAxis(mainAxis, availableInnerWidth);
                 float childLeadingGapMainAxis = child == firstElementInLine ? 0.0f : gap;
                 
-                float flexBasisWithMinAndMaxConstraints = BoundAxisWithinMinAndMax(
+                float flexBasisWithMinAndMaxConstraints = BoundAxis.BoundAxisWithinMinAndMax(
                     child,
                     direction,
                     mainAxis,

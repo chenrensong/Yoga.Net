@@ -49,7 +49,7 @@ namespace Facebook.Yoga
         // Public properties for external access
         public Config Config => _config!;
         public LayoutResults Layout => _layout;
-        public new Style Style => _style;
+        public Style Style => _style;
 
         // Constructors
         public Node() : this(Config.Default) { }
@@ -134,7 +134,7 @@ namespace Facebook.Yoga
         {
             // Simplified
             float value = 0; // getLayout().measuredDimension(dimension(axis))
-            return yoga.algorithm.Utils.IsDefined(value) && value >= 0.0f;
+            return !float.IsNaN(value) && value >= 0.0f;
         }
 
         public bool HasDefiniteLength(Dimension dimension, float ownerSize)
@@ -297,11 +297,11 @@ namespace Facebook.Yoga
         public void SetPosition(Direction direction, float ownerWidth, float ownerHeight)
         {
             var directionRespectingRoot = _owner != null ? direction : Direction.LTR;
-            var mainAxis = yoga.algorithm.FlexDirectionHelper.ResolveDirection(_style.FlexDirection, directionRespectingRoot);
-            var crossAxis = yoga.algorithm.FlexDirectionHelper.ResolveCrossDirection(mainAxis, directionRespectingRoot);
+            var mainAxis = _style.FlexDirection.ResolveDirection(directionRespectingRoot);
+            var crossAxis = mainAxis.ResolveCrossDirection(directionRespectingRoot);
 
-            float relativePositionMain = RelativePosition(mainAxis, directionRespectingRoot, yoga.algorithm.Utils.IsRow(mainAxis) ? ownerWidth : ownerHeight);
-            float relativePositionCross = RelativePosition(crossAxis, directionRespectingRoot, yoga.algorithm.Utils.IsRow(mainAxis) ? ownerHeight : ownerWidth);
+            float relativePositionMain = RelativePosition(mainAxis, directionRespectingRoot, mainAxis.IsRow() ? ownerWidth : ownerHeight);
+            float relativePositionCross = RelativePosition(crossAxis, directionRespectingRoot, mainAxis.IsRow() ? ownerHeight : ownerWidth);
 
             // Simplified edges calculation
             // setLayoutPosition(...) calls
@@ -531,85 +531,5 @@ namespace Facebook.Yoga
         }
     }
 
-    namespace yoga.algorithm {
-        using YogaDirection = Facebook.Yoga.Direction;
-        using YogaFlexDirection = Facebook.Yoga.FlexDirection;
-
-        public class FlexDirectionHelper {
-            public static YogaFlexDirection ResolveDirection(YogaFlexDirection flexDirection, YogaDirection direction) => flexDirection; // Simplified
-            public static YogaFlexDirection ResolveCrossDirection(YogaFlexDirection mainAxis, YogaDirection direction) => mainAxis; // Simplified
-        }
-
-        public class Utils {
-            public static bool IsRow(YogaFlexDirection axis) => axis == YogaFlexDirection.Row || axis == YogaFlexDirection.RowReverse;
-            public static bool IsDefined(float value) => !float.IsNaN(value) && !float.IsInfinity(value); // Simplified
-        }
-
-        public static class FlexDirectionAlgorithms
-        {
-            public static PhysicalEdge FlexStartEdge(FlexDirection axis)
-            {
-                switch (axis)
-                {
-                    case FlexDirection.Row:
-                        return PhysicalEdge.Left;
-                    case FlexDirection.RowReverse:
-                        return PhysicalEdge.Right;
-                    case FlexDirection.Column:
-                        return PhysicalEdge.Top;
-                    case FlexDirection.ColumnReverse:
-                        return PhysicalEdge.Bottom;
-                    default:
-                        throw new ArgumentException($"Invalid flexDirection: {axis}");
-                }
-            }
-
-            public static PhysicalEdge FlexEndEdge(FlexDirection axis)
-            {
-                switch (axis)
-                {
-                    case FlexDirection.Row:
-                        return PhysicalEdge.Right;
-                    case FlexDirection.RowReverse:
-                        return PhysicalEdge.Left;
-                    case FlexDirection.Column:
-                        return PhysicalEdge.Bottom;
-                    case FlexDirection.ColumnReverse:
-                        return PhysicalEdge.Top;
-                    default:
-                        throw new ArgumentException($"Invalid flexDirection: {axis}");
-                }
-            }
-
-            public static PhysicalEdge InlineStartEdge(FlexDirection axis, Direction direction)
-            {
-                if (direction == Direction.RTL)
-                {
-                    return FlexEndEdge(axis);
-                }
-                return FlexStartEdge(axis);
-            }
-
-            public static PhysicalEdge InlineEndEdge(FlexDirection axis, Direction direction)
-            {
-                if (direction == Direction.RTL)
-                {
-                    return FlexStartEdge(axis);
-                }
-                return FlexEndEdge(axis);
-            }
-
-            public static bool IsRow(FlexDirection axis)
-            {
-                return axis == FlexDirection.Row || axis == FlexDirection.RowReverse;
-            }
-        }
-    }
-
-    namespace yoga.numeric.Comparison {
-        public class Comparison {
-            public static bool InexactEquals(FloatOptional a, FloatOptional b) => Math.Abs(a.Unwrap() - b.Unwrap()) < 1e-8;
-        }
-    }
 }
 

@@ -62,7 +62,7 @@ namespace Facebook.Yoga
                 return false;
             }
 
-            float pointScaleFactor = config != null ? config.PointScaleFactor : 0;
+            float pointScaleFactor = config != null ? config.GetPointScaleFactor() : 0;
 
             bool useRoundedComparison = config != null && !Comparison.InexactEquals(pointScaleFactor, 0);
             float effectiveWidth = useRoundedComparison

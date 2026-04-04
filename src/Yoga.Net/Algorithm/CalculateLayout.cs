@@ -18,7 +18,7 @@ namespace Facebook.Yoga
         {
             var maxSize = node.Style.ResolveMaxDimension(
                     direction,
-                    axis.ToDimension(),
+                    axis.Dimension(),
                     ownerAxisSize,
                     ownerWidth) +
                 new FloatOptional(node.Style.ComputeMarginForAxis(axis, ownerWidth));
@@ -27,12 +27,12 @@ namespace Facebook.Yoga
             {
                 case SizingMode.StretchFit:
                 case SizingMode.FitContent:
-                    size = (!maxSize.IsDefined || size < maxSize.Unwrap())
+                    size = (!maxSize.IsDefined() || size < maxSize.Unwrap())
                         ? size
                         : maxSize.Unwrap();
                     break;
                 case SizingMode.MaxContent:
-                    if (maxSize.IsDefined)
+                    if (maxSize.IsDefined())
                     {
                         mode = SizingMode.FitContent;
                         size = maxSize.Unwrap();
@@ -80,9 +80,9 @@ namespace Facebook.Yoga
                     ExperimentalFeature.FixFlexBasisFitContent);
 
             bool useResolvedFlexBasis =
-                resolvedFlexBasis.IsDefined && yoga.YGIsDefined(mainAxisSize);
+                resolvedFlexBasis.IsDefined() && Comparison.IsDefined(mainAxisSize);
 
-            if (fixFlexBasisFitContent && resolvedFlexBasis.IsDefined &&
+            if (fixFlexBasisFitContent && resolvedFlexBasis.IsDefined() &&
                 resolvedFlexBasis.Unwrap() > 0)
             {
                 useResolvedFlexBasis = true;
@@ -98,7 +98,7 @@ namespace Facebook.Yoga
                     var paddingAndBorder = new FloatOptional(
                         Utils.PaddingAndBorderForAxis(child, mainAxis, direction, ownerWidth));
                     child.SetLayoutComputedFlexBasis(
-                        yoga.YGMaxOrDefined(resolvedFlexBasis, paddingAndBorder));
+                        Comparison.MaxOrDefined(resolvedFlexBasis, paddingAndBorder));
                 }
             }
             else if (isMainAxisRow && isRowStyleDimDefined)
@@ -108,7 +108,7 @@ namespace Facebook.Yoga
                         child, FlexDirection.Row, direction, ownerWidth));
 
                 child.SetLayoutComputedFlexBasis(
-                    yoga.YGMaxOrDefined(
+                    Comparison.MaxOrDefined(
                         child.GetResolvedDimension(
                             direction, Dimension.Width, ownerWidth, ownerWidth),
                         paddingAndBorder));
@@ -119,7 +119,7 @@ namespace Facebook.Yoga
                     Utils.PaddingAndBorderForAxis(
                         child, FlexDirection.Column, direction, ownerWidth));
                 child.SetLayoutComputedFlexBasis(
-                    yoga.YGMaxOrDefined(
+                    Comparison.MaxOrDefined(
                         child.GetResolvedDimension(
                             direction, Dimension.Height, ownerHeight, ownerWidth),
                         paddingAndBorder));
@@ -157,7 +157,7 @@ namespace Facebook.Yoga
                 if ((!isMainAxisRow && node.Style.Overflow() == Overflow.Scroll) ||
                     node.Style.Overflow() != Overflow.Scroll)
                 {
-                    if (yoga.YGIsUndefined(childWidth) && yoga.YGIsDefined(width))
+                    if (Comparison.IsUndefined(childWidth) && Comparison.IsDefined(width))
                     {
                         childWidth = width;
                         childWidthSizingMode = SizingMode.FitContent;
@@ -172,15 +172,15 @@ namespace Facebook.Yoga
                         (child.HasMeasureFunc() &&
                          node.Style.Overflow() != Overflow.Scroll);
                 }
-                if (applyHeightFitContent && yoga.YGIsUndefined(childHeight) &&
-                    yoga.YGIsDefined(height))
+                if (applyHeightFitContent && Comparison.IsUndefined(childHeight) &&
+                    Comparison.IsDefined(height))
                 {
                     childHeight = height;
                     childHeightSizingMode = SizingMode.FitContent;
                 }
 
                 ref readonly var childStyle = ref child.Style;
-                if (childStyle.AspectRatio().IsDefined)
+                if (childStyle.AspectRatio.IsDefined())
                 {
                     if (!isMainAxisRow && childWidthSizingMode == SizingMode.StretchFit)
                     {
@@ -198,7 +198,7 @@ namespace Facebook.Yoga
                 }
 
                 bool hasExactWidth =
-                    yoga.YGIsDefined(width) && widthMode == SizingMode.StretchFit;
+                    Comparison.IsDefined(width) && widthMode == SizingMode.StretchFit;
                 bool childWidthStretch =
                     AlignUtils.ResolveChildAlignment(node, child) == Align.Stretch &&
                     childWidthSizingMode != SizingMode.StretchFit;
@@ -207,7 +207,7 @@ namespace Facebook.Yoga
                 {
                     childWidth = width;
                     childWidthSizingMode = SizingMode.StretchFit;
-                    if (childStyle.AspectRatio().IsDefined)
+                    if (childStyle.AspectRatio.IsDefined())
                     {
                         childHeight =
                             (childWidth - marginRow) / childStyle.AspectRatio().Unwrap();
@@ -216,7 +216,7 @@ namespace Facebook.Yoga
                 }
 
                 bool hasExactHeight =
-                    yoga.YGIsDefined(height) && heightMode == SizingMode.StretchFit;
+                    Comparison.IsDefined(height) && heightMode == SizingMode.StretchFit;
                 bool childHeightStretch =
                     AlignUtils.ResolveChildAlignment(node, child) == Align.Stretch &&
                     childHeightSizingMode != SizingMode.StretchFit;
@@ -226,7 +226,7 @@ namespace Facebook.Yoga
                     childHeight = height;
                     childHeightSizingMode = SizingMode.StretchFit;
 
-                    if (childStyle.AspectRatio().IsDefined)
+                    if (childStyle.AspectRatio.IsDefined())
                     {
                         childWidth =
                             (childHeight - marginColumn) * childStyle.AspectRatio().Unwrap();
@@ -267,8 +267,8 @@ namespace Facebook.Yoga
                     generationCount);
 
                 child.SetLayoutComputedFlexBasis(new FloatOptional(
-                    yoga.YGMaxOrDefined(
-                        child.Layout.MeasuredDimension(mainAxis.ToDimension()),
+                    Comparison.MaxOrDefined(
+                        child.Layout.MeasuredDimension(mainAxis.Dimension()),
                         Utils.PaddingAndBorderForAxis(child, mainAxis, direction, ownerWidth))));
             }
             child.SetLayoutComputedFlexBasisGeneration(generationCount);
@@ -308,12 +308,12 @@ namespace Facebook.Yoga
                 layout.Padding(PhysicalEdge.Bottom) + layout.Border(PhysicalEdge.Top) +
                 layout.Border(PhysicalEdge.Bottom);
 
-            float innerWidth = yoga.YGIsUndefined(availableWidth)
+            float innerWidth = Comparison.IsUndefined(availableWidth)
                 ? availableWidth
-                : yoga.YGMaxOrDefined(0.0f, availableWidth - paddingAndBorderAxisRow);
-            float innerHeight = yoga.YGIsUndefined(availableHeight)
+                : Comparison.MaxOrDefined(0.0f, availableWidth - paddingAndBorderAxisRow);
+            float innerHeight = Comparison.IsUndefined(availableHeight)
                 ? availableHeight
-                : yoga.YGMaxOrDefined(0.0f, availableHeight - paddingAndBorderAxisColumn);
+                : Comparison.MaxOrDefined(0.0f, availableHeight - paddingAndBorderAxisColumn);
 
             if (widthSizingMode == SizingMode.StretchFit &&
                 heightSizingMode == SizingMode.StretchFit)
@@ -339,7 +339,7 @@ namespace Facebook.Yoga
             }
             else
             {
-                Event.Publish<MeasureCallbackStartEvent>(node);
+                // TODO: Event.Publish for MeasureCallbackStart
 
                 var measuredSize = node.Measure(
                     innerWidth,
@@ -351,18 +351,7 @@ namespace Facebook.Yoga
                 layoutMarkerData.MeasureCallbackReasonsCount[(size_t)reason] +=
                     1;
 
-                Event.Publish<MeasureCallbackEndEvent>(
-                    node,
-                    new MeasureCallbackEndEventData
-                    {
-                        Width = innerWidth,
-                        WidthMeasureMode = widthSizingMode.ToMeasureMode(),
-                        Height = innerHeight,
-                        HeightMeasureMode = heightSizingMode.ToMeasureMode(),
-                        MeasuredWidth = measuredSize.Width,
-                        MeasuredHeight = measuredSize.Height,
-                        Reason = reason
-                    });
+                // TODO: Event.Publish for MeasureCallbackEnd
 
                 node.SetLayoutMeasuredDimension(
                     BoundAxis.BoundAxis(
@@ -439,7 +428,7 @@ namespace Facebook.Yoga
         internal static bool IsFixedSize(float dim, SizingMode sizingMode)
         {
             return sizingMode == SizingMode.StretchFit ||
-                (yoga.YGIsDefined(dim) && sizingMode == SizingMode.FitContent &&
+                (Comparison.IsDefined(dim) && sizingMode == SizingMode.FitContent &&
                  dim <= 0.0);
         }
 
@@ -461,7 +450,7 @@ namespace Facebook.Yoga
                         node,
                         FlexDirection.Row,
                         direction,
-                        yoga.YGIsUndefined(availableWidth) ||
+                        Comparison.IsUndefined(availableWidth) ||
                                 (widthSizingMode == SizingMode.FitContent &&
                                  availableWidth < 0.0f)
                             ? 0.0f
@@ -475,7 +464,7 @@ namespace Facebook.Yoga
                         node,
                         FlexDirection.Column,
                         direction,
-                        yoga.YGIsUndefined(availableHeight) ||
+                        Comparison.IsUndefined(availableHeight) ||
                                 (heightSizingMode == SizingMode.FitContent &&
                                  availableHeight < 0.0f)
                             ? 0.0f
@@ -535,7 +524,7 @@ namespace Facebook.Yoga
             float ownerWidth)
         {
             float availableInnerDim = availableDim - paddingAndBorder;
-            if (yoga.YGIsDefined(availableInnerDim))
+            if (Comparison.IsDefined(availableInnerDim))
             {
                 var minDimensionOptional =
                     node.Style.ResolvedMinDimension(
@@ -551,8 +540,8 @@ namespace Facebook.Yoga
                 float maxInnerDim = maxDimensionOptional.IsUndefined
                     ? float.MaxValue
                     : maxDimensionOptional.Unwrap() - paddingAndBorder;
-                availableInnerDim = yoga.YGMaxOrDefined(
-                    yoga.YGMinOrDefined(availableInnerDim, maxInnerDim), minInnerDim);
+                availableInnerDim = Comparison.MaxOrDefined(
+                    Comparison.MinOrDefined(availableInnerDim, maxInnerDim), minInnerDim);
             }
 
             return availableInnerDim;
@@ -585,8 +574,8 @@ namespace Facebook.Yoga
                     if (child.IsNodeFlexible())
                     {
                         if (singleFlexChild != null ||
-                            yoga.YGInexactEquals(child.ResolveFlexGrow(), 0.0f) ||
-                            yoga.YGInexactEquals(child.ResolveFlexShrink(), 0.0f))
+                            Comparison.InexactEquals(child.ResolveFlexGrow(), 0.0f) ||
+                            Comparison.InexactEquals(child.ResolveFlexShrink(), 0.0f))
                         {
                             singleFlexChild = null;
                             break;
@@ -688,7 +677,7 @@ namespace Facebook.Yoga
                          .Unwrap();
                 float updatedMainSize = childFlexBasis;
 
-                if (yoga.YGIsDefined(flexLine.Layout.RemainingFreeSpace) &&
+                if (Comparison.IsDefined(flexLine.Layout.RemainingFreeSpace) &&
                     flexLine.Layout.RemainingFreeSpace < 0)
                 {
                     flexShrinkScaledFactor =
@@ -697,7 +686,7 @@ namespace Facebook.Yoga
                     {
                         float childSize = YGConstants.YGUndefined;
 
-                        if (yoga.YGIsDefined(flexLine.Layout.TotalFlexShrinkScaledFactors) &&
+                        if (Comparison.IsDefined(flexLine.Layout.TotalFlexShrinkScaledFactors) &&
                             flexLine.Layout.TotalFlexShrinkScaledFactors == 0)
                         {
                             childSize = childFlexBasis + flexShrinkScaledFactor;
@@ -720,7 +709,7 @@ namespace Facebook.Yoga
                     }
                 }
                 else if (
-                    yoga.YGIsDefined(flexLine.Layout.RemainingFreeSpace) &&
+                    Comparison.IsDefined(flexLine.Layout.RemainingFreeSpace) &&
                     flexLine.Layout.RemainingFreeSpace > 0)
                 {
                     flexGrowFactor = currentLineChild.ResolveFlexGrow();
@@ -752,7 +741,7 @@ namespace Facebook.Yoga
                 SizingMode childMainSizingMode = SizingMode.StretchFit;
 
                 ref readonly var childStyle = ref currentLineChild.Style;
-                if (childStyle.AspectRatio().IsDefined)
+                if (childStyle.AspectRatio.IsDefined())
                 {
                     childCrossSize = isMainAxisRow
                         ? (childMainSize - marginMain) / childStyle.AspectRatio().Unwrap()
@@ -764,7 +753,7 @@ namespace Facebook.Yoga
                 else if (
                     !float.IsNaN(availableInnerCrossDim) &&
                     !currentLineChild.HasDefiniteLength(
-                        crossAxis.ToDimension(), availableInnerCrossDim) &&
+                        crossAxis.Dimension(), availableInnerCrossDim) &&
                     sizingModeCrossDim == SizingMode.StretchFit &&
                     !(isNodeFlexWrap && mainAxisOverflows) &&
                     AlignUtils.ResolveChildAlignment(node, currentLineChild) == Align.Stretch &&
@@ -776,10 +765,10 @@ namespace Facebook.Yoga
                     childCrossSizingMode = SizingMode.StretchFit;
                 }
                 else if (!currentLineChild.HasDefiniteLength(
-                           crossAxis.ToDimension(), availableInnerCrossDim))
+                           crossAxis.Dimension(), availableInnerCrossDim))
                 {
                     childCrossSize = availableInnerCrossDim;
-                    childCrossSizingMode = yoga.YGIsUndefined(childCrossSize)
+                    childCrossSizingMode = Comparison.IsUndefined(childCrossSize)
                         ? SizingMode.MaxContent
                         : SizingMode.FitContent;
                 }
@@ -788,17 +777,17 @@ namespace Facebook.Yoga
                     childCrossSize = currentLineChild
                              .GetResolvedDimension(
                                  direction,
-                                 crossAxis.ToDimension(),
+                                 crossAxis.Dimension(),
                                  availableInnerCrossDim,
                                  availableInnerWidth)
                              .Unwrap() +
                         marginCross;
                     bool isLoosePercentageMeasurement =
-                        currentLineChild.ProcessedDimension(crossAxis.ToDimension())
+                        currentLineChild.ProcessedDimension(crossAxis.Dimension())
                             .IsPercent() &&
                         sizingModeCrossDim != SizingMode.StretchFit;
                     childCrossSizingMode =
-                        yoga.YGIsUndefined(childCrossSize) || isLoosePercentageMeasurement
+                        Comparison.IsUndefined(childCrossSize) || isLoosePercentageMeasurement
                         ? SizingMode.MaxContent
                         : SizingMode.StretchFit;
                 }
@@ -822,7 +811,7 @@ namespace Facebook.Yoga
 
                 bool requiresStretchLayout =
                     !currentLineChild.HasDefiniteLength(
-                        crossAxis.ToDimension(), availableInnerCrossDim) &&
+                        crossAxis.Dimension(), availableInnerCrossDim) &&
                     AlignUtils.ResolveChildAlignment(node, currentLineChild) == Align.Stretch &&
                     !currentLineChild.Style.FlexStartMarginIsAuto(
                         crossAxis, direction) &&
@@ -890,7 +879,7 @@ namespace Facebook.Yoga
                     flexShrinkScaledFactor =
                         -currentLineChild.ResolveFlexShrink() * childFlexBasis;
 
-                    if (yoga.YGIsDefined(flexShrinkScaledFactor) &&
+                    if (Comparison.IsDefined(flexShrinkScaledFactor) &&
                         flexShrinkScaledFactor != 0)
                     {
                         baseMainSize = childFlexBasis +
@@ -904,7 +893,7 @@ namespace Facebook.Yoga
                             baseMainSize,
                             availableInnerMainDim,
                             availableInnerWidth);
-                        if (yoga.YGIsDefined(baseMainSize) && yoga.YGIsDefined(boundMainSize) &&
+                        if (Comparison.IsDefined(baseMainSize) && Comparison.IsDefined(boundMainSize) &&
                             baseMainSize != boundMainSize)
                         {
                             deltaFreeSpace += boundMainSize - childFlexBasis;
@@ -915,12 +904,12 @@ namespace Facebook.Yoga
                     }
                 }
                 else if (
-                    yoga.YGIsDefined(flexLine.Layout.RemainingFreeSpace) &&
+                    Comparison.IsDefined(flexLine.Layout.RemainingFreeSpace) &&
                     flexLine.Layout.RemainingFreeSpace > 0)
                 {
                     flexGrowFactor = currentLineChild.ResolveFlexGrow();
 
-                    if (yoga.YGIsDefined(flexGrowFactor) && flexGrowFactor != 0)
+                    if (Comparison.IsDefined(flexGrowFactor) && flexGrowFactor != 0)
                     {
                         baseMainSize = childFlexBasis +
                             flexLine.Layout.RemainingFreeSpace /
@@ -933,7 +922,7 @@ namespace Facebook.Yoga
                             availableInnerMainDim,
                             availableInnerWidth);
 
-                        if (yoga.YGIsDefined(baseMainSize) && yoga.YGIsDefined(boundMainSize) &&
+                        if (Comparison.IsDefined(baseMainSize) && Comparison.IsDefined(boundMainSize) &&
                             baseMainSize != boundMainSize)
                         {
                             deltaFreeSpace += boundMainSize - childFlexBasis;
@@ -1025,21 +1014,21 @@ namespace Facebook.Yoga
             if (sizingModeMainDim == SizingMode.FitContent &&
                 flexLine.Layout.RemainingFreeSpace > 0)
             {
-                if (style.MinDimension(mainAxis.ToDimension()).IsDefined &&
+                if (style.MinDimension(mainAxis.Dimension()).IsDefined() &&
                     style
                         .ResolvedMinDimension(
-                            direction, mainAxis.ToDimension(), mainAxisOwnerSize, ownerWidth)
-                        .IsDefined)
+                            direction, mainAxis.Dimension(), mainAxisOwnerSize, ownerWidth)
+                        .IsDefined())
                 {
                     float minAvailableMainDim =
                         style
                             .ResolvedMinDimension(
-                                direction, mainAxis.ToDimension(), mainAxisOwnerSize, ownerWidth)
+                                direction, mainAxis.Dimension(), mainAxisOwnerSize, ownerWidth)
                             .Unwrap() -
                             leadingPaddingAndBorderMain - trailingPaddingAndBorderMain;
                     float occupiedSpaceByChildNodes =
                         availableInnerMainDim - flexLine.Layout.RemainingFreeSpace;
-                    flexLine.Layout.RemainingFreeSpace = yoga.YGMaxOrDefined(
+                    flexLine.Layout.RemainingFreeSpace = Comparison.MaxOrDefined(
                         0.0f, minAvailableMainDim - occupiedSpaceByChildNodes);
                 }
                 else
@@ -1111,9 +1100,9 @@ namespace Facebook.Yoga
                 if (performLayout)
                 {
                     child.SetLayoutPosition(
-                        childLayout.Position(mainAxis.ToFlexStartEdge()) +
+                        childLayout.Position(mainAxis.FlexStartEdge()) +
                             flexLine.Layout.MainDim,
-                        mainAxis.ToFlexStartEdge());
+                        mainAxis.FlexStartEdge());
                 }
 
                 if (child != flexLine.ItemsInFlow[flexLine.ItemsInFlow.Count - 1])
@@ -1160,13 +1149,13 @@ namespace Facebook.Yoga
                             ascent;
 
                         maxAscentForCurrentLine =
-                            yoga.YGMaxOrDefined(maxAscentForCurrentLine, ascent);
+                            Comparison.MaxOrDefined(maxAscentForCurrentLine, ascent);
                         maxDescentForCurrentLine =
-                            yoga.YGMaxOrDefined(maxDescentForCurrentLine, descent);
+                            Comparison.MaxOrDefined(maxDescentForCurrentLine, descent);
                     }
                     else
                     {
-                        flexLine.Layout.CrossDim = yoga.YGMaxOrDefined(
+                        flexLine.Layout.CrossDim = Comparison.MaxOrDefined(
                             flexLine.Layout.CrossDim,
                             child.DimensionWithMargin(crossAxis, availableInnerWidth));
                     }
@@ -1297,10 +1286,10 @@ namespace Facebook.Yoga
             node.CloneChildrenIfNeeded();
             node.MarkChildrenWithDisplayNone();
 
-            float availableInnerWidth = !yoga.YGIsUndefined(availableWidth)
+            float availableInnerWidth = !Comparison.IsUndefined(availableWidth)
                 ? availableWidth - leadingPaddingAndBorderMain - trailingPaddingAndBorderMain
                 : YGConstants.YGUndefined;
-            float availableInnerHeight = !yoga.YGIsUndefined(availableHeight)
+            float availableInnerHeight = !Comparison.IsUndefined(availableHeight)
                 ? availableHeight - leadingPaddingAndBorderCross - trailingPaddingAndBorderCross
                 : YGConstants.YGUndefined;
 
@@ -1326,15 +1315,15 @@ namespace Facebook.Yoga
                     ? node.Style.ResolvedMaxDimension(ownerDirection, Dimension.Height, ownerHeight, ownerWidth).Unwrap()
                     : float.MaxValue;
 
-            if (yoga.YGIsUndefined(availableInnerMainDim))
+            if (Comparison.IsUndefined(availableInnerMainDim))
             {
                 availableInnerMainDim = maxContentMainDim;
-                if (yoga.YGIsUndefined(availableInnerCrossDim))
+                if (Comparison.IsUndefined(availableInnerCrossDim))
                 {
                     availableInnerCrossDim = maxContentCrossDim;
                 }
             }
-            else if (yoga.YGIsUndefined(availableInnerCrossDim))
+            else if (Comparison.IsUndefined(availableInnerCrossDim))
             {
                 availableInnerCrossDim = maxContentCrossDim;
             }
@@ -1355,25 +1344,25 @@ namespace Facebook.Yoga
                 generationCount);
 
             float minInnerMainDim = node.Style.ResolvedMinDimension(
-                    ownerDirection, mainAxis.ToDimension(), ownerWidth, ownerWidth)
+                    ownerDirection, mainAxis.Dimension(), ownerWidth, ownerWidth)
                 .IsDefined
                 ? node.Style.ResolvedMinDimension(
-                      ownerDirection, mainAxis.ToDimension(), ownerWidth, ownerWidth)
+                      ownerDirection, mainAxis.Dimension(), ownerWidth, ownerWidth)
                     .Unwrap()
                 : 0.0f;
             float maxInnerMainDim = node.Style.ResolvedMaxDimension(
-                    ownerDirection, mainAxis.ToDimension(), ownerWidth, ownerWidth)
+                    ownerDirection, mainAxis.Dimension(), ownerWidth, ownerWidth)
                 .IsDefined
                 ? node.Style.ResolvedMaxDimension(
-                      ownerDirection, mainAxis.ToDimension(), ownerWidth, ownerWidth)
+                      ownerDirection, mainAxis.Dimension(), ownerWidth, ownerWidth)
                     .Unwrap()
                 : float.MaxValue;
 
-            flexBasisOuter = yoga.YGMaxOrDefined(flexBasisOuter, minInnerMainDim);
-            flexBasisOuter = yoga.YGMinOrDefined(flexBasisOuter, maxInnerMainDim);
+            flexBasisOuter = Comparison.MaxOrDefined(flexBasisOuter, minInnerMainDim);
+            flexBasisOuter = Comparison.MinOrDefined(flexBasisOuter, maxInnerMainDim);
 
             bool mainAxisOverflows = false;
-            if (yoga.YGIsDefined(availableInnerMainDim))
+            if (Comparison.IsDefined(availableInnerMainDim))
             {
                 mainAxisOverflows = flexBasisOuter > availableInnerMainDim;
             }
@@ -1410,7 +1399,7 @@ namespace Facebook.Yoga
             bool isMainAxisOverflowing = false;
             bool isCrossAxisOverflowing = false;
 
-            if (yoga.YGIsDefined(availableInnerMainDim))
+            if (Comparison.IsDefined(availableInnerMainDim))
             {
                 isMainAxisOverflowing = flexBasisOuter > availableInnerMainDim;
             }
@@ -1425,7 +1414,7 @@ namespace Facebook.Yoga
                 var flexLine = flexLines[i];
 
                 float flexLineInnerMainDim = availableInnerMainDim;
-                if (yoga.YGIsDefined(availableInnerMainDim))
+                if (Comparison.IsDefined(availableInnerMainDim))
                 {
                     flexLine.Layout.RemainingFreeSpace = availableInnerMainDim;
                     for (int j = 0; j < flexLine.ItemsInFlow.Count; j++)
@@ -1442,7 +1431,7 @@ namespace Facebook.Yoga
                 }
                 else
                 {
-                    flexLine.Layout.RemainingFreeSpace = yoga.YGIsDefined(maxContentMainDim)
+                    flexLine.Layout.RemainingFreeSpace = Comparison.IsDefined(maxContentMainDim)
                         ? maxContentMainDim - flexBasisOuter
                         : float.MaxValue;
                 }
@@ -1494,16 +1483,16 @@ namespace Facebook.Yoga
             {
                 totalInnerCrossDim += flexLine.Layout.CrossDim +
                     flexLine.Layout.MainDim + flexLine.Layout.Gap;
-                maxBaseline = yoga.YGMaxOrDefined(maxBaseline, flexLine.Layout.MaxBaseline);
+                maxBaseline = Comparison.MaxOrDefined(maxBaseline, flexLine.Layout.MaxBaseline);
             }
 
-            if (yoga.YGIsUndefined(availableInnerCrossDim))
+            if (Comparison.IsUndefined(availableInnerCrossDim))
             {
                 availableInnerCrossDim = node.Style.ResolvedMaxDimension(
-                        ownerDirection, crossAxis.ToDimension(), ownerHeight, ownerWidth)
+                        ownerDirection, crossAxis.Dimension(), ownerHeight, ownerWidth)
                     .IsDefined
                     ? node.Style.ResolvedMaxDimension(
-                          ownerDirection, crossAxis.ToDimension(), ownerHeight, ownerWidth)
+                          ownerDirection, crossAxis.Dimension(), ownerHeight, ownerWidth)
                         .Unwrap()
                     : maxContentCrossDim;
             }
@@ -1512,7 +1501,7 @@ namespace Facebook.Yoga
 
             if (performLayout)
             {
-                node.SetLayoutDimension(totalInnerCrossDim, crossAxis.ToDimension());
+                node.SetLayoutDimension(totalInnerCrossDim, crossAxis.Dimension());
             }
             else
             {
@@ -1523,7 +1512,7 @@ namespace Facebook.Yoga
                     totalInnerCrossDim,
                     availableInnerCrossDim,
                     availableInnerWidth);
-                node.SetLayoutMeasuredDimension(dimension, crossAxis.ToDimension());
+                node.SetLayoutMeasuredDimension(dimension, crossAxis.Dimension());
             }
 
             for (int i = 0; i < flexLines.Count; i++)
@@ -1598,8 +1587,8 @@ namespace Facebook.Yoga
                     for (int i = 0; i < node.GetChildren().Count; i++)
                     {
                         var child = node.GetChildren()[i];
-                        child.SetLayoutPosition(0, mainAxis.ToFlexStartEdge());
-                        child.SetLayoutPosition(0, crossAxis.ToFlexStartEdge());
+                        child.SetLayoutPosition(0, mainAxis.FlexStartEdge());
+                        child.SetLayoutPosition(0, crossAxis.FlexStartEdge());
                     }
                 }
             }
@@ -1628,25 +1617,25 @@ namespace Facebook.Yoga
         uint depth,
         uint generationCount)
     {
-        LayoutResults layout = node.getLayout();
+        LayoutResults layout = node.GetLayout();
 
         depth++;
 
         bool needToVisitNode =
-            (node.isDirty() && layout.generationCount != generationCount) ||
-            layout.configVersion != node.getConfig().getVersion() ||
-            layout.lastOwnerDirection != ownerDirection;
+            (node.IsDirty() && layout.GenerationCount != generationCount) ||
+            layout.ConfigVersion != node.GetConfig().getVersion() ||
+            layout.LastOwnerDirection != ownerDirection;
 
         if (needToVisitNode)
         {
             // Invalidate the cached results.
-            layout.nextCachedMeasurementsIndex = 0;
-            layout.cachedLayout.availableWidth = -1;
-            layout.cachedLayout.availableHeight = -1;
-            layout.cachedLayout.widthSizingMode = SizingMode.MaxContent;
-            layout.cachedLayout.heightSizingMode = SizingMode.MaxContent;
-            layout.cachedLayout.computedWidth = -1;
-            layout.cachedLayout.computedHeight = -1;
+            layout.NextCachedMeasurementsIndex = 0;
+            layout.CachedLayout.AvailableWidth = -1;
+            layout.CachedLayout.AvailableHeight = -1;
+            layout.CachedLayout.WidthSizingMode = SizingMode.MaxContent;
+            layout.CachedLayout.HeightSizingMode = SizingMode.MaxContent;
+            layout.CachedLayout.ComputedWidth = -1;
+            layout.CachedLayout.ComputedHeight = -1;
         }
 
         CachedMeasurement cachedResults = null;
@@ -1659,50 +1648,50 @@ namespace Facebook.Yoga
         // dimensions. We handle nodes with measure functions specially here because
         // they are the most expensive to measure, so it's worth avoiding redundant
         // measurements if at all possible.
-        if (node.hasMeasureFunc())
+        if (node.HasMeasureFunc())
         {
-            float marginAxisRow = node.getStyle().computeMarginForAxis(FlexDirection.Row, ownerWidth);
-            float marginAxisColumn = node.getStyle().computeMarginForAxis(FlexDirection.Column, ownerWidth);
+            float marginAxisRow = node.Style.computeMarginForAxis(FlexDirection.Row, ownerWidth);
+            float marginAxisColumn = node.Style.computeMarginForAxis(FlexDirection.Column, ownerWidth);
 
             // First, try to use the layout cache.
-            if (canUseCachedMeasurement(
+            if (Cache.CanUseCachedMeasurement(
                     widthSizingMode,
                     availableWidth,
                     heightSizingMode,
                     availableHeight,
-                    layout.cachedLayout.widthSizingMode,
-                    layout.cachedLayout.availableWidth,
-                    layout.cachedLayout.heightSizingMode,
-                    layout.cachedLayout.availableHeight,
-                    layout.cachedLayout.computedWidth,
-                    layout.cachedLayout.computedHeight,
+                    layout.CachedLayout.WidthSizingMode,
+                    layout.CachedLayout.AvailableWidth,
+                    layout.CachedLayout.HeightSizingMode,
+                    layout.CachedLayout.AvailableHeight,
+                    layout.CachedLayout.ComputedWidth,
+                    layout.CachedLayout.ComputedHeight,
                     marginAxisRow,
                     marginAxisColumn,
-                    node.getConfig()))
+                    node.GetConfig()))
             {
-                cachedResults = layout.cachedLayout;
+                cachedResults = layout.CachedLayout;
             }
             else
             {
                 // Try to use the measurement cache.
-                for (int i = 0; i < layout.nextCachedMeasurementsIndex; i++)
+                for (int i = 0; i < layout.NextCachedMeasurementsIndex; i++)
                 {
-                    if (canUseCachedMeasurement(
+                    if (Cache.CanUseCachedMeasurement(
                             widthSizingMode,
                             availableWidth,
                             heightSizingMode,
                             availableHeight,
-                            layout.cachedMeasurements[i].widthSizingMode,
-                            layout.cachedMeasurements[i].availableWidth,
-                            layout.cachedMeasurements[i].heightSizingMode,
-                            layout.cachedMeasurements[i].availableHeight,
-                            layout.cachedMeasurements[i].computedWidth,
-                            layout.cachedMeasurements[i].computedHeight,
+                            layout.CachedMeasurements[i].WidthSizingMode,
+                            layout.CachedMeasurements[i].AvailableWidth,
+                            layout.CachedMeasurements[i].HeightSizingMode,
+                            layout.CachedMeasurements[i].AvailableHeight,
+                            layout.CachedMeasurements[i].ComputedWidth,
+                            layout.CachedMeasurements[i].ComputedHeight,
                             marginAxisRow,
                             marginAxisColumn,
-                            node.getConfig()))
+                            node.GetConfig()))
                     {
-                        cachedResults = layout.cachedMeasurements[i];
+                        cachedResults = layout.CachedMeasurements[i];
                         break;
                     }
                 }
@@ -1710,24 +1699,24 @@ namespace Facebook.Yoga
         }
         else if (performLayout)
         {
-            if (yoga.inexactEquals(layout.cachedLayout.availableWidth, availableWidth) &&
-                yoga.inexactEquals(layout.cachedLayout.availableHeight, availableHeight) &&
-                layout.cachedLayout.widthSizingMode == widthSizingMode &&
-                layout.cachedLayout.heightSizingMode == heightSizingMode)
+            if (Comparison.InexactEquals(layout.CachedLayout.AvailableWidth, availableWidth) &&
+                Comparison.InexactEquals(layout.CachedLayout.AvailableHeight, availableHeight) &&
+                layout.CachedLayout.WidthSizingMode == widthSizingMode &&
+                layout.CachedLayout.HeightSizingMode == heightSizingMode)
             {
-                cachedResults = layout.cachedLayout;
+                cachedResults = layout.CachedLayout;
             }
         }
         else
         {
-            for (uint i = 0; i < layout.nextCachedMeasurementsIndex; i++)
+            for (uint i = 0; i < layout.NextCachedMeasurementsIndex; i++)
             {
-                if (yoga.inexactEquals(layout.cachedMeasurements[i].availableWidth, availableWidth) &&
-                    yoga.inexactEquals(layout.cachedMeasurements[i].availableHeight, availableHeight) &&
-                    layout.cachedMeasurements[i].widthSizingMode == widthSizingMode &&
-                    layout.cachedMeasurements[i].heightSizingMode == heightSizingMode)
+                if (Comparison.InexactEquals(layout.CachedMeasurements[i].AvailableWidth, availableWidth) &&
+                    Comparison.InexactEquals(layout.CachedMeasurements[i].AvailableHeight, availableHeight) &&
+                    layout.CachedMeasurements[i].WidthSizingMode == widthSizingMode &&
+                    layout.CachedMeasurements[i].HeightSizingMode == heightSizingMode)
                 {
-                    cachedResults = layout.cachedMeasurements[i];
+                    cachedResults = layout.CachedMeasurements[i];
                     break;
                 }
             }
@@ -1735,17 +1724,17 @@ namespace Facebook.Yoga
 
         if (!needToVisitNode && cachedResults != null)
         {
-            layout.setMeasuredDimension(Dimension.Width, cachedResults.computedWidth);
-            layout.setMeasuredDimension(Dimension.Height, cachedResults.computedHeight);
+            layout.SetMeasuredDimension(Dimension.Width, cachedResults.ComputedWidth);
+            layout.SetMeasuredDimension(Dimension.Height, cachedResults.ComputedHeight);
 
             if (performLayout)
-                layoutMarkerData.cachedLayouts += 1;
+                layoutMarkerData.CachedLayouts += 1;
             else
-                layoutMarkerData.cachedMeasures += 1;
+                layoutMarkerData.CachedMeasures += 1;
         }
         else
         {
-            calculateLayoutImpl(
+            CalculateLayoutImpl(
                 node,
                 availableWidth,
                 availableHeight,
@@ -1760,61 +1749,61 @@ namespace Facebook.Yoga
                 depth,
                 generationCount);
 
-            layout.lastOwnerDirection = ownerDirection;
-            layout.configVersion = node.getConfig().getVersion();
+            layout.LastOwnerDirection = ownerDirection;
+            layout.ConfigVersion = node.GetConfig().getVersion();
 
             if (cachedResults == null)
             {
-                layoutMarkerData.maxMeasureCache = Math.Max(
-                    layoutMarkerData.maxMeasureCache,
-                    layout.nextCachedMeasurementsIndex + 1u);
+                layoutMarkerData.MaxMeasureCache = Math.Max(
+                    layoutMarkerData.MaxMeasureCache,
+                    layout.NextCachedMeasurementsIndex + 1u);
 
-                if (layout.nextCachedMeasurementsIndex == LayoutResults.MaxCachedMeasurements)
+                if (layout.NextCachedMeasurementsIndex == LayoutResults.MaxCachedMeasurements)
                 {
-                    layout.nextCachedMeasurementsIndex = 0;
+                    layout.NextCachedMeasurementsIndex = 0;
                 }
 
                 CachedMeasurement newCacheEntry = null;
                 if (performLayout)
                 {
                     // Use the single layout cache entry.
-                    newCacheEntry = layout.cachedLayout;
+                    newCacheEntry = layout.CachedLayout;
                 }
                 else
                 {
                     // Allocate a new measurement cache entry.
-                    newCacheEntry = layout.cachedMeasurements[layout.nextCachedMeasurementsIndex];
-                    layout.nextCachedMeasurementsIndex++;
+                    newCacheEntry = layout.CachedMeasurements[layout.NextCachedMeasurementsIndex];
+                    layout.NextCachedMeasurementsIndex++;
                 }
 
-                newCacheEntry.availableWidth = availableWidth;
-                newCacheEntry.availableHeight = availableHeight;
-                newCacheEntry.widthSizingMode = widthSizingMode;
-                newCacheEntry.heightSizingMode = heightSizingMode;
-                newCacheEntry.computedWidth = layout.measuredDimension(Dimension.Width);
-                newCacheEntry.computedHeight = layout.measuredDimension(Dimension.Height);
+                newCacheEntry.AvailableWidth = availableWidth;
+                newCacheEntry.AvailableHeight = availableHeight;
+                newCacheEntry.WidthSizingMode = widthSizingMode;
+                newCacheEntry.HeightSizingMode = heightSizingMode;
+                newCacheEntry.ComputedWidth = layout.MeasuredDimension(Dimension.Width);
+                newCacheEntry.ComputedHeight = layout.MeasuredDimension(Dimension.Height);
             }
         }
 
         if (performLayout)
         {
-            node.setLayoutDimension(
-                node.getLayout().measuredDimension(Dimension.Width),
+            node.SetLayoutDimension(
+                node.GetLayout().MeasuredDimension(Dimension.Width),
                 Dimension.Width);
-            node.setLayoutDimension(
-                node.getLayout().measuredDimension(Dimension.Height),
+            node.SetLayoutDimension(
+                node.GetLayout().MeasuredDimension(Dimension.Height),
                 Dimension.Height);
 
-            node.setHasNewLayout(true);
-            node.setDirty(false);
+            node.SetHasNewLayout(true);
+            node.SetDirty(false);
         }
 
-        layout.generationCount = generationCount;
+        layout.GenerationCount = generationCount;
 
         LayoutType layoutType;
         if (performLayout)
         {
-            layoutType = !needToVisitNode && cachedResults == layout.cachedLayout
+            layoutType = !needToVisitNode && cachedResults == layout.CachedLayout
                 ? LayoutType.kCachedLayout
                 : LayoutType.kLayout;
         }
@@ -1822,7 +1811,7 @@ namespace Facebook.Yoga
         {
             layoutType = cachedResults != null ? LayoutType.kCachedMeasure : LayoutType.kMeasure;
         }
-        Event.publish<Event.NodeLayout>(node, new Event.NodeLayout(layoutType));
+        // TODO: Event.Publish for NodeLayout
 
         return (needToVisitNode || cachedResults == null);
     }
@@ -1833,7 +1822,7 @@ namespace Facebook.Yoga
         float ownerHeight,
         Direction ownerDirection)
     {
-        Event.publish<Event.LayoutPassStart>(node, null);
+        // TODO: Event.Publish for LayoutPassStart
         LayoutData markerData = new LayoutData();
 
         // Increment the generation count. This will force the recursive routine to
@@ -1844,7 +1833,7 @@ namespace Facebook.Yoga
         Direction direction = node.resolveDirection(ownerDirection);
         float width = YogaGlobal.YGUndefined;
         SizingMode widthSizingMode = SizingMode.MaxContent;
-        YogaStyle style = node.getStyle();
+        YogaStyle style = node.Style;
         if (node.hasDefiniteLength(Dimension.Width, ownerWidth))
         {
             width =
@@ -1854,7 +1843,7 @@ namespace Facebook.Yoga
                          ownerWidth,
                          ownerWidth)
                      .unwrap() +
-                 node.getStyle().computeMarginForAxis(FlexDirection.Row, ownerWidth));
+                 node.Style.computeMarginForAxis(FlexDirection.Row, ownerWidth));
             widthSizingMode = SizingMode.StretchFit;
         }
         else if (style.resolvedMaxDimension(direction, Dimension.Width, ownerWidth, ownerWidth).isDefined())
@@ -1865,7 +1854,7 @@ namespace Facebook.Yoga
         else
         {
             width = ownerWidth;
-            widthSizingMode = yoga.isUndefined(width) ? SizingMode.MaxContent : SizingMode.StretchFit;
+            widthSizingMode = Comparison.IsUndefined(width) ? SizingMode.MaxContent : SizingMode.StretchFit;
         }
 
         float height = YogaGlobal.YGUndefined;
@@ -1879,7 +1868,7 @@ namespace Facebook.Yoga
                          ownerHeight,
                          ownerWidth)
                      .unwrap() +
-                 node.getStyle().computeMarginForAxis(FlexDirection.Column, ownerWidth));
+                 node.Style.computeMarginForAxis(FlexDirection.Column, ownerWidth));
             heightSizingMode = SizingMode.StretchFit;
         }
         else if (style.resolvedMaxDimension(direction, Dimension.Height, ownerHeight, ownerWidth).isDefined())
@@ -1890,7 +1879,7 @@ namespace Facebook.Yoga
         else
         {
             height = ownerHeight;
-            heightSizingMode = yoga.isUndefined(height) ? SizingMode.MaxContent : SizingMode.StretchFit;
+            heightSizingMode = Comparison.IsUndefined(height) ? SizingMode.MaxContent : SizingMode.StretchFit;
         }
         if (calculateLayoutInternal(
                 node,
@@ -1907,11 +1896,11 @@ namespace Facebook.Yoga
                 0, // tree root
                 (uint)gCurrentGenerationCount))
         {
-            node.setPosition(node.getLayout().direction(), ownerWidth, ownerHeight);
+            node.setPosition(node.GetLayout().direction(), ownerWidth, ownerHeight);
             roundLayoutResultsToPixelGrid(node, 0.0f, 0.0f);
         }
 
-        Event.publish<Event.LayoutPassEnd>(node, new Event.LayoutPassEnd(markerData));
+        // TODO: Event.Publish for LayoutPassEnd
     }
     }
 }

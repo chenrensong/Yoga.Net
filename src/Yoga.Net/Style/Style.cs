@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Facebook.Yoga.yoga.algorithm;
 
 namespace Facebook.Yoga
 {
@@ -11,9 +10,6 @@ namespace Facebook.Yoga
         public const float DefaultFlexGrow = 0.0f;
         public const float DefaultFlexShrink = 0.0f;
         public const float WebDefaultFlexShrink = 1.0f;
-
-        public delegate void PrintWithContextFunc(Node node, object context);
-        public delegate Node NodeCloneWithContextFunc(Node oldNode, Node owner, int childIndex, object cloneContext);
 
         private Direction _direction = Direction.Inherit;
         private FlexDirection _flexDirection = FlexDirection.Column;
@@ -451,96 +447,96 @@ namespace Facebook.Yoga
 
         public bool IsFlexStartPositionDefined(FlexDirection axis, Direction direction)
         {
-            return ComputePosition(FlexDirectionAlgorithms.FlexStartEdge(axis), direction).IsDefined;
+            return ComputePosition(axis.FlexStartEdge(), direction).IsDefined();
         }
 
         public bool IsFlexStartPositionAuto(FlexDirection axis, Direction direction)
         {
-            return ComputePosition(FlexDirectionAlgorithms.FlexStartEdge(axis), direction).IsAuto();
+            return ComputePosition(axis.FlexStartEdge(), direction).IsAuto();
         }
 
         public bool IsInlineStartPositionDefined(FlexDirection axis, Direction direction)
         {
-            return ComputePosition(FlexDirectionAlgorithms.InlineStartEdge(axis, direction), direction).IsDefined;
+            return ComputePosition(axis.InlineStartEdge(direction), direction).IsDefined();
         }
 
         public bool IsInlineStartPositionAuto(FlexDirection axis, Direction direction)
         {
-            return ComputePosition(FlexDirectionAlgorithms.InlineStartEdge(axis, direction), direction).IsAuto();
+            return ComputePosition(axis.InlineStartEdge(direction), direction).IsAuto();
         }
 
         public bool IsFlexEndPositionDefined(FlexDirection axis, Direction direction)
         {
-            return ComputePosition(FlexDirectionAlgorithms.FlexEndEdge(axis), direction).IsDefined;
+            return ComputePosition(axis.FlexEndEdge(), direction).IsDefined();
         }
 
         public bool IsFlexEndPositionAuto(FlexDirection axis, Direction direction)
         {
-            return ComputePosition(FlexDirectionAlgorithms.FlexEndEdge(axis), direction).IsAuto();
+            return ComputePosition(axis.FlexEndEdge(), direction).IsAuto();
         }
 
         public bool IsInlineEndPositionDefined(FlexDirection axis, Direction direction)
         {
-            return ComputePosition(FlexDirectionAlgorithms.InlineEndEdge(axis, direction), direction).IsDefined;
+            return ComputePosition(axis.InlineEndEdge(direction), direction).IsDefined();
         }
 
         public bool IsInlineEndPositionAuto(FlexDirection axis, Direction direction)
         {
-            return ComputePosition(FlexDirectionAlgorithms.InlineEndEdge(axis, direction), direction).IsAuto();
+            return ComputePosition(axis.InlineEndEdge(direction), direction).IsAuto();
         }
 
         public float ComputeFlexStartPosition(FlexDirection axis, Direction direction, float axisSize)
         {
-            return ComputePosition(FlexDirectionAlgorithms.FlexStartEdge(axis), direction)
+            return ComputePosition(axis.FlexStartEdge(), direction)
                 .Resolve(axisSize)
                 .UnwrapOrDefault(0.0f);
         }
 
         public float ComputeInlineStartPosition(FlexDirection axis, Direction direction, float axisSize)
         {
-            return ComputePosition(FlexDirectionAlgorithms.InlineStartEdge(axis, direction), direction)
+            return ComputePosition(axis.InlineStartEdge(direction), direction)
                 .Resolve(axisSize)
                 .UnwrapOrDefault(0.0f);
         }
 
         public float ComputeFlexEndPosition(FlexDirection axis, Direction direction, float axisSize)
         {
-            return ComputePosition(FlexDirectionAlgorithms.FlexEndEdge(axis), direction)
+            return ComputePosition(axis.FlexEndEdge(), direction)
                 .Resolve(axisSize)
                 .UnwrapOrDefault(0.0f);
         }
 
         public float ComputeInlineEndPosition(FlexDirection axis, Direction direction, float axisSize)
         {
-            return ComputePosition(FlexDirectionAlgorithms.InlineEndEdge(axis, direction), direction)
+            return ComputePosition(axis.InlineEndEdge(direction), direction)
                 .Resolve(axisSize)
                 .UnwrapOrDefault(0.0f);
         }
 
         public float ComputeFlexStartMargin(FlexDirection axis, Direction direction, float widthSize)
         {
-            return ComputeMargin(FlexDirectionAlgorithms.FlexStartEdge(axis), direction)
+            return ComputeMargin(axis.FlexStartEdge(), direction)
                 .Resolve(widthSize)
                 .UnwrapOrDefault(0.0f);
         }
 
         public float ComputeInlineStartMargin(FlexDirection axis, Direction direction, float widthSize)
         {
-            return ComputeMargin(FlexDirectionAlgorithms.InlineStartEdge(axis, direction), direction)
+            return ComputeMargin(axis.InlineStartEdge(direction), direction)
                 .Resolve(widthSize)
                 .UnwrapOrDefault(0.0f);
         }
 
         public float ComputeFlexEndMargin(FlexDirection axis, Direction direction, float widthSize)
         {
-            return ComputeMargin(FlexDirectionAlgorithms.FlexEndEdge(axis), direction)
+            return ComputeMargin(axis.FlexEndEdge(), direction)
                 .Resolve(widthSize)
                 .UnwrapOrDefault(0.0f);
         }
 
         public float ComputeInlineEndMargin(FlexDirection axis, Direction direction, float widthSize)
         {
-            return ComputeMargin(FlexDirectionAlgorithms.InlineEndEdge(axis, direction), direction)
+            return ComputeMargin(axis.InlineEndEdge(direction), direction)
                 .Resolve(widthSize)
                 .UnwrapOrDefault(0.0f);
         }
@@ -548,14 +544,14 @@ namespace Facebook.Yoga
         public float ComputeFlexStartBorder(FlexDirection axis, Direction direction)
         {
             return Math.Max(
-                ComputeBorder(FlexDirectionAlgorithms.FlexStartEdge(axis), direction).Resolve(0.0f).Unwrap(),
+                ComputeBorder(axis.FlexStartEdge(), direction).Resolve(0.0f).Unwrap(),
                 0.0f);
         }
 
         public float ComputeInlineStartBorder(FlexDirection axis, Direction direction)
         {
             return Math.Max(
-                ComputeBorder(FlexDirectionAlgorithms.InlineStartEdge(axis, direction), direction)
+                ComputeBorder(axis.InlineStartEdge(direction), direction)
                     .Resolve(0.0f)
                     .Unwrap(),
                 0.0f);
@@ -564,14 +560,14 @@ namespace Facebook.Yoga
         public float ComputeFlexEndBorder(FlexDirection axis, Direction direction)
         {
             return Math.Max(
-                ComputeBorder(FlexDirectionAlgorithms.FlexEndEdge(axis), direction).Resolve(0.0f).Unwrap(),
+                ComputeBorder(axis.FlexEndEdge(), direction).Resolve(0.0f).Unwrap(),
                 0.0f);
         }
 
         public float ComputeInlineEndBorder(FlexDirection axis, Direction direction)
         {
             return Math.Max(
-                ComputeBorder(FlexDirectionAlgorithms.InlineEndEdge(axis, direction), direction)
+                ComputeBorder(axis.InlineEndEdge(direction), direction)
                     .Resolve(0.0f)
                     .Unwrap(),
                 0.0f);
@@ -580,7 +576,7 @@ namespace Facebook.Yoga
         public float ComputeFlexStartPadding(FlexDirection axis, Direction direction, float widthSize)
         {
             return Math.Max(
-                ComputePadding(FlexDirectionAlgorithms.FlexStartEdge(axis), direction)
+                ComputePadding(axis.FlexStartEdge(), direction)
                     .Resolve(widthSize)
                     .Unwrap(),
                 0.0f);
@@ -589,7 +585,7 @@ namespace Facebook.Yoga
         public float ComputeInlineStartPadding(FlexDirection axis, Direction direction, float widthSize)
         {
             return Math.Max(
-                ComputePadding(FlexDirectionAlgorithms.InlineStartEdge(axis, direction), direction)
+                ComputePadding(axis.InlineStartEdge(direction), direction)
                     .Resolve(widthSize)
                     .Unwrap(),
                 0.0f);
@@ -598,7 +594,7 @@ namespace Facebook.Yoga
         public float ComputeFlexEndPadding(FlexDirection axis, Direction direction, float widthSize)
         {
             return Math.Max(
-                ComputePadding(FlexDirectionAlgorithms.FlexEndEdge(axis), direction)
+                ComputePadding(axis.FlexEndEdge(), direction)
                     .Resolve(widthSize)
                     .Unwrap(),
                 0.0f);
@@ -607,7 +603,7 @@ namespace Facebook.Yoga
         public float ComputeInlineEndPadding(FlexDirection axis, Direction direction, float widthSize)
         {
             return Math.Max(
-                ComputePadding(FlexDirectionAlgorithms.InlineEndEdge(axis, direction), direction)
+                ComputePadding(axis.InlineEndEdge(direction), direction)
                     .Resolve(widthSize)
                     .Unwrap(),
                 0.0f);
@@ -639,7 +635,7 @@ namespace Facebook.Yoga
 
         public float ComputePaddingAndBorderForDimension(Direction direction, Dimension dimension, float widthSize)
         {
-            FlexDirection flexDirectionForDimension = dimension == Dimension.Width
+            FlexDirection flexDirectionForDimension = dimension == Facebook.Yoga.Dimension.Width
                 ? FlexDirection.Row
                 : FlexDirection.Column;
 
@@ -663,34 +659,34 @@ namespace Facebook.Yoga
 
         public float ComputeGapForAxis(FlexDirection axis, float ownerSize)
         {
-            var gap = FlexDirectionAlgorithms.IsRow(axis) ? ComputeColumnGap() : ComputeRowGap();
+            var gap = axis.IsRow() ? ComputeColumnGap() : ComputeRowGap();
             return Math.Max(gap.Resolve(ownerSize).Unwrap(), 0.0f);
         }
 
         public float ComputeGapForDimension(Dimension dimension, float ownerSize)
         {
-            var gap = dimension == Dimension.Width ? ComputeColumnGap() : ComputeRowGap();
+            var gap = dimension == Facebook.Yoga.Dimension.Width ? ComputeColumnGap() : ComputeRowGap();
             return Math.Max(gap.Resolve(ownerSize).Unwrap(), 0.0f);
         }
 
         public bool FlexStartMarginIsAuto(FlexDirection axis, Direction direction)
         {
-            return ComputeMargin(FlexDirectionAlgorithms.FlexStartEdge(axis), direction).IsAuto();
+            return ComputeMargin(axis.FlexStartEdge(), direction).IsAuto();
         }
 
         public bool FlexEndMarginIsAuto(FlexDirection axis, Direction direction)
         {
-            return ComputeMargin(FlexDirectionAlgorithms.FlexEndEdge(axis), direction).IsAuto();
+            return ComputeMargin(axis.FlexEndEdge(), direction).IsAuto();
         }
 
         public bool InlineStartMarginIsAuto(FlexDirection axis, Direction direction)
         {
-            return ComputeMargin(FlexDirectionAlgorithms.InlineStartEdge(axis, direction), direction).IsAuto();
+            return ComputeMargin(axis.InlineStartEdge(direction), direction).IsAuto();
         }
 
         public bool InlineEndMarginIsAuto(FlexDirection axis, Direction direction)
         {
-            return ComputeMargin(FlexDirectionAlgorithms.InlineEndEdge(axis, direction), direction).IsAuto();
+            return ComputeMargin(axis.InlineEndEdge(direction), direction).IsAuto();
         }
 
         public override bool Equals(object obj)
@@ -754,13 +750,13 @@ namespace Facebook.Yoga
 
         private static bool NumbersEqual(StyleValueHandle lhsHandle, StyleValuePool lhsPool, StyleValueHandle rhsHandle, StyleValuePool rhsPool)
         {
-            return (lhsHandle.IsDefined() && rhsHandle.IsDefined()) ||
+            return (lhsHandle.IsDefined && rhsHandle.IsDefined) ||
                    (lhsPool.GetNumber(lhsHandle) == rhsPool.GetNumber(rhsHandle));
         }
 
         private static bool LengthsEqual(StyleValueHandle lhsHandle, StyleValuePool lhsPool, StyleValueHandle rhsHandle, StyleValuePool rhsPool)
         {
-            return (lhsHandle.IsDefined() && rhsHandle.IsDefined()) ||
+            return (lhsHandle.IsDefined && rhsHandle.IsDefined) ||
                    (lhsPool.GetLength(lhsHandle) == rhsPool.GetLength(rhsHandle));
         }
 

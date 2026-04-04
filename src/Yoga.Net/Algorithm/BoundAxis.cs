@@ -4,9 +4,7 @@
 // LICENSE file in the root directory of this source tree.
 
 using System;
-using Facebook.Yoga;
-
-namespace Facebook.Yoga.Algorithm
+namespace Facebook.Yoga
 {
     internal static class BoundAxis
     {
@@ -31,12 +29,12 @@ namespace Facebook.Yoga.Algorithm
             FloatOptional min;
             FloatOptional max;
 
-            if (FlexDirectionHelper.IsColumn(axis))
+            if (axis.IsColumn())
             {
                 min = node.Style.ResolvedMinDimension(direction, Dimension.Height, axisSize, widthSize);
                 max = node.Style.ResolvedMaxDimension(direction, Dimension.Height, axisSize, widthSize);
             }
-            else if (FlexDirectionHelper.IsRow(axis))
+            else if (axis.IsRow())
             {
                 min = node.Style.ResolvedMinDimension(direction, Dimension.Width, axisSize, widthSize);
                 max = node.Style.ResolvedMaxDimension(direction, Dimension.Width, axisSize, widthSize);

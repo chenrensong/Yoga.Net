@@ -3,9 +3,7 @@
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 
-using Facebook.Yoga;
-
-namespace Facebook.Yoga.Algorithm
+namespace Facebook.Yoga
 {
     public static class TrailingPosition
     {
@@ -18,8 +16,8 @@ namespace Facebook.Yoga.Algorithm
             Node containingNode,
             Node node)
         {
-            return containingNode.Layout.MeasuredDimension(FlexDirectionUtil.Dimension(axis)) -
-                node.Layout.MeasuredDimension(FlexDirectionUtil.Dimension(axis)) - position;
+            return containingNode.Layout.MeasuredDimension(axis.Dimension()) -
+                node.Layout.MeasuredDimension(axis.Dimension()) - position;
         }
 
         public static void SetChildTrailingPosition(
@@ -29,11 +27,11 @@ namespace Facebook.Yoga.Algorithm
         {
             child.SetLayoutPosition(
                 GetPositionOfOppositeEdge(
-                    child.Layout.Position(FlexDirectionUtil.FlexStartEdge(axis)),
+                    child.Layout.Position(axis.FlexStartEdge()),
                     axis,
                     node,
                     child),
-                FlexDirectionUtil.FlexEndEdge(axis));
+                axis.FlexEndEdge());
         }
 
         public static bool NeedsTrailingPosition(FlexDirection axis)

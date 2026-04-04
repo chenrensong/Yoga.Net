@@ -15,7 +15,7 @@ namespace Facebook.Yoga
     }
 }
 
-namespace Facebook.Yoga.Algorithm
+namespace Facebook.Yoga
 {
     public static class PixelGrid
     {
@@ -70,13 +70,13 @@ namespace Facebook.Yoga.Algorithm
             double absoluteLeft,
             double absoluteTop)
         {
-            var pointScaleFactor = (double)node.getConfig().PointScaleFactor;
+            var pointScaleFactor = (double)node.GetConfig().GetPointScaleFactor();
 
-            double nodeLeft = node.getLayout().Position(PhysicalEdge.Left);
-            double nodeTop = node.getLayout().Position(PhysicalEdge.Top);
+            double nodeLeft = node.GetLayout().Position(PhysicalEdge.Left);
+            double nodeTop = node.GetLayout().Position(PhysicalEdge.Top);
 
-            double nodeWidth = node.getLayout().Dimension(Dimension.Width);
-            double nodeHeight = node.getLayout().Dimension(Dimension.Height);
+            double nodeWidth = node.GetLayout().Dimension(Dimension.Width);
+            double nodeHeight = node.GetLayout().Dimension(Dimension.Height);
 
             double absoluteNodeLeft = absoluteLeft + nodeLeft;
             double absoluteNodeTop = absoluteTop + nodeTop;
@@ -86,13 +86,13 @@ namespace Facebook.Yoga.Algorithm
 
             if (pointScaleFactor != 0.0)
             {
-                bool textRounding = node.getNodeType() == NodeType.Text;
+                bool textRounding = node.GetNodeType() == NodeType.Text;
 
-                node.setLayoutPosition(
+                node.SetLayoutPosition(
                     RoundValueToPixelGrid(nodeLeft, pointScaleFactor, false, textRounding),
                     PhysicalEdge.Left);
 
-                node.setLayoutPosition(
+                node.SetLayoutPosition(
                     RoundValueToPixelGrid(nodeTop, pointScaleFactor, false, textRounding),
                     PhysicalEdge.Top);
 
@@ -104,7 +104,7 @@ namespace Facebook.Yoga.Algorithm
                 bool hasFractionalHeight =
                     !YogaGlobal.InexactEquals(Math.Round(scaledNodeHeight), scaledNodeHeight);
 
-                node.getLayout().SetDimension(
+                node.GetLayout().SetDimension(
                     Dimension.Width,
                     RoundValueToPixelGrid(
                         absoluteNodeRight,
@@ -114,7 +114,7 @@ namespace Facebook.Yoga.Algorithm
                     RoundValueToPixelGrid(
                         absoluteNodeLeft, pointScaleFactor, false, textRounding));
 
-                node.getLayout().SetDimension(
+                node.GetLayout().SetDimension(
                     Dimension.Height,
                     RoundValueToPixelGrid(
                         absoluteNodeBottom,
@@ -125,7 +125,7 @@ namespace Facebook.Yoga.Algorithm
                         absoluteNodeTop, pointScaleFactor, false, textRounding));
             }
 
-            foreach (Node child in node.getChildren())
+            foreach (Node child in node.GetChildren())
             {
                 RoundLayoutResultsToPixelGrid(child, absoluteNodeLeft, absoluteNodeTop);
             }

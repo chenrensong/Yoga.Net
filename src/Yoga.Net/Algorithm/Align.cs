@@ -3,9 +3,7 @@
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 
-using Facebook.Yoga;
-
-namespace Facebook.Yoga.Algorithm
+namespace Facebook.Yoga
 {
     internal static class AlignHelper
     {
@@ -16,7 +14,7 @@ namespace Facebook.Yoga.Algorithm
             : child.Style.AlignSelf;
 
         if (node.Style.Display == Display.Flex && align == Align.Baseline &&
-            FlexDirectionHelper.IsColumn(node.Style.FlexDirection))
+            node.Style.FlexDirection.IsColumn())
         {
             return Align.FlexStart;
         }

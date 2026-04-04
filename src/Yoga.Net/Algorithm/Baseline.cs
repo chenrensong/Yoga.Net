@@ -3,36 +3,32 @@
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 
-using Facebook.Yoga;
-
-namespace Facebook.Yoga.Algorithm
+namespace Facebook.Yoga
 {
     internal static class Baseline
     {
         // Calculate baseline represented as an offset from the top edge of the node.
         public static float CalculateBaseline(Node node)
         {
-            if (node.HasBaselineFunc)
+            if (node.HasBaselineFunc())
             {
-                Event.Publish(EventType.NodeBaselineStart, node);
-
+                // Event.Publish for baseline start
                 float baseline = node.Baseline(
                     node.Layout.MeasuredDimension(Dimension.Width),
                     node.Layout.MeasuredDimension(Dimension.Height));
 
-                Event.Publish(EventType.NodeBaselineEnd, node);
-
-                AssertFatal.WithNode(
+                // Event.Publish for baseline end
+                Debug.AssertFatal.AssertWithNode(
                     node,
                     !float.IsNaN(baseline),
                     "Expect custom baseline function to not return NaN");
                 return baseline;
             }
 
-            Node baselineChild = null;
+            Node? baselineChild = null;
             foreach (var child in node.GetLayoutChildren())
             {
-                if (child.LineIndex > 0)
+                if (child.GetLineIndex() > 0)
                 {
                     break;
                 }
@@ -40,8 +36,8 @@ namespace Facebook.Yoga.Algorithm
                 {
                     continue;
                 }
-                if (Align.ResolveChildAlignment(node, child) == Align.Baseline ||
-                    child.IsReferenceBaseline)
+                if (AlignHelper.ResolveChildAlignment(node, child) == Align.Baseline ||
+                    child.IsReferenceBaseline())
                 {
                     baselineChild = child;
                     break;
@@ -65,7 +61,7 @@ namespace Facebook.Yoga.Algorithm
         // Whether any of the children of this node participate in baseline alignment
         public static bool IsBaselineLayout(Node node)
         {
-            if (FlexDirection.IsColumn(node.Style.FlexDirection))
+            if (node.Style.FlexDirection.IsColumn())
             {
                 return false;
             }
