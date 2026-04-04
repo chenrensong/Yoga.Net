@@ -13,7 +13,7 @@
 
 When the Claude Code source leaked, the community discovered something interesting — Claude Code uses [Ink](https://github.com/nicksrandall/ink) as its rendering engine, and Ink relies on [Meta's Yoga](https://github.com/facebook/yoga) for layout computation. This sparked a question: what if we used AI to recreate Yoga entirely in C#?
 
-So I did. Yoga.Net is a faithful, line-by-line port of Meta's Yoga layout engine (v3.2.1) from C++ to C# — powered by AI collaboration. Every algorithm, every edge case, every test: 1:1 with the upstream implementation. The result is a production-ready Flexbox + CSS Grid layout engine for .NET, with zero external dependencies, full AOT/NativeAOT support, and 826 tests matching the original gtest suite.
+So I did. Yoga.Net is a faithful, line-by-line port of Meta's Yoga layout engine (v3.2.1) from C++ to C# — powered by AI collaboration. Every algorithm, every edge case, every test: 1:1 with the upstream implementation. The result is a production-ready Flexbox + CSS Grid layout engine for .NET, with zero external dependencies, full AOT/NativeAOT support, and 833 tests matching the original gtest suite.
 
 Just as others have rebuilt Claude Code in Rust and Python, I rebuilt the engine that powers its UI — in C#.
 
@@ -24,7 +24,7 @@ Just as others have rebuilt Claude Code in Rust and Python, I rebuilt the engine
 - **High performance** — zero reflection, zero LINQ, `Span<T>` optimizations, `AggressiveInlining` on hot paths, struct value types for reduced allocations
 - **AOT/NativeAOT compatible** — fully trimming-safe, no runtime code generation
 - **Multi-target** — supports `net8.0`, `net9.0`, `net10.0`
-- **826 tests** — comprehensive test suite mirroring the original C++ gtest tests 1:1 (35 skipped tests match upstream C++ `GTEST_SKIP()`)
+- **833 tests** — comprehensive test suite mirroring the original C++ gtest tests 1:1 (35 skipped tests match upstream C++ `GTEST_SKIP()`)
 - Measure callbacks for integrating with text measurement
 - Caching for layout performance
 - Deterministic layout (no undefined behavior from rounding)
@@ -156,11 +156,51 @@ Yoga.Net/
 │   ├── YGConfig.cs            # Public C-style Config API
 │   └── YGEnums.cs             # Public YG-prefixed enums
 ├── tests/Yoga.Net.Tests/      # xUnit v3 tests (1:1 with C++ gtest)
-└── tests/Yoga.Net.Benchmarks/ # Benchmarks (aligned with yoga/benchmark)
-    ├── SimpleBenchmark.cs     # Quick stopwatch (YGBenchmark.c)
-    ├── SyntheticBenchmark.cs  # BenchmarkDotNet JIT + NativeAOT (YGBenchmark.c)
-    ├── CaptureBenchmark.cs    # Real-world UI layouts (Benchmark.cpp)
-    └── TreeDeserializer.cs    # JSON capture tree deserialization with measure funcs
+├── tests/Yoga.Net.Benchmarks/ # Benchmarks (aligned with yoga/benchmark)
+│   ├── SimpleBenchmark.cs     # Quick stopwatch (YGBenchmark.c)
+│   ├── SyntheticBenchmark.cs  # BenchmarkDotNet JIT + NativeAOT (YGBenchmark.c)
+│   ├── CaptureBenchmark.cs    # Real-world UI layouts (Benchmark.cpp)
+│   └── TreeDeserializer.cs    # JSON capture tree deserialization with measure funcs
+├── tests/Yoga.Net.Fuzz/       # Fuzz test (port of yoga/fuzz/FuzzLayout.cpp)
+└── tests/Yoga.Net.Capture/    # Capture tool (port of yoga/capture/)
+    ├── NodeToString.cs        # Tree serialization to JSON (NodeToString.cpp)
+    └── CaptureTree.cs         # Layout + capture (CaptureTree.cpp)
+```
+
+### Verification
+
+Three tools ported from the upstream C++ yoga project validate the C# implementation:
+
+#### Fuzz Testing (port of `yoga/fuzz/FuzzLayout.cpp`)
+
+Random tree structures to verify no crashes or exceptions:
+
+```bash
+dotnet run --project tests/Yoga.Net.Fuzz/Yoga.Net.Fuzz.csproj  # 10,000 rounds
+dotnet run --project tests/Yoga.Net.Fuzz/Yoga.Net.Fuzz.csproj -- 100000 42  # custom rounds/seed
+```
+
+Result: **10,000/10,000 rounds passed** — zero exceptions.
+
+#### Capture Tool (port of `yoga/capture/`)
+
+Serialize tree state to JSON for debugging and cross-implementation comparison:
+
+```bash
+dotnet run --project tests/Yoga.Net.Capture/Yoga.Net.Capture.csproj
+dotnet run --project tests/Yoga.Net.Capture/Yoga.Net.Capture.csproj -- output.json
+```
+
+Outputs style, layout inputs, children, config, and node properties — only non-default values, matching the C++ JSON structure.
+
+#### Gentest Fixture Coverage
+
+All 25 upstream HTML fixture files (556 individual test cases) are covered:
+
+```bash
+# Cross-validated: every fixture test ID has a corresponding C# test method
+# 7 missing tests were discovered and ported from C++ generated tests
+# Total: 833 tests (626 gentest-derived + 207 unit/integration tests)
 ```
 
 ### Performance Optimizations
@@ -742,7 +782,7 @@ This is a C# port of [facebook/yoga](https://github.com/facebook/yoga) by Meta P
 
 Claude Code 源码泄露后，社区发现了一个有趣的细节 — Claude Code 使用 [Ink](https://github.com/nicksrandall/ink) 作为渲染引擎，而 Ink 底层依赖 Meta 的 [Yoga](https://github.com/facebook/yoga) 进行布局计算。这引发了一个想法：如果用 AI 把 Yoga 完整复刻成 C# 会怎样？
 
-于是我做了。Yoga.Net 是 Meta Yoga 布局引擎 (v3.2.1) 从 C++ 到 C# 的逐行忠实移植 — 由 AI 协作完成。每一个算法、每一个边界情况、每一个测试用例都与上游实现 1:1 对齐。最终成果是一个可用于生产环境的 Flexbox + CSS Grid 布局引擎，零外部依赖，完整 AOT/NativeAOT 支持，826 个测试与原始 gtest 套件完全匹配。
+于是我做了。Yoga.Net 是 Meta Yoga 布局引擎 (v3.2.1) 从 C++ 到 C# 的逐行忠实移植 — 由 AI 协作完成。每一个算法、每一个边界情况、每一个测试用例都与上游实现 1:1 对齐。最终成果是一个可用于生产环境的 Flexbox + CSS Grid 布局引擎，零外部依赖，完整 AOT/NativeAOT 支持，833 个测试与原始 gtest 套件完全匹配。
 
 就像有人用 Rust 和 Python 重新实现了 Claude Code 一样，我用 C# 重新实现了驱动其 UI 的核心引擎。
 
@@ -753,7 +793,7 @@ Claude Code 源码泄露后，社区发现了一个有趣的细节 — Claude Co
 - **高性能** — 零反射、零 LINQ、`Span<T>` 优化、热路径 `AggressiveInlining`、值类型结构体减少内存分配
 - **AOT/NativeAOT 兼容** — 完全支持裁剪，无运行时代码生成
 - **多目标框架** — 支持 `net8.0`、`net9.0`、`net10.0`
-- **826 个测试** — 与原始 C++ gtest 测试 1:1 对齐的完整测试套件（35 个跳过的测试对应上游 C++ `GTEST_SKIP()`）
+- **833 个测试** — 与原始 C++ gtest 测试 1:1 对齐的完整测试套件（35 个跳过的测试对应上游 C++ `GTEST_SKIP()`）
 - 测量回调，可与文本测量集成
 - 布局缓存提升性能
 - 确定性布局（舍入无未定义行为）
@@ -885,11 +925,51 @@ Yoga.Net/
 │   ├── YGConfig.cs            # 公共 C 风格 Config API
 │   └── YGEnums.cs             # 公共 YG 前缀枚举
 ├── tests/Yoga.Net.Tests/      # xUnit v3 测试（与 C++ gtest 1:1）
-└── tests/Yoga.Net.Benchmarks/ # 基准测试（与 yoga/benchmark 对齐）
-    ├── SimpleBenchmark.cs     # 快速计时器（YGBenchmark.c）
-    ├── SyntheticBenchmark.cs  # BenchmarkDotNet JIT + NativeAOT（YGBenchmark.c）
-    ├── CaptureBenchmark.cs    # 真实世界 UI 布局（Benchmark.cpp）
-    └── TreeDeserializer.cs    # JSON capture 树反序列化（含测量函数）
+├── tests/Yoga.Net.Benchmarks/ # 基准测试（与 yoga/benchmark 对齐）
+│   ├── SimpleBenchmark.cs     # 快速计时器（YGBenchmark.c）
+│   ├── SyntheticBenchmark.cs  # BenchmarkDotNet JIT + NativeAOT（YGBenchmark.c）
+│   ├── CaptureBenchmark.cs    # 真实世界 UI 布局（Benchmark.cpp）
+│   └── TreeDeserializer.cs    # JSON capture 树反序列化（含测量函数）
+├── tests/Yoga.Net.Fuzz/       # 模糊测试（移植自 yoga/fuzz/FuzzLayout.cpp）
+└── tests/Yoga.Net.Capture/    # 捕获工具（移植自 yoga/capture/）
+    ├── NodeToString.cs        # 树序列化为 JSON（NodeToString.cpp）
+    └── CaptureTree.cs         # 布局 + 捕获（CaptureTree.cpp）
+```
+
+### 验证
+
+从上游 C++ yoga 项目移植了三个验证工具来验证 C# 实现的正确性：
+
+#### 模糊测试（移植自 `yoga/fuzz/FuzzLayout.cpp`）
+
+随机树结构验证不会崩溃或抛出异常：
+
+```bash
+dotnet run --project tests/Yoga.Net.Fuzz/Yoga.Net.Fuzz.csproj  # 默认 10,000 轮
+dotnet run --project tests/Yoga.Net.Fuzz/Yoga.Net.Fuzz.csproj -- 100000 42  # 自定义轮数/种子
+```
+
+结果：**10,000/10,000 轮通过** — 零异常。
+
+#### 捕获工具（移植自 `yoga/capture/`）
+
+将树状态序列化为 JSON，用于调试和跨实现对比：
+
+```bash
+dotnet run --project tests/Yoga.Net.Capture/Yoga.Net.Capture.csproj
+dotnet run --project tests/Yoga.Net.Capture/Yoga.Net.Capture.csproj -- output.json
+```
+
+输出样式、布局输入、子节点、配置和节点属性 — 仅输出非默认值，与 C++ JSON 结构一致。
+
+#### Gentest Fixture 覆盖
+
+所有 25 个上游 HTML fixture 文件（556 个独立测试用例）均已覆盖：
+
+```bash
+# 交叉验证：每个 fixture 测试 ID 都有对应的 C# 测试方法
+# 发现并移植了 7 个遗漏的测试（来自 C++ 生成测试）
+# 总计：833 个测试（626 个 gentest 派生 + 207 个单元/集成测试）
 ```
 
 ### 性能优化
