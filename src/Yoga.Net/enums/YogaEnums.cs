@@ -35,7 +35,11 @@ namespace Facebook.Yoga
         {
             if (typeof(TEnum) == typeof(Align))
             {
-                return 9;
+                return 11;
+            }
+            if (typeof(TEnum) == typeof(BoxSizing))
+            {
+                return 2;
             }
             if (typeof(TEnum) == typeof(Dimension))
             {
@@ -47,7 +51,7 @@ namespace Facebook.Yoga
             }
             if (typeof(TEnum) == typeof(Display))
             {
-                return 2;
+                return 4;
             }
             if (typeof(TEnum) == typeof(Edge))
             {
@@ -69,13 +73,17 @@ namespace Facebook.Yoga
             {
                 return 3;
             }
+            if (typeof(TEnum) == typeof(GridTrackType))
+            {
+                return 5;
+            }
             if (typeof(TEnum) == typeof(Justify))
             {
-                return 6;
+                return 10;
             }
             if (typeof(TEnum) == typeof(LogLevel))
             {
-                return 5;
+                return 6;
             }
             if (typeof(TEnum) == typeof(MeasureMode))
             {
@@ -91,11 +99,11 @@ namespace Facebook.Yoga
             }
             if (typeof(TEnum) == typeof(PositionType))
             {
-                return 2;
+                return 3;
             }
             if (typeof(TEnum) == typeof(Unit))
             {
-                return 5;
+                return 7;
             }
             if (typeof(TEnum) == typeof(Wrap))
             {
