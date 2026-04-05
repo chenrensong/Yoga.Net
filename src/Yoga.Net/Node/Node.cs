@@ -548,10 +548,7 @@ namespace Facebook.Yoga
         public void Reset()
         {
             // Asserts: children empty, owner null
-            var newNode = new Node(GetConfig());
-            // Copy state or replace this instance? 
-            // In C# we usually return a new instance or clear fields.
-            // Here we mimic the C++ assignment *this = Node{getConfig()};
+            // Mimic the C++ assignment *this = Node{getConfig()};
             
             _hasNewLayout = true;
             _isReferenceBaseline = false;
@@ -562,13 +559,18 @@ namespace Facebook.Yoga
             _measureFunc = null;
             _baselineFunc = null;
             _dirtiedFunc = null;
-            // style_ = Style(); // reset to default
-            // layout_ = LayoutResults(); // reset
+            _style = new Style();
+            _layout = new LayoutResults();
             _lineIndex = 0;
             _contentsChildrenCount = 0;
             _owner = null;
             _children.Clear();
-            // Keep config
+            _processedDimensions = new StyleSizeLength[] { StyleSizeLength.Undefined(), StyleSizeLength.Undefined() };
+
+            if (_config!.UseWebDefaults())
+            {
+                UseWebDefaults();
+            }
         }
 
         private void UseWebDefaults()

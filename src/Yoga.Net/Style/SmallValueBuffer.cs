@@ -135,7 +135,20 @@ namespace Facebook.Yoga
             }
             else
             {
-                return _overflow!.Buffer[index - BufferSizeValue];
+                if (_overflow == null)
+                {
+                    throw new InvalidOperationException(
+                        $"SmallValueBuffer.Get32: index {index} >= inline buffer size {BufferSizeValue} but overflow is null (count={_count})");
+                }
+
+                int overflowIndex = index - BufferSizeValue;
+                if (overflowIndex >= _overflow.Buffer.Count)
+                {
+                    throw new InvalidOperationException(
+                        $"SmallValueBuffer.Get32: overflow index {overflowIndex} >= overflow count {_overflow.Buffer.Count} (raw index={index}, count={_count})");
+                }
+
+                return _overflow.Buffer[overflowIndex];
             }
         }
 

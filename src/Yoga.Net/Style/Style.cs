@@ -796,13 +796,13 @@ namespace Facebook.Yoga
 
         private static bool NumbersEqual(StyleValueHandle lhsHandle, StyleValuePool lhsPool, StyleValueHandle rhsHandle, StyleValuePool rhsPool)
         {
-            return (lhsHandle.IsDefined && rhsHandle.IsDefined) ||
+            return (lhsHandle.IsUndefined && rhsHandle.IsUndefined) ||
                    (lhsPool.GetNumber(lhsHandle) == rhsPool.GetNumber(rhsHandle));
         }
 
         private static bool LengthsEqual(StyleValueHandle lhsHandle, StyleValuePool lhsPool, StyleValueHandle rhsHandle, StyleValuePool rhsPool)
         {
-            return (lhsHandle.IsDefined && rhsHandle.IsDefined) ||
+            return (lhsHandle.IsUndefined && rhsHandle.IsUndefined) ||
                    (lhsPool.GetLength(lhsHandle) == rhsPool.GetLength(rhsHandle));
         }
 
