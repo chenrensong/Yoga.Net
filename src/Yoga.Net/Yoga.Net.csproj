@@ -16,7 +16,7 @@
     <!-- NuGet Package Configuration -->
     <IsPackable>true</IsPackable>
     <PackageId>Yoga.Net</PackageId>
-    <Version>3.2.2</Version>
+    <Version>3.2.3</Version>
     <Authors>chenrensong</Authors>
     <Description>A high-performance C# port of Meta's Yoga layout engine. Implements Flexbox and CSS Grid layout with full AOT/NativeAOT support. Zero reflection, zero LINQ — designed for performance-critical scenarios.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -28,7 +28,7 @@
     <Copyright>Copyright (c) 2026 Chen Ren Song; Copyright (c) Meta Platforms, Inc. and its affiliates.</Copyright>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
-    <PackageReleaseNotes>Aligned with upstream C++ Yoga v3.2.1. 826 tests (1:1 with C++ gtest suite). Full AOT/NativeAOT compatibility. Add API reference documentation.</PackageReleaseNotes>
+    <PackageReleaseNotes>Add OrdinalCount for BoxSizing and GridTrackType enums to align with upstream C++ Yoga.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
